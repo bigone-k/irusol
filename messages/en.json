@@ -1,0 +1,126 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "confirm": "Confirm",
+    "close": "Close",
+    "coins": "Coins"
+  },
+  "character": {
+    "name": "Sprout",
+    "level": "Level",
+    "exp": "Experience",
+    "title": "Character",
+    "evolution": "Evolution",
+    "currentStage": "Current Stage",
+    "nextEvolution": "Next Evolution",
+    "statistics": "Statistics",
+    "totalTasks": "Total Completed Tasks",
+    "totalExp": "Total Experience Earned",
+    "totalCoins": "Total Coins Earned",
+    "evolutionTimeline": "Evolution Timeline",
+    "requiredLevel": "Required Level",
+    "stage": {
+      "egg": "Egg",
+      "sproutling": "Sproutling",
+      "blooming": "Blooming",
+      "fullyGrown": "Fully Grown"
+    },
+    "stageDescription": {
+      "egg": "The very first stage, starting as an egg",
+      "sproutling": "Growing into a young sprout",
+      "blooming": "Blooming beautifully",
+      "fullyGrown": "Fully matured and grown"
+    }
+  },
+  "stats": {
+    "experience": "Experience"
+  },
+  "today": {
+    "title": "Today",
+    "completed": "Completed",
+    "total": "Total",
+    "checkTask": "Check",
+    "noTasks": "No tasks yet",
+    "addTaskHint": "Tap the + button to add a new task",
+    "tasksCompleted": "Tasks Completed",
+    "todayRewards": "Today's Rewards",
+    "stats": {
+      "todayProgress": "Today's Progress",
+      "weeklySuccess": "Weekly Success Rate"
+    }
+  },
+  "tasks": {
+    "types": {
+      "habit": "Habit",
+      "todo": "To Do"
+    },
+    "difficulty": {
+      "easy": "Easy",
+      "normal": "Normal",
+      "hard": "Hard"
+    }
+  },
+  "task": {
+    "create": "Add Task",
+    "edit": "Edit Task",
+    "title": "Title",
+    "description": "Description",
+    "type": "Type",
+    "difficulty": {
+      "label": "Difficulty",
+      "easy": "Easy",
+      "normal": "Normal",
+      "hard": "Hard"
+    },
+    "types": {
+      "habit": "Habit",
+      "todo": "To Do"
+    },
+    "project": "Project",
+    "selectProject": "Select Project"
+  },
+  "goal": {
+    "title": "Goals",
+    "create": "Create Goal",
+    "progress": "Progress",
+    "duration": "Duration",
+    "months": "months"
+  },
+  "project": {
+    "title": "Projects",
+    "create": "Create Project",
+    "status": {
+      "active": "Active",
+      "done": "Done",
+      "paused": "Paused"
+    },
+    "weeks": "weeks"
+  },
+  "onboarding": {
+    "welcome": "Welcome to DoTo!",
+    "nickname": "Nickname",
+    "enterNickname": "Enter your nickname",
+    "setupGoal": "Set up your first goal (optional)",
+    "setupProject": "Set up your first project (optional)",
+    "setupHabit": "Set up your first habit (optional)",
+    "start": "Get Started"
+  },
+  "nav": {
+    "today": "Today",
+    "goals": "Goals",
+    "projects": "Projects",
+    "todos": "To-Do",
+    "character": "Character",
+    "stats": "Stats"
+  },
+  "sidebar": {
+    "language": "Language Settings"
+  }
+}
