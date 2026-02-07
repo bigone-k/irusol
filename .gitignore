@@ -28,6 +28,17 @@ yarn-error.log*
 .env*.local
 .env
 
+# security tokens and credentials
+*.token
+*.pat
+security-token
+.credentials
+.git/credentials/
+credentials/
+secrets/
+*.key
+*.secret
+
 # vercel
 .vercel
 
