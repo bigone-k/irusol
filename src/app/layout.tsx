@@ -5,13 +5,8 @@ type Props = {
   children: ReactNode;
 };
 
-// Root layout with html/body tags
+// Since we have a `[locale]` folder, this root layout only provides
+// shared resources and static elements
 export default function RootLayout({ children }: Props) {
-  return (
-    <html suppressHydrationWarning>
-      <body className="antialiased">
-        {children}
-      </body>
-    </html>
-  );
+  return children;
 }

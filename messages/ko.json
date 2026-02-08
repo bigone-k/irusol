@@ -15,19 +15,20 @@
   },
   "character": {
     "name": "새싹이",
-    "level": "단계",
+    "level": "레벨",
     "exp": "경험",
     "title": "캐릭터",
     "evolution": "자람",
-    "currentStage": "지금 단계",
+    "currentStage": "지금 레벨",
     "nextEvolution": "다음 자람",
     "statistics": "기록",
     "totalTasks": "모두 마친 작업",
     "totalExp": "모두 얻은 경험",
     "totalCoins": "모두 얻은 코인",
     "evolutionTimeline": "자람 과정",
-    "requiredLevel": "필요한 단계",
+    "requiredLevel": "필요한 레벨",
     "stage": {
+      "label": "상태",
       "egg": "알",
       "sproutling": "새싹",
       "blooming": "꽃피는 중",
@@ -125,5 +126,15 @@
   },
   "sidebar": {
     "language": "말 바꾸기"
+  },
+  "settings": {
+    "language": {
+      "title": "말 바꾸기",
+      "subtitle": "Language Settings",
+      "korean": "한국어",
+      "english": "English",
+      "info": "말을 바꾸면 바로 적용돼요.",
+      "infoEnglish": "Language changes will be applied immediately."
+    }
   }
 }

@@ -28,6 +28,7 @@
     "evolutionTimeline": "Evolution Timeline",
     "requiredLevel": "Required Level",
     "stage": {
+      "label": "Stage",
       "egg": "Egg",
       "sproutling": "Sproutling",
       "blooming": "Blooming",
@@ -125,5 +126,15 @@
   },
   "sidebar": {
     "language": "Language Settings"
+  },
+  "settings": {
+    "language": {
+      "title": "Language Settings",
+      "subtitle": "언어 설정",
+      "korean": "한국어",
+      "english": "English",
+      "info": "Language changes will be applied immediately.",
+      "infoEnglish": "말을 바꾸면 바로 적용돼요."
+    }
   }
 }

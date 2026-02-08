@@ -3,7 +3,6 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
-import Script from 'next/script';
 import TopAppBar from '@/components/TopAppBar';
 import BottomNavigation from '@/components/BottomNavigation';
 
@@ -30,38 +29,33 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  const messages = await getMessages();
+  const messages = await getMessages({ locale });
 
   return (
-    <>
-      <Script
-        id="set-locale"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `document.documentElement.lang = '${locale}';`,
-        }}
-      />
-      <NextIntlClientProvider messages={messages}>
-        <div className="flex flex-col min-h-screen">
-          {/* Top App Bar - sticky */}
-          <TopAppBar
-            title="DoTo"
-            showMenu={true}
-            showSearch={true}
-            showAdd={false}
-          />
+    <html lang={locale} suppressHydrationWarning>
+      <body className="antialiased">
+        <NextIntlClientProvider messages={messages}>
+          <div className="flex flex-col min-h-screen">
+            {/* Top App Bar - sticky */}
+            <TopAppBar
+              title="DoTo"
+              showMenu={true}
+              showSearch={true}
+              showAdd={false}
+            />
 
-          {/* Main Content - scrollable */}
-          <main className="flex-1 overflow-y-auto bg-gradient-to-b from-purple-50 to-blue-50">
-            <div className="max-w-md mx-auto pb-20">
-              {children}
-            </div>
-          </main>
+            {/* Main Content - scrollable */}
+            <main className="flex-1 overflow-y-auto bg-gradient-to-b from-purple-50 to-blue-50">
+              <div className="max-w-md mx-auto pb-20">
+                {children}
+              </div>
+            </main>
 
-          {/* Bottom Navigation - fixed */}
-          <BottomNavigation />
-        </div>
-      </NextIntlClientProvider>
-    </>
+            {/* Bottom Navigation - fixed */}
+            <BottomNavigation />
+          </div>
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 }

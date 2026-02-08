@@ -1,22 +1,25 @@
 "use client";
 
-import { useLocale } from "next-intl";
-import { useRouter, usePathname } from "@/i18n/routing";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
+import { useParams } from "next/navigation";
 import { FiGlobe, FiCheck } from "react-icons/fi";
 import { motion } from "framer-motion";
 
 export default function LanguageSettingsPage() {
+  const t = useTranslations("settings.language");
   const locale = useLocale();
+  const params = useParams();
+  const currentLocale = (params.locale as string) || locale;
   const router = useRouter();
-  const pathname = usePathname();
 
   const languages = [
-    { code: "ko", name: "한국어", nativeName: "한국어" },
-    { code: "en", name: "English", nativeName: "English" },
+    { code: "ko", key: "korean" },
+    { code: "en", key: "english" },
   ];
 
   const handleLanguageChange = (newLocale: "ko" | "en") => {
-    router.replace(pathname, { locale: newLocale });
+    router.replace('/settings/language', { locale: newLocale });
   };
 
   return (
@@ -27,15 +30,15 @@ export default function LanguageSettingsPage() {
           <FiGlobe className="text-purple-600" size={24} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">언어 설정</h1>
-          <p className="text-sm text-gray-600">Language Settings</p>
+          <h1 className="text-2xl font-bold text-gray-800">{t("title")}</h1>
+          <p className="text-sm text-gray-600">{t("subtitle")}</p>
         </div>
       </div>
 
       {/* Language Options */}
       <div className="space-y-3">
         {languages.map((language, index) => {
-          const isActive = locale === language.code;
+          const isActive = currentLocale === language.code;
 
           return (
             <motion.button
@@ -62,8 +65,8 @@ export default function LanguageSettingsPage() {
                   />
                 </div>
                 <div className="text-left">
-                  <p className="font-bold text-gray-800">{language.nativeName}</p>
-                  <p className="text-sm text-gray-600">{language.name}</p>
+                  <p className="font-bold text-gray-800">{t(language.key)}</p>
+                  <p className="text-sm text-gray-600">{t(language.key)}</p>
                 </div>
               </div>
 
@@ -84,10 +87,10 @@ export default function LanguageSettingsPage() {
       {/* Info */}
       <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <p className="text-sm text-blue-800">
-          💡 언어를 변경하면 즉시 적용됩니다.
+          💡 {t("info")}
         </p>
         <p className="text-sm text-blue-800 mt-1">
-          💡 Language changes will be applied immediately.
+          💡 {t("infoEnglish")}
         </p>
       </div>
     </div>

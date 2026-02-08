@@ -43,31 +43,51 @@ export default function PlayerDashboard() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-lg p-4 border-2 border-purple-200"
+        className="bg-white rounded-2xl shadow-lg p-6 border-2 border-purple-200"
       >
-        <div className="flex gap-4">
-          {/* Left: Avatar Box */}
-          <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-            <Image
-              src={getStageImagePath(displayStage)}
-              alt={t(`character.stage.${displayStage}`)}
-              width={80}
-              height={80}
-              className="object-contain"
-            />
+        <div className="flex gap-6">
+          {/* Left: Avatar + Stage Badge */}
+          <div className="flex flex-col items-center gap-2 flex-shrink-0">
+            <div className="w-32 h-32 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center overflow-hidden border-2 border-purple-200">
+              <Image
+                src={getStageImagePath(displayStage)}
+                alt={t(`character.stage.${displayStage}`)}
+                width={100}
+                height={100}
+                className="object-contain"
+              />
+            </div>
+            <div className="px-4 py-1.5 bg-pink-100 rounded-full">
+              <span className="text-sm font-semibold text-pink-700">
+                {t("character.stage.label")}: {t(`character.stage.${displayStage}`)}
+              </span>
+            </div>
           </div>
 
           {/* Right: Stats */}
-          <div className="flex-1 flex flex-col justify-between min-w-0">
+          <div className="flex-1 flex flex-col gap-3">
+            {/* Level Title */}
+            <div className="text-center">
+              <h2 className="text-2xl font-black text-gray-800 tracking-wider">
+                {t("character.level").toUpperCase()} {displayLevel}
+              </h2>
+            </div>
+
+            {/* Coins */}
+            <div className="flex items-center gap-2 justify-end">
+              <GiCrownCoin className="text-yellow-600 text-xl" />
+              <span className="font-bold text-gray-800">{displayCoins}</span>
+            </div>
+            
             {/* Health Bar */}
             <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-red-600 font-medium">❤️ {t("stats.health")}</span>
-                <span className="font-semibold text-gray-700">50 / 50</span>
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-sm font-semibold text-gray-700">{t("stats.health")}</span>
+                <span className="text-xs text-gray-600">50 / 50</span>
               </div>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-6 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
                 <div
-                  className="h-full bg-red-500 rounded-full transition-all"
+                  className="h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full transition-all"
                   style={{ width: `${healthPercent}%` }}
                 />
               </div>
@@ -75,30 +95,19 @@ export default function PlayerDashboard() {
 
             {/* Experience Bar */}
             <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-yellow-600 font-medium">⭐ {t("stats.experience")}</span>
-                <span className="font-semibold text-gray-700">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-sm font-semibold text-gray-700">{t("character.exp")}</span>
+                <span className="text-xs text-gray-600">
                   {displayExperience} / {displayMaxExperience}
                 </span>
               </div>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-6 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
                 <motion.div
-                  className="h-full bg-yellow-500 rounded-full"
+                  className="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${expPercent}%` }}
                   transition={{ duration: 0.5 }}
                 />
-              </div>
-            </div>
-
-            {/* Level + Currency */}
-            <div className="flex justify-between items-center text-sm">
-              <span className="font-bold text-gray-800">
-                {t("character.level")} {displayLevel}
-              </span>
-              <div className="flex items-center gap-1 text-xs">
-                <GiCrownCoin className="text-yellow-600 text-base" />
-                <span className="font-semibold text-yellow-700">{displayCoins}</span>
               </div>
             </div>
           </div>
