@@ -2,7 +2,7 @@
 
 import PlayerDashboard from "@/components/PlayerDashboard";
 import TaskList from "@/components/TaskList";
-import AddTaskButton from "@/components/AddTaskButton";
+import FloatingAddButton from "@/components/FloatingAddButton";
 
 export default function TodosPage() {
   return (
@@ -13,8 +13,8 @@ export default function TodosPage() {
       {/* Task List - All Tasks */}
       <TaskList />
 
-      {/* Add Task Button */}
-      <AddTaskButton />
+      {/* Floating Add Button */}
+      <FloatingAddButton />
     </div>
   );
 }

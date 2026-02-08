@@ -1,0 +1,273 @@
+{
+  "examples": [
+    {
+      "name": "새 기능 번역",
+      "input": {
+        "action": "translate",
+        "keys": [
+          {
+            "key": "notification.title",
+            "context": "알림 목록 페이지 제목",
+            "uiElement": "page title"
+          },
+          {
+            "key": "notification.markAsRead",
+            "context": "알림을 읽음으로 표시하는 버튼",
+            "uiElement": "button"
+          },
+          {
+            "key": "notification.empty",
+            "context": "알림이 없을 때 표시되는 메시지",
+            "uiElement": "empty state message"
+          }
+        ]
+      },
+      "output": {
+        "translations": {
+          "ko": {
+            "notification": {
+              "title": "알림",
+              "markAsRead": "읽음으로 표시",
+              "empty": "알림이 없습니다"
+            }
+          },
+          "en": {
+            "notification": {
+              "title": "Notifications",
+              "markAsRead": "Mark as Read",
+              "empty": "No notifications yet"
+            }
+          }
+        },
+        "notes": [
+          {
+            "key": "notification.title",
+            "korean": "한자어 '알림' 사용 (순수 우리말 대체어 없음)",
+            "english": "Standard UI term 'Notifications'"
+          },
+          {
+            "key": "notification.markAsRead",
+            "korean": "자연스러운 표현 '읽음으로 표시'",
+            "english": "Standard action phrase 'Mark as Read'"
+          }
+        ]
+      }
+    },
+    {
+      "name": "기존 번역 개선",
+      "input": {
+        "action": "review",
+        "translations": {
+          "ko": {
+            "task": {
+              "create": "태스크 생성",
+              "list": "태스크 리스트",
+              "filter": "필터링"
+            }
+          }
+        }
+      },
+      "output": {
+        "issues": [
+          {
+            "key": "task.create",
+            "current": "태스크 생성",
+            "suggested": "작업 만들기",
+            "reason": "외래어 '태스크' → '작업', 한자어 '생성' → 순수 우리말 '만들기'",
+            "severity": "medium"
+          },
+          {
+            "key": "task.list",
+            "current": "태스크 리스트",
+            "suggested": "작업 목록",
+            "reason": "외래어 '태스크' → '작업', 외래어 '리스트' → '목록'",
+            "severity": "medium"
+          },
+          {
+            "key": "task.filter",
+            "current": "필터링",
+            "suggested": "거르기",
+            "reason": "외래어 '필터링' → 순수 우리말 '거르기'",
+            "severity": "low"
+          }
+        ],
+        "quality_score": 40,
+        "summary": "3개 중 3개 번역에서 개선 가능"
+      }
+    },
+    {
+      "name": "일괄 번역",
+      "input": {
+        "action": "batch_translate",
+        "section": "settings",
+        "keys": [
+          "title",
+          "account",
+          "privacy",
+          "notifications",
+          "appearance",
+          "language",
+          "about",
+          "logout"
+        ],
+        "context": "앱 설정 화면의 메뉴 항목들"
+      },
+      "output": {
+        "translations": {
+          "ko": {
+            "settings": {
+              "title": "설정",
+              "account": "계정",
+              "privacy": "개인정보",
+              "notifications": "알림",
+              "appearance": "모양",
+              "language": "언어",
+              "about": "앱 정보",
+              "logout": "로그아웃"
+            }
+          },
+          "en": {
+            "settings": {
+              "title": "Settings",
+              "account": "Account",
+              "privacy": "Privacy",
+              "notifications": "Notifications",
+              "appearance": "Appearance",
+              "language": "Language",
+              "about": "About",
+              "logout": "Log Out"
+            }
+          }
+        },
+        "notes": [
+          {
+            "key": "settings.appearance",
+            "korean": "'외관' 대신 순수 우리말 '모양' 사용",
+            "english": "Standard settings term"
+          },
+          {
+            "key": "settings.logout",
+            "korean": "'로그아웃'은 일반화된 외래어로 그대로 사용",
+            "english": "Two words 'Log Out' for verb form"
+          }
+        ]
+      }
+    },
+    {
+      "name": "문맥별 다른 번역",
+      "input": {
+        "action": "translate",
+        "keys": [
+          {
+            "key": "task.complete",
+            "context": "작업을 완료하는 버튼",
+            "uiElement": "action button"
+          },
+          {
+            "key": "task.completed",
+            "context": "작업이 완료된 상태를 나타내는 라벨",
+            "uiElement": "status label"
+          },
+          {
+            "key": "task.completedCount",
+            "context": "완료된 작업 수를 표시",
+            "uiElement": "counter label"
+          }
+        ]
+      },
+      "output": {
+        "translations": {
+          "ko": {
+            "task": {
+              "complete": "완료하기",
+              "completed": "완료됨",
+              "completedCount": "완료한 작업"
+            }
+          },
+          "en": {
+            "task": {
+              "complete": "Complete",
+              "completed": "Completed",
+              "completedCount": "Tasks Completed"
+            }
+          }
+        },
+        "notes": [
+          {
+            "key": "task.complete",
+            "korean": "동작을 나타내는 '-하기' 형태",
+            "english": "Imperative verb form for button"
+          },
+          {
+            "key": "task.completed",
+            "korean": "상태를 나타내는 '-됨' 형태",
+            "english": "Past participle for status"
+          },
+          {
+            "key": "task.completedCount",
+            "korean": "과거형 '완료한' + 명사 '작업'",
+            "english": "Noun phrase with past participle"
+          }
+        ]
+      }
+    },
+    {
+      "name": "조사 처리",
+      "input": {
+        "action": "translate",
+        "keys": [
+          {
+            "key": "message.taskDeleted",
+            "context": "작업 삭제 완료 메시지",
+            "uiElement": "toast message"
+          },
+          {
+            "key": "message.goalDeleted",
+            "context": "목표 삭제 완료 메시지",
+            "uiElement": "toast message"
+          },
+          {
+            "key": "message.levelUp",
+            "context": "레벨업 축하 메시지",
+            "uiElement": "modal message"
+          }
+        ]
+      },
+      "output": {
+        "translations": {
+          "ko": {
+            "message": {
+              "taskDeleted": "작업을 지웠습니다",
+              "goalDeleted": "목표를 지웠습니다",
+              "levelUp": "레벨이 올랐습니다!"
+            }
+          },
+          "en": {
+            "message": {
+              "taskDeleted": "Task deleted",
+              "goalDeleted": "Goal deleted",
+              "levelUp": "Level Up!"
+            }
+          }
+        },
+        "notes": [
+          {
+            "key": "message.taskDeleted",
+            "korean": "'작업'은 받침이 있어 '을' 사용, 존댓말 '-습니다'",
+            "english": "Simple past tense"
+          },
+          {
+            "key": "message.goalDeleted",
+            "korean": "'목표'는 받침이 있어 '를' 사용",
+            "english": "Consistent with taskDeleted"
+          },
+          {
+            "key": "message.levelUp",
+            "korean": "'레벨'은 받침이 없어 '이' 사용, 축하 메시지로 느낌표 추가",
+            "english": "Exclamation mark for celebration"
+          }
+        ]
+      }
+    }
+  ]
+}

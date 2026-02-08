@@ -9,7 +9,7 @@ export default function BottomNavigation() {
   const t = useTranslations();
 
   const tabs = [
-    { id: "goals", label: t("nav.goals"), icon: FiTarget, href: "/" },
+    { id: "goals", label: t("nav.goals"), icon: FiTarget, href: "/goals" },
     { id: "projects", label: t("nav.projects"), icon: FiBriefcase, href: "/projects" },
     { id: "today", label: t("nav.today"), icon: FiCheckCircle, href: "/today" },
     { id: "todos", label: t("nav.todos"), icon: FiList, href: "/todos" },

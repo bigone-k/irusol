@@ -10,7 +10,8 @@
     "skip": "Skip",
     "confirm": "Confirm",
     "close": "Close",
-    "coins": "Coins"
+    "coins": "Coins",
+    "selectPlaceholder": "Please select"
   },
   "character": {
     "name": "Sprout",
@@ -40,6 +41,7 @@
     }
   },
   "stats": {
+    "health": "Health",
     "experience": "Experience"
   },
   "today": {
@@ -84,7 +86,8 @@
       "todo": "To Do"
     },
     "project": "Project",
-    "selectProject": "Select Project"
+    "selectProject": "Select Project",
+    "selectGoalFirst": "Please select a goal first"
   },
   "goal": {
     "title": "Goals",

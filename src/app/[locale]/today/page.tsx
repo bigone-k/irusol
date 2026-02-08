@@ -3,7 +3,7 @@
 import PlayerDashboard from "@/components/PlayerDashboard";
 import ObjectiveCard from "@/components/ObjectiveCard";
 import TaskList from "@/components/TaskList";
-import AddTaskButton from "@/components/AddTaskButton";
+import FloatingAddButton from "@/components/FloatingAddButton";
 import Onboarding from "@/components/Onboarding";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 
@@ -28,8 +28,8 @@ export default function Home() {
       {/* Task List */}
       <TaskList />
 
-      {/* Add Task Button */}
-      <AddTaskButton />
+      {/* Floating Add Button */}
+      <FloatingAddButton />
     </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { FiMenu, FiSearch, FiPlus, FiChevronLeft } from "react-icons/fi";
-import LanguageSwitcher from "./LanguageSwitcher";
 import Sidebar from "./Sidebar";
 
 interface TopAppBarProps {
@@ -59,7 +58,6 @@ export default function TopAppBar({
 
         {/* Right Section */}
         <div className="flex items-center gap-2">
-          <LanguageSwitcher />
         </div>
       </div>
     </header>

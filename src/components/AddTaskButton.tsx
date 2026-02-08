@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTaskStore } from "@/store/useTaskStore";
 import { useGoalStore } from "@/store/useGoalStore";
 import { useProjectStore } from "@/store/useProjectStore";
@@ -9,9 +9,32 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 import type { Difficulty } from "@/types";
 
-export default function AddTaskButton() {
+type AddTaskButtonProps = {
+  hideButton?: boolean;
+  externalIsOpen?: boolean;
+  onExternalClose?: () => void;
+};
+
+export default function AddTaskButton({
+  hideButton = false,
+  externalIsOpen,
+  onExternalClose,
+}: AddTaskButtonProps = {}) {
   const t = useTranslations();
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+
+  // Use external control if provided, otherwise use internal state
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = onExternalClose !== undefined ? (value: boolean) => {
+    if (!value) onExternalClose();
+  } : setInternalIsOpen;
+
+  // Auto-open when externalIsOpen becomes true
+  useEffect(() => {
+    if (externalIsOpen) {
+      setInternalIsOpen(true);
+    }
+  }, [externalIsOpen]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<"habit" | "todo">("habit");
@@ -30,15 +53,15 @@ export default function AddTaskButton() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim() || !goalId || !projectId) return;
 
     addTask({
       title: title.trim(),
       description: description.trim(),
       type,
       difficulty,
-      goalId: goalId || undefined,
-      projectId: projectId || undefined,
+      goalId,
+      projectId,
     });
 
     // Reset form
@@ -54,14 +77,16 @@ export default function AddTaskButton() {
   return (
     <>
       {/* Floating Action Button */}
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-full shadow-lg flex items-center justify-center z-fab"
-      >
-        <FaPlus className="text-2xl" />
-      </motion.button>
+      {!hideButton && (
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-full shadow-lg flex items-center justify-center z-fab"
+        >
+          <FaPlus className="text-2xl" />
+        </motion.button>
+      )}
 
       {/* Modal */}
       <AnimatePresence>
@@ -96,6 +121,56 @@ export default function AddTaskButton() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* 목표 (필수) */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    {t("goal.title")} *
+                  </label>
+                  <select
+                    value={goalId}
+                    onChange={(e) => {
+                      setGoalId(e.target.value);
+                      setProjectId(""); // Reset project when goal changes
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="">{t("common.selectPlaceholder")}</option>
+                    {goals.map((goal) => (
+                      <option key={goal.id} value={goal.id}>
+                        {goal.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 프로젝트 (필수) */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    {t("project.title")} *
+                  </label>
+                  <select
+                    value={projectId}
+                    onChange={(e) => setProjectId(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    disabled={!goalId}
+                    required
+                  >
+                    <option value="">{t("common.selectPlaceholder")}</option>
+                    {filteredProjects.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.title}
+                      </option>
+                    ))}
+                  </select>
+                  {!goalId && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {t("task.selectGoalFirst")}
+                    </p>
+                  )}
+                </div>
+
+                {/* 제목 (필수) */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
                     {t("task.title")} *
@@ -110,6 +185,7 @@ export default function AddTaskButton() {
                   />
                 </div>
 
+                {/* 설명 */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
                     {t("task.description")}
@@ -123,6 +199,7 @@ export default function AddTaskButton() {
                   />
                 </div>
 
+                {/* 타입 */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
                     {t("task.type")}
@@ -137,6 +214,7 @@ export default function AddTaskButton() {
                   </select>
                 </div>
 
+                {/* 난이도 */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
                     {t("task.difficulty.label")}
@@ -154,50 +232,9 @@ export default function AddTaskButton() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    {t("goal.title")} (선택)
-                  </label>
-                  <select
-                    value={goalId}
-                    onChange={(e) => {
-                      setGoalId(e.target.value);
-                      setProjectId(""); // Reset project when goal changes
-                    }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  >
-                    <option value="">없음</option>
-                    {goals.map((goal) => (
-                      <option key={goal.id} value={goal.id}>
-                        {goal.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {goalId && filteredProjects.length > 0 && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      {t("project.title")} (선택)
-                    </label>
-                    <select
-                      value={projectId}
-                      onChange={(e) => setProjectId(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    >
-                      <option value="">없음</option>
-                      {filteredProjects.map((project) => (
-                        <option key={project.id} value={project.id}>
-                          {project.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
+                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold py-3 rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all"
                 >
                   {t("task.create")}
                 </button>

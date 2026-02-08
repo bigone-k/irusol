@@ -1,38 +1,25 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
 import { useGoalStore } from "@/store/useGoalStore";
 import { useProjectStore } from "@/store/useProjectStore";
-import { useTaskStore } from "@/store/useTaskStore";
 import { motion } from "framer-motion";
+import { FiChevronRight } from "react-icons/fi";
+import Link from "next/link";
 import PlayerDashboard from "@/components/PlayerDashboard";
 import FloatingAddButton from "@/components/FloatingAddButton";
 
-export default function ProjectsPage() {
+export default function GoalsPage() {
   const t = useTranslations();
-  const searchParams = useSearchParams();
-  const goalId = searchParams.get("goal");
-
   const goals = useGoalStore((state) => state.goals);
-  const projects = useProjectStore((state) => state.projects);
-  const toggleProject = useProjectStore((state) => state.toggleProject);
-  const tasks = useTaskStore((state) => state.tasks);
+  const toggleGoal = useGoalStore((state) => state.toggleGoal);
+  const getProjectsByGoal = useProjectStore((state) => state.getProjectsByGoal);
 
-  // Filter projects by goal if goalId is provided
-  const filteredProjects = goalId
-    ? projects.filter((p) => p.goalId === goalId)
-    : projects;
-
-  const selectedGoal = goalId
-    ? goals.find((g) => g.id === goalId)
-    : null;
-
-  const getProjectProgress = (projectId: string) => {
-    const projectTasks = tasks.filter((t) => t.projectId === projectId);
-    if (projectTasks.length === 0) return 0;
-    const completed = projectTasks.filter((t) => t.completed).length;
-    return Math.round((completed / projectTasks.length) * 100);
+  const getGoalProgress = (goalId: string) => {
+    const projects = getProjectsByGoal(goalId);
+    if (projects.length === 0) return 0;
+    const completed = projects.filter((p) => p.completed).length;
+    return Math.round((completed / projects.length) * 100);
   };
 
   return (
@@ -40,57 +27,50 @@ export default function ProjectsPage() {
       {/* Player Dashboard */}
       <PlayerDashboard />
 
-      {/* Subtitle */}
-      {selectedGoal && (
-        <p className="text-sm text-gray-600">{selectedGoal.title}</p>
-      )}
-
-      {/* Projects List */}
+      {/* Goals List */}
         <div className="space-y-3">
-          {filteredProjects.length === 0 ? (
+          {goals.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
-              <p className="text-lg">{t("project.title")} 없음</p>
-              <p className="text-sm">+ 버튼을 눌러 새로운 프로젝트를 추가하세요</p>
+              <p className="text-lg">{t("goal.title")} 없음</p>
+              <p className="text-sm">+ 버튼을 눌러 새로운 목표를 추가하세요</p>
             </div>
           ) : (
-            filteredProjects.map((project, index) => {
-              const progress = getProjectProgress(project.id);
-              const projectTasks = tasks.filter(
-                (t) => t.projectId === project.id
-              );
+            goals.map((goal, index) => {
+              const progress = getGoalProgress(goal.id);
+              const projects = getProjectsByGoal(goal.id);
 
               return (
                 <motion.div
-                  key={project.id}
+                  key={goal.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   className={`bg-white rounded-xl p-4 shadow-md border-2 ${
-                    project.completed
+                    goal.completed
                       ? "border-green-300 bg-green-50"
-                      : "border-blue-200"
+                      : "border-purple-200"
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <input
                       type="checkbox"
-                      checked={project.completed}
-                      onChange={() => toggleProject(project.id)}
-                      className="w-5 h-5 mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      checked={goal.completed}
+                      onChange={() => toggleGoal(goal.id)}
+                      className="w-5 h-5 mt-1 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                     />
                     <div className="flex-1">
                       <h3
                         className={`font-bold text-lg ${
-                          project.completed
+                          goal.completed
                             ? "line-through text-gray-500"
                             : "text-gray-800"
                         }`}
                       >
-                        {project.title}
+                        {goal.title}
                       </h3>
-                      {project.description && (
+                      {goal.description && (
                         <p className="text-sm text-gray-600 mt-1">
-                          {project.description}
+                          {goal.description}
                         </p>
                       )}
 
@@ -100,23 +80,34 @@ export default function ProjectsPage() {
                           <span className="text-gray-600">
                             {t("goal.progress")}
                           </span>
-                          <span className="text-blue-600 font-semibold">
+                          <span className="text-purple-600 font-semibold">
                             {progress}%
                           </span>
                         </div>
                         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                           <motion.div
-                            className="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
+                            className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
                             transition={{ duration: 0.5 }}
                           />
                         </div>
                         <p className="text-xs text-gray-500 mt-1">
-                          {projectTasks.filter((t) => t.completed).length} /{" "}
-                          {projectTasks.length} Tasks
+                          {projects.filter((p) => p.completed).length} /{" "}
+                          {projects.length} {t("project.title")}
                         </p>
                       </div>
+
+                      {/* View Projects Link */}
+                      {projects.length > 0 && (
+                        <Link
+                          href={`/projects?goal=${goal.id}`}
+                          className="inline-flex items-center gap-1 text-sm text-purple-600 hover:text-purple-700 mt-2"
+                        >
+                          {t("project.title")} 보기
+                          <FiChevronRight size={16} />
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </motion.div>

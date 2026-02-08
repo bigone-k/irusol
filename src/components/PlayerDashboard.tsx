@@ -6,11 +6,19 @@ import { useTaskStore } from "@/store/useTaskStore";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { getStageImagePath } from "@/lib/evolution";
+import { GiCrownCoin } from "react-icons/gi";
 import Image from "next/image";
 
 export default function PlayerDashboard() {
   const [mounted, setMounted] = useState(false);
-  const { level, experience, maxExperience, coins, stage } = usePlayerStore();
+
+  // Use selectors to ensure proper reactivity and synchronization
+  const level = usePlayerStore((state) => state.level);
+  const experience = usePlayerStore((state) => state.experience);
+  const maxExperience = usePlayerStore((state) => state.maxExperience);
+  const coins = usePlayerStore((state) => state.coins);
+  const stage = usePlayerStore((state) => state.stage);
+
   const getDailyStats = useTaskStore((state) => state.getDailyStats);
   const t = useTranslations();
 
@@ -21,7 +29,7 @@ export default function PlayerDashboard() {
   // Use default values during SSR to prevent hydration mismatch
   const displayLevel = mounted ? level : 1;
   const displayExperience = mounted ? experience : 0;
-  const displayMaxExperience = mounted ? maxExperience : 25;
+  const displayMaxExperience = mounted ? maxExperience : 100;
   const displayCoins = mounted ? coins : 0;
   const displayStage = mounted ? stage : "egg";
 
@@ -54,7 +62,7 @@ export default function PlayerDashboard() {
             {/* Health Bar */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-red-600 font-medium">❤️ Health</span>
+                <span className="text-red-600 font-medium">❤️ {t("stats.health")}</span>
                 <span className="font-semibold text-gray-700">50 / 50</span>
               </div>
               <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -68,7 +76,7 @@ export default function PlayerDashboard() {
             {/* Experience Bar */}
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-yellow-600 font-medium">⭐ Experience</span>
+                <span className="text-yellow-600 font-medium">⭐ {t("stats.experience")}</span>
                 <span className="font-semibold text-gray-700">
                   {displayExperience} / {displayMaxExperience}
                 </span>
@@ -88,9 +96,9 @@ export default function PlayerDashboard() {
               <span className="font-bold text-gray-800">
                 {t("character.level")} {displayLevel}
               </span>
-              <div className="flex gap-3 text-xs">
-                <span className="font-semibold">💎 0</span>
-                <span className="font-semibold">🪙 {displayCoins}</span>
+              <div className="flex items-center gap-1 text-xs">
+                <GiCrownCoin className="text-yellow-600 text-base" />
+                <span className="font-semibold text-yellow-700">{displayCoins}</span>
               </div>
             </div>
           </div>
@@ -99,26 +107,6 @@ export default function PlayerDashboard() {
 
       {/* Stats Bars */}
       <div className="space-y-3">
-        {/* Experience Bar */}
-        <div>
-          <div className="flex justify-between text-xs mb-1">
-            <span className="text-blue-600 font-semibold">
-              ⭐ {t("stats.experience")}
-            </span>
-            <span className="text-gray-600">
-              {displayExperience}/{displayMaxExperience}
-            </span>
-          </div>
-          <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-blue-500 to-blue-400"
-              initial={{ width: 0 }}
-              animate={{ width: `${expPercent}%` }}
-              transition={{ duration: 0.5 }}
-            />
-          </div>
-        </div>
-
         {/* Daily Statistics */}
         <div className="bg-purple-50 rounded-lg p-3 grid grid-cols-2 gap-3">
           <div>
@@ -129,9 +117,14 @@ export default function PlayerDashboard() {
           </div>
           <div>
             <p className="text-xs text-gray-600">{t("today.todayRewards")}</p>
-            <p className="text-sm font-semibold text-gray-700">
-              ⭐ {stats.totalExp} · 💰 {stats.totalCoins}
-            </p>
+            <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <span>⭐ {stats.totalExp}</span>
+              <span>·</span>
+              <span className="flex items-center gap-1">
+                <GiCrownCoin className="text-yellow-600" />
+                <span className="text-yellow-700">{stats.totalCoins}</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
