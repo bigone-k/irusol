@@ -11,6 +11,7 @@
     "confirm": "Confirm",
     "close": "Close",
     "coins": "Coins",
+    "days": "days",
     "selectPlaceholder": "Please select"
   },
   "character": {
@@ -88,24 +89,87 @@
     },
     "project": "Project",
     "selectProject": "Select Project",
-    "selectGoalFirst": "Please select a goal first"
+    "selectGoalFirst": "Please select a goal first",
+    "frequency": "Frequency",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "custom": "Custom",
+    "targetDays": "Target Days",
+    "startDate": "Start Date",
+    "reminder": "Reminder",
+    "titlePlaceholder": "Enter task title",
+    "endDate": "End Date",
+    "period": "Period",
+    "completionCount": "Completion Count",
+    "streak": "Streak",
+    "achieved": "Achieved"
+  },
+  "quest": {
+    "title": "Quests",
+    "create": "Create Quest",
+    "details": "Quest Details",
+    "empty": "No quests yet",
+    "emptyDescription": "Tap + to create a new quest"
   },
   "goal": {
     "title": "Goals",
     "create": "Create Goal",
     "progress": "Progress",
     "duration": "Duration",
-    "months": "months"
+    "months": "months",
+    "empty": "No goals yet",
+    "emptyDescription": "Tap + to create a new goal",
+    "projects": "projects",
+    "projectProgress": "Project Progress",
+    "detailTitle": "Goal Details",
+    "status": {
+      "label": "Status",
+      "notStarted": "Not Started",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "titlePlaceholder": "Enter goal title",
+    "descriptionPlaceholder": "Enter goal description",
+    "currentValue": "Current",
+    "targetValue": "Target",
+    "unit": "Unit",
+    "achievementInfo": "Achievement Info",
+    "description": "Description",
+    "connectedProjects": "Connected Projects",
+    "noProjects": "No connected projects",
+    "valueHistory": "Value History",
+    "save": "Save",
+    "deleteConfirm": "Are you sure you want to delete?",
+    "reward": {
+      "claimed": "Reward claimed"
+    }
   },
   "project": {
     "title": "Projects",
     "create": "Create Project",
     "status": {
+      "label": "Status",
+      "notStarted": "Not Started",
+      "inProgress": "In Progress",
+      "completed": "Completed",
       "active": "Active",
       "done": "Done",
       "paused": "Paused"
     },
-    "weeks": "weeks"
+    "weeks": "weeks",
+    "details": "Project Details",
+    "difficulty": "Difficulty",
+    "period": "Period",
+    "reward": "Reward",
+    "notFound": "Project not found",
+    "empty": "No projects yet",
+    "emptyDescription": "Tap + to create a new project",
+    "noTasks": "No tasks in this project",
+    "addTasksDescription": "Add tasks to get started",
+    "projects": "projects",
+    "progress": "Progress",
+    "noDescription": "No description",
+    "deleteConfirm": "Are you sure you want to delete?"
   },
   "onboarding": {
     "welcome": "Welcome to DoTo!",
@@ -126,6 +190,28 @@
   },
   "sidebar": {
     "language": "Language Settings"
+  },
+  "vision": {
+    "vision": "Vision",
+    "createVision": "Create your vision",
+    "visionDescription": "Define your long-term vision",
+    "editVision": "Edit Vision",
+    "visionTitle": "Vision Title",
+    "visionTitlePlaceholder": "e.g., Live a healthy and happy life",
+    "visionDescriptionLabel": "Vision Description",
+    "visionDescriptionPlaceholder": "Write freely about your long-term goals and dreams",
+    "saveChanges": "Save Changes",
+    "titleRequired": "Please enter a title",
+    "visionUpdated": "Vision updated successfully",
+    "visionCreated": "Vision created successfully"
+  },
+  "habit": {
+    "title": "Habits",
+    "create": "Create Habit"
+  },
+  "todo": {
+    "title": "To-Dos",
+    "create": "Create To-Do"
   },
   "settings": {
     "language": {

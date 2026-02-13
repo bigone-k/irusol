@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import TopAppBar from '@/components/TopAppBar';
 import BottomNavigation from '@/components/BottomNavigation';
+import ToastContainer from '@/components/ToastContainer';
 
 export const metadata: Metadata = {
   title: "DoTo - Goal Mate",
@@ -53,6 +54,9 @@ export default async function LocaleLayout({
 
             {/* Bottom Navigation - fixed */}
             <BottomNavigation />
+
+            {/* Toast Notifications */}
+            <ToastContainer />
           </div>
         </NextIntlClientProvider>
       </body>

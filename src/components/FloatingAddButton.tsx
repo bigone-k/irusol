@@ -18,7 +18,7 @@ export default function FloatingAddButton() {
   const getFormTypeFromPath = (): CreateOption => {
     if (pathname.includes("/goals")) return "goal";
     if (pathname.includes("/projects")) return "project";
-    return "task"; // Default: /today, /todos, and others
+    return "task"; // Default: /todos and others
   };
 
   const handleButtonClick = () => {

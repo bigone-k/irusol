@@ -89,7 +89,7 @@ export default function ProjectForm({
                 <select
                   value={goalId}
                   onChange={(e) => setGoalId(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                   required
                 >
                   <option value="">{t("task.selectProject")}</option>
@@ -110,7 +110,7 @@ export default function ProjectForm({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="예: 매일 30분 운동하기"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                   required
                   autoFocus
                 />
@@ -125,7 +125,7 @@ export default function ProjectForm({
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="프로젝트에 대한 상세 설명"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 />
               </div>
 

@@ -32,3 +32,22 @@ export function calculateCoins(difficulty: Difficulty): number {
 export function getRequiredExp(level: number): number {
   return 100 + (level - 1) * 25;
 }
+
+/**
+ * Goal reward amount
+ */
+export const GOAL_REWARD = 500;
+
+/**
+ * Project reward amount
+ */
+export const PROJECT_REWARD = 300;
+
+/**
+ * Reward claim result interface
+ */
+export interface ClaimRewardResult {
+  success: boolean;
+  coins: number;
+  message?: string;
+}

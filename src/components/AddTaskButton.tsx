@@ -139,7 +139,7 @@ export default function AddTaskButton({
                       setGoalId(e.target.value);
                       setProjectId(""); // Reset project when goal changes
                     }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                     required
                   >
                     <option value="">{t("common.selectPlaceholder")}</option>
@@ -159,7 +159,7 @@ export default function AddTaskButton({
                   <select
                     value={projectId}
                     onChange={(e) => setProjectId(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                     disabled={!goalId}
                     required
                   >
@@ -187,7 +187,7 @@ export default function AddTaskButton({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder={t("task.title")}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                     required
                   />
                 </div>
@@ -202,7 +202,7 @@ export default function AddTaskButton({
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder={t("task.description")}
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                   />
                 </div>
 
@@ -214,7 +214,7 @@ export default function AddTaskButton({
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as typeof type)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                   >
                     <option value="habit">{t("tasks.types.habit")}</option>
                     <option value="todo">{t("tasks.types.todo")}</option>
@@ -231,7 +231,7 @@ export default function AddTaskButton({
                     onChange={(e) =>
                       setDifficulty(e.target.value as Difficulty)
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                   >
                     <option value="easy">{t("task.difficulty.easy")}</option>
                     <option value="normal">{t("task.difficulty.normal")}</option>

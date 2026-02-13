@@ -11,6 +11,7 @@
     "confirm": "확인",
     "close": "닫기",
     "coins": "코인",
+    "days": "일",
     "selectPlaceholder": "골라주세요"
   },
   "character": {
@@ -88,24 +89,87 @@
     },
     "project": "프로젝트",
     "selectProject": "프로젝트 고르기",
-    "selectGoalFirst": "먼저 목표를 골라주세요"
+    "selectGoalFirst": "먼저 목표를 골라주세요",
+    "frequency": "빈도",
+    "daily": "매일",
+    "weekly": "주간",
+    "custom": "사용자 지정",
+    "targetDays": "목표 일수",
+    "startDate": "시작 날짜",
+    "reminder": "알림",
+    "titlePlaceholder": "작업 제목을 입력하세요",
+    "endDate": "종료 날짜",
+    "period": "기간",
+    "completionCount": "완료 횟수",
+    "streak": "연속",
+    "achieved": "달성"
+  },
+  "quest": {
+    "title": "퀘스트",
+    "create": "퀘스트 만들기",
+    "details": "퀘스트 자세히",
+    "empty": "퀘스트가 없습니다",
+    "emptyDescription": "+ 버튼을 눌러 새로운 퀘스트를 추가하세요"
   },
   "goal": {
     "title": "목표",
     "create": "목표 만들기",
     "progress": "나아감",
     "duration": "기간",
-    "months": "달"
+    "months": "달",
+    "empty": "목표가 없습니다",
+    "emptyDescription": "+ 버튼을 눌러 새로운 목표를 추가하세요",
+    "projects": "프로젝트",
+    "projectProgress": "프로젝트 나아감",
+    "detailTitle": "목표 자세히",
+    "status": {
+      "label": "상태",
+      "notStarted": "시작 전",
+      "inProgress": "진행 중",
+      "completed": "완료"
+    },
+    "titlePlaceholder": "목표 이름을 적어주세요",
+    "descriptionPlaceholder": "목표 설명을 적어주세요",
+    "currentValue": "지금 값",
+    "targetValue": "목표 값",
+    "unit": "단위",
+    "achievementInfo": "달성 정보",
+    "description": "설명",
+    "connectedProjects": "연결된 프로젝트",
+    "noProjects": "연결된 프로젝트가 없어요",
+    "valueHistory": "변화 기록",
+    "save": "저장하기",
+    "deleteConfirm": "정말 지우시겠어요?",
+    "reward": {
+      "claimed": "보상을 받았어요"
+    }
   },
   "project": {
     "title": "프로젝트",
     "create": "프로젝트 만들기",
     "status": {
+      "label": "상태",
+      "notStarted": "시작 전",
+      "inProgress": "진행 중",
+      "completed": "완료",
       "active": "하는 중",
       "done": "끝냄",
       "paused": "멈춤"
     },
-    "weeks": "한 주"
+    "weeks": "한 주",
+    "details": "프로젝트 자세히",
+    "difficulty": "난이도",
+    "period": "기간",
+    "reward": "보상",
+    "notFound": "프로젝트를 찾을 수 없습니다",
+    "empty": "프로젝트가 없습니다",
+    "emptyDescription": "+ 버튼을 눌러 새로운 프로젝트를 추가하세요",
+    "noTasks": "이 프로젝트에 작업이 없습니다",
+    "addTasksDescription": "작업을 추가하여 시작하세요",
+    "projects": "프로젝트",
+    "progress": "나아감",
+    "noDescription": "설명이 없습니다",
+    "deleteConfirm": "정말 지우시겠어요?"
   },
   "onboarding": {
     "welcome": "DoTo에 오신 것을 환영해요!",
@@ -126,6 +190,28 @@
   },
   "sidebar": {
     "language": "말 바꾸기"
+  },
+  "vision": {
+    "vision": "비전",
+    "createVision": "비전을 만들어보세요",
+    "visionDescription": "장기 비전을 설정하세요",
+    "editVision": "비전 수정",
+    "visionTitle": "비전 제목",
+    "visionTitlePlaceholder": "예: 건강하고 행복한 삶",
+    "visionDescriptionLabel": "비전 설명",
+    "visionDescriptionPlaceholder": "당신의 장기적인 목표와 꿈을 자유롭게 작성해보세요",
+    "saveChanges": "변경사항 저장",
+    "titleRequired": "제목을 입력해주세요",
+    "visionUpdated": "비전이 수정되었습니다",
+    "visionCreated": "비전이 생성되었습니다"
+  },
+  "habit": {
+    "title": "습관",
+    "create": "습관 만들기"
+  },
+  "todo": {
+    "title": "할 일",
+    "create": "할 일 만들기"
   },
   "settings": {
     "language": {

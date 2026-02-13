@@ -28,6 +28,17 @@ export interface RewardResult {
 }
 
 // Task Types
+export interface TaskRecurrence {
+  type: "daily" | "weekly" | "custom";
+  daysOfWeek?: number[]; // 0=Sunday, 6=Saturday
+  interval?: number;
+}
+
+export interface TaskReminder {
+  enabled: boolean;
+  time?: string; // HH:MM format
+}
+
 export interface Task {
   id: string;
   type: "habit" | "todo";
@@ -39,6 +50,40 @@ export interface Task {
   createdAt: Date;
   goalId?: string;
   projectId?: string;
+  recurrence?: TaskRecurrence;
+  targetDays?: number;
+  startDate?: Date;
+  reminder?: TaskReminder;
+
+  // 신규 필드
+  endDate?: Date;
+  frequencyTarget?: number;
+  frequencyPeriod?: "daily" | "weekly" | "monthly";
+  completionCount?: number;
+  rewardClaimed: boolean;
+}
+
+// Vision Type
+export interface Vision {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Status Types
+export type GoalStatus = "notStarted" | "inProgress" | "completed";
+export type ProjectStatus = "notStarted" | "inProgress" | "completed";
+
+// Value Change History
+export interface ValueChange {
+  id: string;
+  timestamp: Date;
+  previousValue: number;
+  newValue: number;
+  change: number; // +/- 변화량
 }
 
 // Goal & Project Types
@@ -48,6 +93,18 @@ export interface Goal {
   description: string;
   completed: boolean;
   createdAt: Date;
+  visionId?: string;
+  seasonStart?: Date;
+  seasonEnd?: Date;
+
+  // 신규 필드
+  status: GoalStatus;
+  currentValue: number;
+  targetValue: number;
+  unit: string;
+  valueHistory?: ValueChange[];
+  rewardClaimed: boolean;
+  rewardAmount: number;
 }
 
 export interface Project {
@@ -57,6 +114,15 @@ export interface Project {
   description: string;
   completed: boolean;
   createdAt: Date;
+  reward?: number;
+  startDate?: Date;
+  endDate?: Date;
+  difficulty?: "Easy" | "Normal" | "Hard";
+
+  // 신규 필드
+  status: ProjectStatus;
+  rewardClaimed: boolean;
+  rewardAmount: number;
 }
 
 // Objective Types

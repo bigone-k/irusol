@@ -81,7 +81,7 @@ export default function GoalForm({ isOpen, onClose }: GoalFormProps) {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="예: 건강한 생활 습관 만들기"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                   required
                   autoFocus
                 />
@@ -96,7 +96,7 @@ export default function GoalForm({ isOpen, onClose }: GoalFormProps) {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="목표에 대한 상세 설명"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                 />
               </div>
 

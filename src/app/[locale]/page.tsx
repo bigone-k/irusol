@@ -2,5 +2,5 @@ import { redirect } from "next/navigation";
 import { routing } from "@/i18n/routing";
 
 export default function HomePage() {
-  redirect(`/${routing.defaultLocale}/today`);
+  redirect(`/${routing.defaultLocale}/goals`);
 }
