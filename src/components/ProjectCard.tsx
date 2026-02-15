@@ -7,15 +7,16 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { FiCalendar, FiClock, FiTrendingUp } from "react-icons/fi";
 import { GiTwoCoins } from "react-icons/gi";
+import StatusBadge from "@/components/StatusBadge";
+import ProgressBar from "@/components/ProgressBar";
 import type { Project } from "@/types";
 
 interface ProjectCardProps {
   project: Project;
-  onToggle: () => void;
   locale: string;
 }
 
-export default function ProjectCard({ project, onToggle, locale }: ProjectCardProps) {
+export default function ProjectCard({ project, locale }: ProjectCardProps) {
   const t = useTranslations("project");
   const tasks = useTaskStore((state) => state.tasks);
   const goals = useGoalStore((state) => state.goals);
@@ -38,33 +39,6 @@ export default function ProjectCard({ project, onToggle, locale }: ProjectCardPr
   };
 
   const daysRemaining = getDaysRemaining();
-
-  // Get status badge properties
-  const getStatusColor = () => {
-    switch (project.status) {
-      case "notStarted":
-        return "bg-gray-200 text-gray-800 border-gray-400 shadow-sm";
-      case "inProgress":
-        return "bg-blue-500 text-white border-blue-600 shadow-md";
-      case "completed":
-        return "bg-green-500 text-white border-green-600 shadow-md";
-      default:
-        return "bg-gray-200 text-gray-800 border-gray-400 shadow-sm";
-    }
-  };
-
-  const getStatusIcon = () => {
-    switch (project.status) {
-      case "notStarted":
-        return "⏸️";
-      case "inProgress":
-        return "🔄";
-      case "completed":
-        return "✅";
-      default:
-        return "";
-    }
-  };
 
   // Format period
   const formatPeriod = () => {
@@ -91,54 +65,37 @@ export default function ProjectCard({ project, onToggle, locale }: ProjectCardPr
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        {/* Header: Title + Checkbox */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            {/* Goal Name */}
-            {goal && (
-              <p className="text-xs text-gray-500 mb-1">
-                📂 {goal.title}
-              </p>
-            )}
+        {/* Header: Title */}
+        <div className="mb-3">
+          {/* Goal Name */}
+          {goal && (
+            <p className="text-xs text-gray-500 mb-1">
+              📂 {goal.title}
+            </p>
+          )}
 
-            <h3
-              className={`font-bold text-lg mb-1 ${
-                project.completed
-                  ? "line-through text-gray-500"
-                  : "text-gray-800"
-              }`}
-            >
-              {project.title}
-            </h3>
+          <h3
+            className={`font-bold text-lg mb-1 ${
+              project.completed
+                ? "line-through text-gray-500"
+                : "text-gray-800"
+            }`}
+          >
+            {project.title}
+          </h3>
 
-            {/* Period */}
-            {formatPeriod() && (
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <FiCalendar size={12} />
-                <span>{formatPeriod()}</span>
-              </div>
-            )}
-          </div>
-
-          <input
-            type="checkbox"
-            checked={project.completed}
-            onChange={(e) => {
-              e.preventDefault();
-              onToggle();
-            }}
-            onClick={(e) => e.stopPropagation()}
-            className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0"
-          />
+          {/* Period */}
+          {formatPeriod() && (
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <FiCalendar size={12} />
+              <span>{formatPeriod()}</span>
+            </div>
+          )}
         </div>
 
         {/* Status Badge */}
         <div className="mb-3">
-          <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor()}`}
-          >
-            {t(`status.${project.status}`)}
-          </span>
+          <StatusBadge status={project.status} translationKey="project" />
         </div>
 
         {/* Metadata: Coin + D-day */}
@@ -185,14 +142,12 @@ export default function ProjectCard({ project, onToggle, locale }: ProjectCardPr
           </div>
 
           {/* Progress Bar */}
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            />
-          </div>
+          <ProgressBar
+            progress={progress}
+            colorFrom="from-blue-500"
+            colorTo="to-cyan-500"
+            height="h-2"
+          />
         </div>
       </motion.div>
     </Link>

@@ -7,6 +7,7 @@ import { useGoalStore } from "@/store/useGoalStore";
 import { useToastStore } from "@/store/useToastStore";
 import { motion } from "framer-motion";
 import { FiPlus, FiMinus } from "react-icons/fi";
+import StatusBadge from "@/components/StatusBadge";
 import type { Goal } from "@/types";
 
 interface GoalCardProps {
@@ -31,32 +32,6 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
   const valueProgress = goal.targetValue > 0
     ? Math.round((goal.currentValue / goal.targetValue) * 100)
     : 0;
-
-  const getStatusColor = () => {
-    switch (goal.status) {
-      case "notStarted":
-        return "bg-gray-200 text-gray-800 border-gray-400 shadow-sm";
-      case "inProgress":
-        return "bg-blue-500 text-white border-blue-600 shadow-md";
-      case "completed":
-        return "bg-green-500 text-white border-green-600 shadow-md";
-      default:
-        return "bg-gray-200 text-gray-800 border-gray-400 shadow-sm";
-    }
-  };
-
-  const getStatusIcon = () => {
-    switch (goal.status) {
-      case "notStarted":
-        return "⏸️";
-      case "inProgress":
-        return "🔄";
-      case "completed":
-        return "✅";
-      default:
-        return "";
-    }
-  };
 
   const handleIncrement = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -109,11 +84,7 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
 
       {/* Status Badge */}
       <div className="mb-3">
-        <span
-          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor()}`}
-        >
-          {t(`status.${goal.status}`)}
-        </span>
+        <StatusBadge status={goal.status} translationKey="goal" />
       </div>
 
       {/* Value Tracker with Overlay Progress */}

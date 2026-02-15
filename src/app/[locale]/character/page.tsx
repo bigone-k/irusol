@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { FiTrendingUp, FiAward } from "react-icons/fi";
 import { GiCrownCoin } from "react-icons/gi";
 import Image from "next/image";
+import ProgressBar from "@/components/ProgressBar";
 
 export default function CharacterPage() {
   const [mounted, setMounted] = useState(false);
@@ -95,14 +96,10 @@ export default function CharacterPage() {
                   {displayExperience} / {displayMaxExperience}
                 </span>
               </div>
-              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(displayExperience / displayMaxExperience) * 100}%` }}
-                  transition={{ duration: 0.5 }}
-                />
-              </div>
+              <ProgressBar
+                progress={(displayExperience / displayMaxExperience) * 100}
+                height="h-3"
+              />
             </div>
 
             {/* Coins */}

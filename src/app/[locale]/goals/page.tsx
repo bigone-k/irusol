@@ -10,6 +10,7 @@ import GoalCard from "@/components/GoalCard";
 import GoalDetailSheet from "@/components/GoalDetailSheet";
 import VisionFormBottomSheet from "@/components/VisionFormBottomSheet";
 import FloatingAddButton from "@/components/FloatingAddButton";
+import EmptyState from "@/components/EmptyState";
 
 export default function GoalsPage() {
   const t = useTranslations();
@@ -41,10 +42,11 @@ export default function GoalsPage() {
       {/* Goals List */}
       <div className="space-y-3">
         {goals.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
-            <p className="text-lg">{t("goal.empty")}</p>
-            <p className="text-sm">{t("goal.emptyDescription")}</p>
-          </div>
+          <EmptyState
+            title={t("goal.empty")}
+            description={t("goal.emptyDescription")}
+            icon="🎯"
+          />
         ) : (
           goals.map((goal) => (
             <GoalCard
