@@ -18,16 +18,16 @@ export default function StatsBars() {
       {/* Experience Bar */}
       <div>
         <div className="flex justify-between text-xs mb-1">
-          <span className="text-blue-600 font-semibold">
+          <span className="text-primary-dark font-semibold">
             ⭐ {t("stats.experience")}
           </span>
-          <span className="text-gray-600">
+          <span className="text-text-muted">
             {experience}/{maxExperience}
           </span>
         </div>
-        <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+        <div className="h-3 bg-track rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-blue-500 to-blue-400"
+            className="h-full bg-gradient-to-r from-primary to-primary-dark"
             initial={{ width: 0 }}
             animate={{ width: `${expPercent}%` }}
             transition={{ duration: 0.5 }}
@@ -36,16 +36,16 @@ export default function StatsBars() {
       </div>
 
       {/* Daily Statistics */}
-      <div className="bg-purple-50 rounded-lg p-3 grid grid-cols-2 gap-3">
+      <div className="bg-secondary rounded-lg p-3 grid grid-cols-2 gap-3">
         <div>
-          <p className="text-xs text-gray-600">{t("today.tasksCompleted")}</p>
-          <p className="text-lg font-bold text-purple-600">
+          <p className="text-xs text-text-muted">{t("today.tasksCompleted")}</p>
+          <p className="text-lg font-bold text-primary-dark">
             {stats.completedTasks}/{stats.totalTasks}
           </p>
         </div>
         <div>
-          <p className="text-xs text-gray-600">{t("today.todayRewards")}</p>
-          <p className="text-sm font-semibold text-gray-700">
+          <p className="text-xs text-text-muted">{t("today.todayRewards")}</p>
+          <p className="text-sm font-semibold text-text">
             ⭐ {stats.totalExp} · 💰 {stats.totalCoins}
           </p>
         </div>

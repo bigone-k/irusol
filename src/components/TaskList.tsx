@@ -86,7 +86,7 @@ export default function TaskList({ activeTab }: TaskListProps) {
 
   if (filteredTasks.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-400">
+      <div className="text-center py-12 text-text-muted">
         <p className="text-lg">{t("today.noTasks")}</p>
         <p className="text-sm">{t("today.addTaskHint")}</p>
       </div>
@@ -107,10 +107,10 @@ export default function TaskList({ activeTab }: TaskListProps) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
-            className={`bg-white rounded-lg p-4 border-2 ${
-              task.completed ? "border-green-300 bg-green-50" : "border-gray-200"
+            className={`bg-background-surface rounded-lg p-4 border-2 ${
+              task.completed ? "border-accent bg-accent/10" : "border"
             } shadow-sm ${
-              celebratingTask === task.id ? "scale-105 border-yellow-400" : ""
+              celebratingTask === task.id ? "scale-105 border-accent" : ""
             }`}
           >
             <div className="flex items-start gap-3">
@@ -118,12 +118,12 @@ export default function TaskList({ activeTab }: TaskListProps) {
                 type="checkbox"
                 checked={task.completed}
                 onChange={() => handleToggle(task)}
-                className="w-6 h-6 mt-1 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                className="w-6 h-6 mt-1 rounded border text-primary focus:ring-primary"
               />
               <div className="flex-1">
                 {/* Project Name */}
                 {project && (
-                  <p className="text-xs text-gray-500 mb-1">
+                  <p className="text-xs text-text-muted mb-1">
                     📂 {project.title}
                   </p>
                 )}
@@ -131,22 +131,22 @@ export default function TaskList({ activeTab }: TaskListProps) {
                 {/* Task Title */}
                 <h4
                   className={`font-semibold ${
-                    task.completed ? "line-through text-gray-500" : "text-gray-800"
+                    task.completed ? "line-through text-text-muted" : "text-text"
                   }`}
                 >
                   {task.title}
                 </h4>
 
                 {task.description && (
-                  <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+                  <p className="text-sm text-text-muted mt-1">{task.description}</p>
                 )}
 
                 {/* Type & Difficulty Badges */}
                 <div className="flex flex-wrap gap-2 mt-2">
-                  <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700">
+                  <span className="text-xs px-2 py-1 rounded-full bg-secondary text-text">
                     {t(`tasks.types.${task.type}`)}
                   </span>
-                  <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">
+                  <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary-dark">
                     {t(`tasks.difficulty.${task.difficulty}`)}
                   </span>
                 </div>
@@ -155,17 +155,17 @@ export default function TaskList({ activeTab }: TaskListProps) {
                 {task.type === "habit" && (
                   <div className="mt-2 space-y-1">
                     {period && (
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
+                      <div className="flex items-center gap-1 text-xs text-text-muted">
                         <FiCalendar size={12} />
                         <span>{period}</span>
                       </div>
                     )}
                     {frequency && (
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
+                      <div className="flex items-center gap-1 text-xs text-text-muted">
                         <FiRepeat size={12} />
                         <span>{frequency}</span>
                         {task.completionCount !== undefined && (
-                          <span className="text-purple-600 font-semibold ml-1">
+                          <span className="text-primary-dark font-semibold ml-1">
                             ({task.completionCount}회 달성)
                           </span>
                         )}
@@ -173,7 +173,7 @@ export default function TaskList({ activeTab }: TaskListProps) {
                     )}
                     {task.streak && task.streak > 0 && (
                       <div className="flex items-center gap-1 text-xs">
-                        <span className="text-orange-600 font-semibold">
+                        <span className="text-text-muted font-semibold">
                           🔥 {task.streak}일 연속
                         </span>
                       </div>
@@ -184,7 +184,7 @@ export default function TaskList({ activeTab }: TaskListProps) {
                 {/* Todo-specific Info */}
                 {task.type === "todo" && task.endDate && (
                   <div className="mt-2 space-y-1">
-                    <div className="flex items-center gap-1 text-xs text-gray-600">
+                    <div className="flex items-center gap-1 text-xs text-text-muted">
                       <FiCalendar size={12} />
                       <span>
                         {new Date(task.endDate).toLocaleDateString("ko-KR", {
@@ -200,8 +200,8 @@ export default function TaskList({ activeTab }: TaskListProps) {
                           daysRemaining < 0
                             ? "text-red-500"
                             : daysRemaining <= 3
-                            ? "text-orange-500"
-                            : "text-gray-600"
+                            ? "text-text-muted"
+                            : "text-text-muted"
                         }`}
                       >
                         <FiClock size={12} />

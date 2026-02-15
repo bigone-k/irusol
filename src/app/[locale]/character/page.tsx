@@ -57,7 +57,7 @@ export default function CharacterPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl p-6 shadow-lg"
+          className="bg-background-surface rounded-2xl p-6 shadow-lg"
         >
           <div className="flex flex-col items-center">
             {/* Character Image */}
@@ -75,15 +75,15 @@ export default function CharacterPage() {
             </motion.div>
 
             {/* Character Name & Level */}
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            <h2 className="text-2xl font-bold text-text mb-2">
               {t("character.name")}
             </h2>
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-lg font-semibold text-purple-600">
+              <span className="text-lg font-semibold text-primary-dark">
                 {t("character.level")} {displayLevel}
               </span>
-              <span className="text-gray-400">•</span>
-              <span className="text-lg text-gray-600">
+              <span className="text-text-muted">•</span>
+              <span className="text-lg text-text-muted">
                 {t(`character.stage.${displayStage}`)}
               </span>
             </div>
@@ -91,8 +91,8 @@ export default function CharacterPage() {
             {/* Experience Bar */}
             <div className="w-full">
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-600">{t("character.exp")}</span>
-                <span className="text-purple-600 font-semibold">
+                <span className="text-text-muted">{t("character.exp")}</span>
+                <span className="text-primary-dark font-semibold">
                   {displayExperience} / {displayMaxExperience}
                 </span>
               </div>
@@ -103,10 +103,10 @@ export default function CharacterPage() {
             </div>
 
             {/* Coins */}
-            <div className="flex items-center gap-2 mt-4 px-4 py-2 bg-yellow-50 rounded-full">
-              <GiCrownCoin className="text-yellow-600 text-xl" />
-              <span className="font-bold text-yellow-700">{displayCoins}</span>
-              <span className="text-sm text-yellow-600">
+            <div className="flex items-center gap-2 mt-4 px-4 py-2 bg-secondary rounded-full">
+              <GiCrownCoin className="text-accent text-xl" />
+              <span className="font-bold text-accent">{displayCoins}</span>
+              <span className="text-sm text-accent">
                 {t("common.coins")}
               </span>
             </div>
@@ -115,7 +115,7 @@ export default function CharacterPage() {
 
         {/* Statistics */}
         <div>
-          <h3 className="text-lg font-bold text-gray-800 mb-3">
+          <h3 className="text-lg font-bold text-text mb-3">
             {t("character.statistics")}
           </h3>
           <div className="grid grid-cols-3 gap-3">
@@ -123,13 +123,13 @@ export default function CharacterPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-white rounded-xl p-4 shadow-md"
+              className="bg-background-surface rounded-xl p-4 shadow-md"
             >
-              <FiAward className="text-blue-500 text-2xl mb-2" />
-              <p className="text-2xl font-bold text-gray-800">
+              <FiAward className="text-primary-dark text-2xl mb-2" />
+              <p className="text-2xl font-bold text-text">
                 {completedTasks}
               </p>
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-xs text-text-muted mt-1">
                 {t("character.totalTasks")}
               </p>
             </motion.div>
@@ -138,11 +138,11 @@ export default function CharacterPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white rounded-xl p-4 shadow-md"
+              className="bg-background-surface rounded-xl p-4 shadow-md"
             >
-              <FiTrendingUp className="text-purple-500 text-2xl mb-2" />
-              <p className="text-2xl font-bold text-gray-800">{totalExp}</p>
-              <p className="text-xs text-gray-600 mt-1">
+              <FiTrendingUp className="text-primary-dark text-2xl mb-2" />
+              <p className="text-2xl font-bold text-text">{totalExp}</p>
+              <p className="text-xs text-text-muted mt-1">
                 {t("character.totalExp")}
               </p>
             </motion.div>
@@ -151,11 +151,11 @@ export default function CharacterPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white rounded-xl p-4 shadow-md"
+              className="bg-background-surface rounded-xl p-4 shadow-md"
             >
-              <GiCrownCoin className="text-yellow-500 text-2xl mb-2" />
-              <p className="text-2xl font-bold text-gray-800">{totalCoins}</p>
-              <p className="text-xs text-gray-600 mt-1">
+              <GiCrownCoin className="text-accent text-2xl mb-2" />
+              <p className="text-2xl font-bold text-text">{totalCoins}</p>
+              <p className="text-xs text-text-muted mt-1">
                 {t("character.totalCoins")}
               </p>
             </motion.div>
@@ -167,30 +167,30 @@ export default function CharacterPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-2xl p-6 shadow-lg"
+          className="bg-background-surface rounded-2xl p-6 shadow-lg"
         >
-          <h3 className="text-lg font-bold text-gray-800 mb-3">
+          <h3 className="text-lg font-bold text-text mb-3">
             {t("character.currentStage")}
           </h3>
           <div className="space-y-3">
             <div>
-              <p className="text-xl font-bold text-purple-600 mb-1">
+              <p className="text-xl font-bold text-primary-dark mb-1">
                 {t(`character.stage.${displayStage}`)}
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-text-muted">
                 {t(`character.stageDescription.${displayStage}`)}
               </p>
             </div>
             {nextStage && (
-              <div className="pt-3 border-t border-gray-200">
-                <p className="text-sm font-semibold text-gray-700 mb-1">
+              <div className="pt-3 border-t border">
+                <p className="text-sm font-semibold text-text mb-1">
                   {t("character.nextEvolution")}
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">
+                  <span className="text-text-muted">
                     {t(`character.stage.${nextStage.stage}`)}
                   </span>
-                  <span className="text-sm text-purple-600 font-semibold">
+                  <span className="text-sm text-primary-dark font-semibold">
                     {t("character.requiredLevel")} {nextStage.requiredLevel}
                   </span>
                 </div>
@@ -201,7 +201,7 @@ export default function CharacterPage() {
 
         {/* Evolution Timeline */}
         <div>
-          <h3 className="text-lg font-bold text-gray-800 mb-3">
+          <h3 className="text-lg font-bold text-text mb-3">
             {t("character.evolutionTimeline")}
           </h3>
           <div className="space-y-3">
@@ -215,12 +215,12 @@ export default function CharacterPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + index * 0.1 }}
-                  className={`bg-white rounded-xl p-4 shadow-md border-2 ${
+                  className={`bg-background-surface rounded-xl p-4 shadow-md border-2 ${
                     isCurrent
-                      ? "border-purple-400"
+                      ? "border-primary"
                       : isUnlocked
-                      ? "border-green-200"
-                      : "border-gray-200"
+                      ? "border-accent"
+                      : "border"
                   }`}
                 >
                   <div className="flex items-center gap-4">
@@ -242,24 +242,24 @@ export default function CharacterPage() {
                         <h4
                           className={`font-bold ${
                             isCurrent
-                              ? "text-purple-600"
+                              ? "text-primary-dark"
                               : isUnlocked
-                              ? "text-gray-800"
-                              : "text-gray-400"
+                              ? "text-text"
+                              : "text-text-muted"
                           }`}
                         >
                           {t(`character.stage.${evolutionStage.stage}`)}
                         </h4>
                         {isCurrent && (
-                          <span className="px-2 py-0.5 bg-purple-100 text-purple-600 text-xs font-semibold rounded-full">
+                          <span className="px-2 py-0.5 bg-secondary text-primary-dark text-xs font-semibold rounded-full">
                             {t("character.currentStage")}
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">
+                      <p className="text-sm text-text-muted mb-2">
                         {t(`character.stageDescription.${evolutionStage.stage}`)}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-text-muted">
                         {t("character.requiredLevel")}{" "}
                         {evolutionStage.requiredLevel}
                       </p>
@@ -268,12 +268,12 @@ export default function CharacterPage() {
                     {/* Status Icon */}
                     <div className="flex-shrink-0">
                       {isUnlocked ? (
-                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                          <FiAward className="text-green-600" />
+                        <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center">
+                          <FiAward className="text-accent" />
                         </div>
                       ) : (
-                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                          <div className="w-3 h-3 bg-gray-300 rounded-full" />
+                        <div className="w-8 h-8 bg-track rounded-full flex items-center justify-center">
+                          <div className="w-3 h-3 bg-border rounded-full" />
                         </div>
                       )}
                     </div>

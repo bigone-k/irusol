@@ -26,12 +26,12 @@ export default function LanguageSettingsPage() {
     <div className="p-4 space-y-4">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-          <FiGlobe className="text-purple-600" size={24} />
+        <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center">
+          <FiGlobe className="text-primary-dark" size={24} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">{t("title")}</h1>
-          <p className="text-sm text-gray-600">{t("subtitle")}</p>
+          <h1 className="text-2xl font-bold text-text">{t("title")}</h1>
+          <p className="text-sm text-text-muted">{t("subtitle")}</p>
         </div>
       </div>
 
@@ -49,24 +49,24 @@ export default function LanguageSettingsPage() {
               onClick={() => handleLanguageChange(language.code as "ko" | "en")}
               className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
                 isActive
-                  ? "border-purple-500 bg-purple-50"
-                  : "border-gray-200 bg-white hover:border-purple-300"
+                  ? "border-primary bg-secondary"
+                  : "border bg-background-surface hover:border"
               }`}
             >
               <div className="flex items-center gap-3">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    isActive ? "bg-purple-100" : "bg-gray-100"
+                    isActive ? "bg-secondary" : "bg-track"
                   }`}
                 >
                   <FiGlobe
-                    className={isActive ? "text-purple-600" : "text-gray-500"}
+                    className={isActive ? "text-primary-dark" : "text-text-muted"}
                     size={20}
                   />
                 </div>
                 <div className="text-left">
-                  <p className="font-bold text-gray-800">{t(language.key)}</p>
-                  <p className="text-sm text-gray-600">{t(language.key)}</p>
+                  <p className="font-bold text-text">{t(language.key)}</p>
+                  <p className="text-sm text-text-muted">{t(language.key)}</p>
                 </div>
               </div>
 
@@ -74,7 +74,7 @@ export default function LanguageSettingsPage() {
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center"
+                  className="w-8 h-8 bg-primary rounded-full flex items-center justify-center"
                 >
                   <FiCheck className="text-white" size={18} />
                 </motion.div>
@@ -85,11 +85,11 @@ export default function LanguageSettingsPage() {
       </div>
 
       {/* Info */}
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-        <p className="text-sm text-blue-800">
+      <div className="mt-6 p-4 bg-primary/5 rounded-lg border border">
+        <p className="text-sm text-primary-dark">
           💡 {t("info")}
         </p>
-        <p className="text-sm text-blue-800 mt-1">
+        <p className="text-sm text-primary-dark mt-1">
           💡 {t("infoEnglish")}
         </p>
       </div>

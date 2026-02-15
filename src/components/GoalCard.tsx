@@ -55,16 +55,16 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
 
   const getProgressColor = (progress: number) => {
     if (progress <= 30) return "bg-red-400";
-    if (progress <= 70) return "bg-yellow-400";
-    return "bg-green-400";
+    if (progress <= 70) return "bg-secondary";
+    return "bg-accent";
   };
 
   return (
     <motion.div
-      className={`bg-white rounded-2xl p-5 shadow-md border-2 transition-all cursor-pointer ${
+      className={`bg-background-surface rounded-2xl p-5 shadow-md border-2 transition-all cursor-pointer ${
         goal.completed
-          ? "border-green-300 bg-green-50"
-          : "border-purple-200"
+          ? "border-accent bg-accent/10"
+          : "border"
       }`}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
@@ -72,11 +72,11 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
     >
       {/* Header */}
       <div className="mb-3">
-        <h3 className="font-bold text-lg text-gray-800">
+        <h3 className="font-bold text-lg text-text">
           {goal.title}
         </h3>
         {goal.description && (
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-text-muted mt-1">
             {goal.description}
           </p>
         )}
@@ -88,7 +88,7 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
       </div>
 
       {/* Value Tracker with Overlay Progress */}
-      <div className="mb-3 relative rounded-lg overflow-hidden border border-gray-200">
+      <div className="mb-3 relative rounded-lg overflow-hidden border border">
         {/* Background Overlay */}
         <motion.div
           className={`absolute inset-0 ${getProgressColor(valueProgress)}`}
@@ -103,14 +103,14 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
             <div className="flex-1">
               <span
                 className={`text-sm font-bold transition-colors ${
-                  valueProgress >= 80 ? "text-white" : "text-gray-900"
+                  valueProgress >= 80 ? "text-white" : "text-text"
                 }`}
               >
                 {goal.currentValue} / {goal.targetValue} {goal.unit}
               </span>
               <span
                 className={`ml-2 text-xs font-semibold transition-colors ${
-                  valueProgress >= 80 ? "text-white/80" : "text-gray-500"
+                  valueProgress >= 80 ? "text-white/80" : "text-text-muted"
                 }`}
               >
                 ({valueProgress}%)
@@ -122,7 +122,7 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
                 whileTap={{ scale: 0.9 }}
                 onClick={handleDecrement}
                 disabled={goal.currentValue <= 0}
-                className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center border-2 border-white shadow-lg hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center border-2 border-background-surface shadow-lg hover:bg-red-600 disabled:bg-track disabled:cursor-not-allowed transition-colors"
               >
                 <FiMinus size={16} />
               </motion.button>
@@ -131,7 +131,7 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
                 whileTap={{ scale: 0.9 }}
                 onClick={handleIncrement}
                 disabled={goal.currentValue >= goal.targetValue}
-                className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center border-2 border-white shadow-lg hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center border-2 border-background-surface shadow-lg hover:bg-accent/80 disabled:bg-track disabled:cursor-not-allowed transition-colors"
               >
                 <FiPlus size={16} />
               </motion.button>
@@ -146,13 +146,13 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
           {projects.slice(0, 3).map((project) => (
             <span
               key={project.id}
-              className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded"
+              className="text-xs font-medium text-text bg-secondary px-2 py-1 rounded"
             >
               #{project.title}
             </span>
           ))}
           {projects.length > 3 && (
-            <span className="text-xs text-gray-400 font-medium">
+            <span className="text-xs text-text-muted font-medium">
               +{projects.length - 3}
             </span>
           )}

@@ -11,14 +11,14 @@ export default function ToastContainer() {
   const getToastStyles = (type: string) => {
     switch (type) {
       case "success":
-        return "bg-green-500 text-white";
+        return "bg-accent text-white";
       case "error":
         return "bg-red-500 text-white";
       case "warning":
-        return "bg-yellow-500 text-white";
+        return "bg-secondary text-white";
       case "info":
       default:
-        return "bg-blue-500 text-white";
+        return "bg-primary text-white";
     }
   };
 
@@ -56,7 +56,7 @@ export default function ToastContainer() {
             <p className="flex-1 text-sm font-medium">{toast.message}</p>
             <button
               onClick={() => removeToast(toast.id)}
-              className="flex-shrink-0 hover:bg-white/20 rounded p-1 transition-colors"
+              className="flex-shrink-0 hover:bg-background-surface/20 rounded p-1 transition-colors"
               aria-label="Close notification"
             >
               <FiX size={18} />

@@ -14,12 +14,12 @@ export default function LanguageSwitcher() {
   };
 
   return (
-    <div className="flex items-center gap-1.5 bg-purple-50 rounded-lg px-3 py-1.5 border border-purple-100">
-      <FiGlobe className="text-purple-600" size={18} />
+    <div className="flex items-center gap-1.5 bg-secondary rounded-lg px-3 py-1.5 border border">
+      <FiGlobe className="text-primary-dark" size={18} />
       <select
         value={locale}
         onChange={(e) => switchLanguage(e.target.value as 'ko' | 'en')}
-        className="bg-transparent border-none outline-none text-sm font-medium text-gray-700 cursor-pointer pr-1"
+        className="bg-transparent border-none outline-none text-sm font-medium text-text cursor-pointer pr-1"
       >
         <option value="ko">한국어</option>
         <option value="en">English</option>

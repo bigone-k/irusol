@@ -35,7 +35,7 @@ export default function ProjectsPage() {
 
       {/* Subtitle (Selected Goal) */}
       {selectedGoal && (
-        <p className="text-sm text-gray-600">{selectedGoal.title}</p>
+        <p className="text-sm text-text-muted">{selectedGoal.title}</p>
       )}
 
       {/* Projects List */}

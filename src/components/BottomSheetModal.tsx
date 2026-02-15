@@ -41,29 +41,29 @@ export default function BottomSheetModal({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-50 ${maxHeight} overflow-y-auto`}
+            className={`fixed bottom-0 left-0 right-0 bg-background-surface rounded-t-3xl shadow-2xl z-50 ${maxHeight} overflow-y-auto`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
           >
             {/* Handle Bar */}
             {showHandleBar && (
-              <div className="flex justify-center pt-3 pb-2 sticky top-0 bg-white z-10 rounded-t-3xl">
-                <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+              <div className="flex justify-center pt-3 pb-2 sticky top-0 bg-background-surface z-10 rounded-t-3xl">
+                <div className="w-12 h-1.5 bg-border rounded-full" />
               </div>
             )}
 
             {/* Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-3xl">
+            <div className="sticky top-0 bg-background-surface border-b border px-6 py-4 flex items-center justify-between rounded-t-3xl">
               <h2
                 id="modal-title"
-                className="text-xl font-bold text-gray-900"
+                className="text-xl font-bold text-text"
               >
                 {title}
               </h2>
               <button
                 onClick={onClose}
-                className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                className="w-10 h-10 rounded-full hover:bg-primary/5 flex items-center justify-center transition-colors"
                 aria-label="Close dialog"
               >
                 <FiX size={24} />

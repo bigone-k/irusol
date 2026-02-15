@@ -57,10 +57,10 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
   return (
     <Link href={`/${locale}/projects/${project.id}`}>
       <motion.div
-        className={`bg-white rounded-2xl p-5 shadow-md border-2 transition-all ${
+        className={`bg-background-surface rounded-2xl p-5 shadow-md border-2 transition-all ${
           project.completed
-            ? "border-green-300 bg-green-50"
-            : "border-blue-200"
+            ? "border-accent bg-accent/10"
+            : "border"
         }`}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
@@ -69,7 +69,7 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
         <div className="mb-3">
           {/* Goal Name */}
           {goal && (
-            <p className="text-xs text-gray-500 mb-1">
+            <p className="text-xs text-text-muted mb-1">
               📂 {goal.title}
             </p>
           )}
@@ -77,8 +77,8 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
           <h3
             className={`font-bold text-lg mb-1 ${
               project.completed
-                ? "line-through text-gray-500"
-                : "text-gray-800"
+                ? "line-through text-text-muted"
+                : "text-text"
             }`}
           >
             {project.title}
@@ -86,7 +86,7 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
 
           {/* Period */}
           {formatPeriod() && (
-            <div className="flex items-center gap-1 text-xs text-gray-500">
+            <div className="flex items-center gap-1 text-xs text-text-muted">
               <FiCalendar size={12} />
               <span>{formatPeriod()}</span>
             </div>
@@ -115,8 +115,8 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
                 daysRemaining < 0
                   ? "text-red-500"
                   : daysRemaining <= 3
-                  ? "text-orange-500"
-                  : "text-gray-600"
+                  ? "text-text-muted"
+                  : "text-text-muted"
               }`}
             >
               <FiClock size={14} />
@@ -132,11 +132,11 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
         {/* Progress Section */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-xs text-gray-600 flex items-center gap-1">
+            <span className="text-xs text-text-muted flex items-center gap-1">
               <FiTrendingUp size={12} />
               {t("progress")}
             </span>
-            <span className="text-sm font-bold text-blue-600">
+            <span className="text-sm font-bold text-primary-dark">
               {progress}%
             </span>
           </div>
@@ -144,8 +144,8 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
           {/* Progress Bar */}
           <ProgressBar
             progress={progress}
-            colorFrom="from-blue-500"
-            colorTo="to-cyan-500"
+            colorFrom="from-primary"
+            colorTo="to-primary-dark"
             height="h-2"
           />
         </div>

@@ -37,7 +37,7 @@ export default function FloatingAddButton() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={handleButtonClick}
-        className="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-full shadow-lg flex items-center justify-center z-fab"
+        className="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-br from-primary to-primary-dark text-white rounded-full shadow-lg flex items-center justify-center z-fab"
       >
         <FiPlus size={24} />
       </motion.button>

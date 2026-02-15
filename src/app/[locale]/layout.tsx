@@ -46,7 +46,7 @@ export default async function LocaleLayout({
             />
 
             {/* Main Content - scrollable */}
-            <main className="flex-1 overflow-y-auto bg-gradient-to-b from-purple-50 to-blue-50">
+            <main className="flex-1 overflow-y-auto bg-background">
               <div className="max-w-md mx-auto pb-20">
                 {children}
               </div>

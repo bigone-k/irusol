@@ -382,6 +382,125 @@ messages/ko.json의 '{section}' 섹션을 순수 우리말로 개선해주세요
 
 ---
 
+## Design System
+
+### 🎨 CRITICAL: Color System Agent Usage
+
+**모든 UI 개발은 반드시 `color-system` agent를 참조하여 Duto Mint Clean 팔레트를 사용해야 합니다.**
+
+#### Agent Location
+```
+agents/color-system/
+├── README.md              # Agent 개요
+├── prompt.md              # Agent 프롬프트 (필수 참조)
+├── color-palette.md       # Duto Mint Clean 팔레트 정의
+├── usage-guide.md         # 실전 사용 예시
+└── migration-checklist.md # 색상 마이그레이션 가이드
+```
+
+#### Duto Mint Clean Color Palette
+
+**브랜드 색상**:
+- `primary` (#7DE6C3) - 메인 브랜드 색상, 강조, 링크
+- `primary-dark` (#4FD4A8) - 호버, 그라디언트
+- `secondary` (#FFF6BF) - 보조 강조, 경고, 진행중
+- `accent` (#F19ED2) - 성공, 완료, CTA
+
+**중립 색상**:
+- `background` (#F7F9F2) - 페이지 배경
+- `background-surface` (#FFFFFF) - 카드, 모달 배경
+- `border` (#DCEEE7) - 테두리, 구분선
+- `text` (#0F172A) - 본문 텍스트
+- `text-muted` (#64748B) - 보조 텍스트
+- `track` (#E5E7EB) - 진행바 배경, 비활성
+
+#### Automatic Application Rules
+
+**언제 Agent를 참조해야 하는가?**
+- ✅ 새로운 UI 컴포넌트 개발 시
+- ✅ 페이지 레이아웃 작업 시
+- ✅ 기존 컴포넌트 수정 시
+- ✅ 색상 관련 스타일 추가 시
+- ✅ 상태 표시 UI (성공/실패/경고 등) 구현 시
+
+#### Agent Invocation Pattern
+
+작업 요청을 받으면 다음 패턴을 **자동으로** 적용:
+
+```typescript
+// 1. UI 개발 요청 수신
+// 2. color-system agent의 prompt.md 참조
+// 3. Duto Mint Clean 팔레트 사용
+// 4. 레거시 색상 절대 사용 금지
+// 5. 상태별 색상 올바르게 적용
+```
+
+#### Color Usage Examples
+
+```tsx
+// ✅ ALWAYS USE (Duto Mint Clean)
+<div className="bg-primary text-white">           // 메인 색상
+<div className="bg-accent text-white">            // 성공/완료
+<div className="bg-secondary text-text">          // 경고/진행중
+<div className="bg-background-surface border">   // 카드
+<span className="text-text">                     // 본문
+<span className="text-text-muted">               // 보조 텍스트
+<div className="bg-track">                       // 진행바 배경
+
+// ❌ NEVER USE (Legacy Colors)
+<div className="bg-purple-500">                  // 절대 금지
+<div className="bg-blue-600">                    // 절대 금지
+<div className="bg-gray-100">                    // 절대 금지
+<span className="text-green-600">                // 절대 금지
+```
+
+#### State Colors
+
+```tsx
+// ✅ 성공/완료
+className="bg-accent text-white"
+className="border-accent"
+
+// 🔄 진행중/활성
+className="bg-primary text-white"
+className="text-primary"
+
+// ⚠️ 경고/대기
+className="bg-secondary text-text"
+className="text-text-muted"
+
+// ❌ 에러 (예외적으로 red 사용 가능)
+className="bg-red-500 text-white"
+className="text-red-600"
+```
+
+#### Quality Checklist
+- [ ] color-system agent 참조
+- [ ] 레거시 색상 사용 안 함 (purple-*, blue-*, gray-* 등)
+- [ ] Duto Mint Clean 팔레트만 사용
+- [ ] 상태별 색상 올바르게 적용
+- [ ] 호버/포커스 상태 색상 정의
+- [ ] 접근성 대비율 검증 (WCAG 2.1 AA)
+- [ ] 빌드 성공 확인
+
+#### No Manual Color Selection
+
+**❌ 절대 금지**:
+```tsx
+// 직접 색상 선택 금지
+<div className="bg-purple-500">  // ❌
+<div className="bg-blue-600">    // ❌
+<div className="bg-gray-100">    // ❌
+```
+
+**✅ 필수**:
+```bash
+# 항상 agent 참조
+"agents/color-system의 prompt.md를 참조하여 버튼 컴포넌트를 만들어주세요"
+```
+
+---
+
 ## Testing Strategy
 
 ### Manual Testing Checklist
@@ -523,10 +642,11 @@ Currently no environment variables required (local-first app).
 3. **localStorage sync**: Changes auto-save via persist middleware
 
 ### When Working with UI
-1. **Tailwind-first**: Use Tailwind utilities before custom CSS
-2. **Framer Motion**: Use for animations when needed
-3. **Accessibility**: Include proper ARIA labels and keyboard navigation
-4. **Responsive**: Mobile-first design approach
+1. **Color System**: **ALWAYS use color-system agent** and Duto Mint Clean palette (see Design System section)
+2. **Tailwind-first**: Use Tailwind utilities before custom CSS
+3. **Framer Motion**: Use for animations when needed
+4. **Accessibility**: Include proper ARIA labels and keyboard navigation
+5. **Responsive**: Mobile-first design approach
 
 ### Code Quality Standards
 - ✅ TypeScript strict mode compliance
@@ -548,4 +668,4 @@ Currently no environment variables required (local-first app).
 
 ---
 
-*Last Updated: 2026-02-08*
+*Last Updated: 2026-02-15*

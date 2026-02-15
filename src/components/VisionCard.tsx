@@ -17,7 +17,7 @@ export default function VisionCard({ onClick }: VisionCardProps) {
     return (
       <motion.div
         onClick={onClick}
-        className="relative bg-gradient-to-br from-purple-100 via-pink-50 to-purple-100 rounded-2xl p-6 shadow-lg border-2 border-purple-200 overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+        className="relative bg-gradient-to-br from-primary/20 via-accent/10 to-primary/20 rounded-2xl p-6 shadow-lg border-2 border overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.02 }}
@@ -25,18 +25,18 @@ export default function VisionCard({ onClick }: VisionCardProps) {
       >
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-purple-500 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-40 h-40 bg-pink-500 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 left-0 w-32 h-32 bg-secondary0 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-40 h-40 bg-accent rounded-full blur-3xl"></div>
         </div>
 
         <div className="relative z-10 text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <FiPlus size={24} className="text-purple-700" />
-            <h3 className="text-lg font-bold text-purple-800">
+            <FiPlus size={24} className="text-primary-dark" />
+            <h3 className="text-lg font-bold text-text">
               {t("createVision")}
             </h3>
           </div>
-          <p className="text-sm text-purple-600">
+          <p className="text-sm text-primary-dark">
             {t("visionDescription")}
           </p>
         </div>
@@ -46,7 +46,7 @@ export default function VisionCard({ onClick }: VisionCardProps) {
 
   return (
     <motion.div
-      className="relative bg-gradient-to-br from-purple-100 via-pink-50 to-purple-100 rounded-2xl p-6 shadow-lg border-2 border-purple-200 overflow-hidden"
+      className="relative bg-gradient-to-br from-primary/20 via-accent/10 to-primary/20 rounded-2xl p-6 shadow-lg border-2 border overflow-hidden"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
     >
@@ -63,14 +63,14 @@ export default function VisionCard({ onClick }: VisionCardProps) {
 
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 left-0 w-32 h-32 bg-purple-500 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-40 h-40 bg-pink-500 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-0 w-32 h-32 bg-secondary0 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-40 h-40 bg-accent rounded-full blur-3xl"></div>
       </div>
 
       {/* Content */}
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">
+          <span className="text-xs font-semibold text-primary-dark uppercase tracking-wide">
             {t("vision")}
           </span>
           <button
@@ -78,19 +78,19 @@ export default function VisionCard({ onClick }: VisionCardProps) {
               e.stopPropagation();
               onClick();
             }}
-            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+            className="p-2 hover:bg-background-surface/50 rounded-lg transition-colors"
             aria-label="Edit vision"
           >
-            <FiEdit2 size={16} className="text-purple-600" />
+            <FiEdit2 size={16} className="text-primary-dark" />
           </button>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        <h2 className="text-2xl font-bold text-text mb-2">
           {vision.title}
         </h2>
 
         {vision.description && (
-          <p className="text-sm text-gray-700 leading-relaxed">
+          <p className="text-sm text-text leading-relaxed">
             {vision.description}
           </p>
         )}

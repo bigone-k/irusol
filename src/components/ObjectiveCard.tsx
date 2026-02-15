@@ -18,9 +18,9 @@ export default function ObjectiveCard() {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-gradient-to-r from-amber-100 to-yellow-100 rounded-xl p-4 border-2 border-amber-300"
+      className="bg-secondary rounded-xl p-4 border-2 border"
     >
-      <h3 className="text-lg font-bold text-amber-800 mb-2">🎯 초보자 목표</h3>
+      <h3 className="text-lg font-bold text-text mb-2">🎯 초보자 목표</h3>
       {objectives.map((obj) => (
         <div key={obj.id} className="flex items-center gap-3">
           <input
@@ -30,10 +30,10 @@ export default function ObjectiveCard() {
             className="w-5 h-5 rounded border-amber-400"
           />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-gray-800">{obj.title}</p>
-            <p className="text-xs text-gray-600">{obj.description}</p>
+            <p className="text-sm font-semibold text-text">{obj.title}</p>
+            <p className="text-xs text-text-muted">{obj.description}</p>
           </div>
-          <span className="text-xs text-amber-600 font-bold">+{obj.reward} XP</span>
+          <span className="text-xs text-primary-dark font-bold">+{obj.reward} XP</span>
         </div>
       ))}
     </motion.div>

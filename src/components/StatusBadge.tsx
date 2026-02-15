@@ -14,13 +14,13 @@ export default function StatusBadge({ status, translationKey }: StatusBadgeProps
   const getStatusColor = () => {
     switch (status) {
       case "notStarted":
-        return "bg-gray-200 text-gray-800 border-gray-400 shadow-sm";
+        return "bg-track text-text-muted border-border shadow-sm";
       case "inProgress":
-        return "bg-blue-500 text-white border-blue-600 shadow-md";
+        return "bg-primary text-white border-primary-dark shadow-md";
       case "completed":
-        return "bg-green-500 text-white border-green-600 shadow-md";
+        return "bg-accent text-white border-accent shadow-md";
       default:
-        return "bg-gray-200 text-gray-800 border-gray-400 shadow-sm";
+        return "bg-track text-text-muted border-border shadow-sm";
     }
   };
 

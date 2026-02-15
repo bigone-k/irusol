@@ -12,13 +12,13 @@ interface ProgressBarProps {
 
 export default function ProgressBar({
   progress,
-  colorFrom = "from-purple-500",
-  colorTo = "to-pink-500",
+  colorFrom = "from-primary",
+  colorTo = "to-primary-dark",
   height = "h-3",
   animated = true,
 }: ProgressBarProps) {
   return (
-    <div className={`${height} bg-gray-200 rounded-full overflow-hidden`}>
+    <div className={`${height} bg-track rounded-full overflow-hidden`}>
       <motion.div
         className={`h-full bg-gradient-to-r ${colorFrom} ${colorTo} rounded-full`}
         initial={animated ? { width: 0 } : undefined}

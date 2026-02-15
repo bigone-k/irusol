@@ -82,7 +82,7 @@ export default function AddTaskButton({
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-full shadow-lg flex items-center justify-center z-fab"
+          className="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-br from-primary to-primary-dark text-white rounded-full shadow-lg flex items-center justify-center z-fab"
         >
           <FaPlus className="text-2xl" />
         </motion.button>
@@ -107,21 +107,21 @@ export default function AddTaskButton({
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-modal overflow-y-auto max-h-[90vh]"
+              className="fixed bottom-0 left-0 right-0 bg-background-surface rounded-t-3xl shadow-2xl z-modal overflow-y-auto max-h-[90vh]"
             >
               {/* Handle Bar */}
-              <div className="flex justify-center pt-3 pb-2 sticky top-0 bg-white z-10">
-                <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+              <div className="flex justify-center pt-3 pb-2 sticky top-0 bg-background-surface z-10">
+                <div className="w-12 h-1.5 bg-border rounded-full" />
               </div>
 
               <div className="px-6 pb-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold text-gray-800">
+                  <h3 className="text-xl font-bold text-text">
                     {t("task.create")}
                   </h3>
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-text-muted hover:text-text"
                   >
                     <FaTimes className="text-xl" />
                   </button>
@@ -130,7 +130,7 @@ export default function AddTaskButton({
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* 목표 (필수) */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-text mb-1">
                     {t("goal.title")} *
                   </label>
                   <select
@@ -139,7 +139,7 @@ export default function AddTaskButton({
                       setGoalId(e.target.value);
                       setProjectId(""); // Reset project when goal changes
                     }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                    className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
                     required
                   >
                     <option value="">{t("common.selectPlaceholder")}</option>
@@ -153,13 +153,13 @@ export default function AddTaskButton({
 
                 {/* 프로젝트 (필수) */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-text mb-1">
                     {t("project.title")} *
                   </label>
                   <select
                     value={projectId}
                     onChange={(e) => setProjectId(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                    className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
                     disabled={!goalId}
                     required
                   >
@@ -171,7 +171,7 @@ export default function AddTaskButton({
                     ))}
                   </select>
                   {!goalId && (
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-text-muted mt-1">
                       {t("task.selectGoalFirst")}
                     </p>
                   )}
@@ -179,7 +179,7 @@ export default function AddTaskButton({
 
                 {/* 제목 (필수) */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-text mb-1">
                     {t("task.title")} *
                   </label>
                   <input
@@ -187,14 +187,14 @@ export default function AddTaskButton({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder={t("task.title")}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                    className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
                     required
                   />
                 </div>
 
                 {/* 설명 */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-text mb-1">
                     {t("task.description")}
                   </label>
                   <textarea
@@ -202,19 +202,19 @@ export default function AddTaskButton({
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder={t("task.description")}
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                    className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
                   />
                 </div>
 
                 {/* 타입 */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-text mb-1">
                     {t("task.type")}
                   </label>
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as typeof type)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                    className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
                   >
                     <option value="habit">{t("tasks.types.habit")}</option>
                     <option value="todo">{t("tasks.types.todo")}</option>
@@ -223,7 +223,7 @@ export default function AddTaskButton({
 
                 {/* 난이도 */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-text mb-1">
                     {t("task.difficulty.label")}
                   </label>
                   <select
@@ -231,7 +231,7 @@ export default function AddTaskButton({
                     onChange={(e) =>
                       setDifficulty(e.target.value as Difficulty)
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                    className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
                   >
                     <option value="easy">{t("task.difficulty.easy")}</option>
                     <option value="normal">{t("task.difficulty.normal")}</option>
@@ -241,7 +241,7 @@ export default function AddTaskButton({
 
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold py-3 rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all"
+                  className="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-semibold py-3 rounded-lg hover:from-primary-dark hover:to-primary transition-all"
                 >
                   {t("task.create")}
                 </button>

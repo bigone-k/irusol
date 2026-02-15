@@ -86,7 +86,7 @@ export default function Onboarding() {
               className="object-contain"
             />
           </div>
-          <p className="text-gray-600 text-lg">
+          <p className="text-text-muted text-lg">
             습관을 키우고 캐릭터를 성장시키세요!
           </p>
         </div>
@@ -98,13 +98,13 @@ export default function Onboarding() {
       title: t("onboarding.nickname"),
       content: (
         <div className="space-y-4">
-          <p className="text-gray-600">당신의 닉네임을 알려주세요</p>
+          <p className="text-text-muted">당신의 닉네임을 알려주세요</p>
           <input
             type="text"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             placeholder={t("onboarding.enterNickname")}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
+            className="w-full px-4 py-3 border-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg"
             autoFocus
           />
         </div>
@@ -116,7 +116,7 @@ export default function Onboarding() {
       title: t("onboarding.setupGoal"),
       content: (
         <div className="space-y-4">
-          <p className="text-gray-600 text-sm">
+          <p className="text-text-muted text-sm">
             목표를 설정하면 더욱 체계적으로 습관을 관리할 수 있어요
           </p>
           <input
@@ -124,7 +124,7 @@ export default function Onboarding() {
             value={goalTitle}
             onChange={(e) => setGoalTitle(e.target.value)}
             placeholder="예: 건강한 생활 습관 만들기"
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-3 border-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
       ),
@@ -136,7 +136,7 @@ export default function Onboarding() {
       title: t("onboarding.setupProject"),
       content: (
         <div className="space-y-4">
-          <p className="text-gray-600 text-sm">
+          <p className="text-text-muted text-sm">
             프로젝트는 목표를 달성하기 위한 구체적인 계획이에요
           </p>
           <input
@@ -144,7 +144,7 @@ export default function Onboarding() {
             value={projectTitle}
             onChange={(e) => setProjectTitle(e.target.value)}
             placeholder="예: 매일 30분 운동하기"
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-3 border-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
       ),
@@ -157,7 +157,7 @@ export default function Onboarding() {
       title: t("onboarding.setupHabit"),
       content: (
         <div className="space-y-4">
-          <p className="text-gray-600 text-sm">
+          <p className="text-text-muted text-sm">
             첫 번째 습관을 만들어볼까요?
           </p>
           <input
@@ -165,10 +165,10 @@ export default function Onboarding() {
             value={habitTitle}
             onChange={(e) => setHabitTitle(e.target.value)}
             placeholder="예: 물 8잔 마시기"
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-3"
+            className="w-full px-4 py-3 border-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent mb-3"
           />
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-text mb-2">
               난이도
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -178,8 +178,8 @@ export default function Onboarding() {
                   onClick={() => setHabitDifficulty(diff)}
                   className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                     habitDifficulty === diff
-                      ? "bg-purple-600 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      ? "bg-primary text-white"
+                      : "bg-track text-text-muted hover:bg-track"
                   }`}
                 >
                   {t(`task.difficulty.${diff}`)}
@@ -218,7 +218,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-purple-50 to-blue-50 z-50">
+    <div className="fixed inset-0 bg-gradient-to-b from-primary/10 to-primary/5 z-50">
       <div className="max-w-md mx-auto h-full flex flex-col p-6">
         {/* Progress Bar */}
         <div className="mb-8 mt-8">
@@ -227,12 +227,12 @@ export default function Onboarding() {
               <div
                 key={index}
                 className={`h-2 flex-1 rounded-full mx-1 transition-colors ${
-                  index <= step ? "bg-purple-500" : "bg-gray-200"
+                  index <= step ? "bg-secondary0" : "bg-track"
                 }`}
               />
             ))}
           </div>
-          <p className="text-sm text-gray-500 text-center">
+          <p className="text-sm text-text-muted text-center">
             {step + 1} / {visibleSteps.length}
           </p>
         </div>
@@ -248,7 +248,7 @@ export default function Onboarding() {
               transition={{ duration: 0.3 }}
               className="flex-1 flex flex-col"
             >
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+              <h2 className="text-2xl font-bold text-text mb-6">
                 {currentStep.title}
               </h2>
               <div className="flex-1">{currentStep.content}</div>
@@ -263,8 +263,8 @@ export default function Onboarding() {
             disabled={!currentStep.canNext}
             className={`w-full py-4 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2 ${
               currentStep.canNext
-                ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                : "bg-gray-300 cursor-not-allowed"
+                ? "bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-accent"
+                : "bg-border cursor-not-allowed"
             }`}
           >
             {isLastStep ? (
@@ -283,7 +283,7 @@ export default function Onboarding() {
           {currentStep.canSkip && (
             <button
               onClick={handleSkip}
-              className="w-full py-3 text-gray-500 hover:text-gray-700 font-semibold transition-colors"
+              className="w-full py-3 text-text-muted hover:text-text font-semibold transition-colors"
             >
               {t("common.skip")}
             </button>

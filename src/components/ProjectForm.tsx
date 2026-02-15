@@ -51,13 +51,13 @@ export default function ProjectForm({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-text mb-2">
             {t("goal.title")} *
           </label>
           <select
             value={goalId}
             onChange={(e) => setGoalId(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+            className="w-full px-4 py-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
             required
           >
             <option value="">{t("task.selectProject")}</option>
@@ -88,7 +88,7 @@ export default function ProjectForm({
 
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold py-3 rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all"
+          className="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-semibold py-3 rounded-lg hover:from-primary-dark hover:to-primary transition-all"
         >
           {t("project.create")}
         </button>

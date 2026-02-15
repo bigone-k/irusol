@@ -27,14 +27,14 @@ export default function TopAppBar({
 
   return (
     <>
-      <header className="sticky top-0 z-app-bar bg-white border-b border-gray-200 shadow-sm">
+      <header className="sticky top-0 z-app-bar bg-background-surface border-b border shadow-sm">
         <div className="max-w-md mx-auto h-14 px-4 flex items-center justify-between">
           {/* Left Section */}
           <div className="flex items-center">
             {showBack && onBack && (
               <button
                 onClick={onBack}
-                className="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+                className="w-10 h-10 flex items-center justify-center text-text hover:bg-primary/5 rounded-full transition-colors"
                 aria-label="Go back"
               >
                 <FiChevronLeft size={24} />
@@ -43,7 +43,7 @@ export default function TopAppBar({
             {showMenu && !showBack && (
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+                className="w-10 h-10 flex items-center justify-center text-text hover:bg-primary/5 rounded-full transition-colors"
                 aria-label="Menu"
               >
                 <FiMenu size={20} />
@@ -52,7 +52,7 @@ export default function TopAppBar({
           </div>
 
         {/* Center Section - Title */}
-        <h1 className="text-lg font-bold text-gray-800 truncate px-2">
+        <h1 className="text-lg font-bold text-text truncate px-2">
           {title}
         </h1>
 

@@ -55,10 +55,10 @@ export default function ProjectDetailsPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">{t("project.notFound")}</p>
+          <p className="text-text-muted mb-4">{t("project.notFound")}</p>
           <button
             onClick={() => router.push(`/${locale}/projects`)}
-            className="text-blue-600 font-semibold underline"
+            className="text-primary-dark font-semibold underline"
           >
             {t("common.back")}
           </button>
@@ -141,11 +141,11 @@ export default function ProjectDetailsPage() {
   const getStatusColor = (s: ProjectStatus) => {
     switch (s) {
       case "notStarted":
-        return "bg-gray-200 text-gray-800 border-gray-400 shadow-sm";
+        return "bg-track text-text border shadow-sm";
       case "inProgress":
-        return "bg-blue-500 text-white border-blue-600 shadow-md";
+        return "bg-primary text-white border-primary-dark shadow-md";
       case "completed":
-        return "bg-green-500 text-white border-green-600 shadow-md";
+        return "bg-accent text-white border-accent shadow-md";
     }
   };
 
@@ -179,7 +179,7 @@ export default function ProjectDetailsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-blue-600 text-white p-4 sticky top-0 z-10 shadow-md">
+      <div className="bg-primary text-white p-4 sticky top-0 z-10 shadow-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => router.back()}>
@@ -189,7 +189,7 @@ export default function ProjectDetailsPage() {
           </div>
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="p-2 hover:bg-blue-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-primary-dark rounded-lg transition-colors"
           >
             <FiEdit2 size={20} />
           </button>
@@ -199,23 +199,23 @@ export default function ProjectDetailsPage() {
       <div className="p-4 space-y-4">
         {/* Project Info Card */}
         <motion.div
-          className="bg-white rounded-2xl p-6 shadow-md space-y-4"
+          className="bg-background-surface rounded-2xl p-6 shadow-md space-y-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           {/* Goal Name (Read-only) */}
           {goal && (
             <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-1">
+              <label className="block text-xs font-semibold text-text-muted mb-1">
                 {t("goal.title")}
               </label>
-              <p className="text-sm text-gray-700">📂 {goal.title}</p>
+              <p className="text-sm text-text">📂 {goal.title}</p>
             </div>
           )}
 
           {/* Project Title */}
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1">
+            <label className="block text-xs font-semibold text-text-muted mb-1">
               {t("project.title")}
             </label>
             {isEditing ? (
@@ -223,10 +223,10 @@ export default function ProjectDetailsPage() {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
               />
             ) : (
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h2 className="text-2xl font-bold text-text">
                 {project.title}
               </h2>
             )}
@@ -234,7 +234,7 @@ export default function ProjectDetailsPage() {
 
           {/* Status Selector */}
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">
+            <label className="block text-xs font-semibold text-text-muted mb-2">
               {t("project.status.label")}
             </label>
             <div className="flex gap-2">
@@ -246,7 +246,7 @@ export default function ProjectDetailsPage() {
                   className={`flex-1 px-3 py-1.5 rounded-lg border font-bold text-xs transition-all ${
                     status === s
                       ? getStatusColor(s)
-                      : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                      : "bg-background-surface text-text-muted border hover:bg-gray-50"
                   } ${!isEditing && "opacity-60 cursor-not-allowed"}`}
                 >
                   {t(`project.status.${s}`)}
@@ -257,7 +257,7 @@ export default function ProjectDetailsPage() {
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1">
+            <label className="block text-xs font-semibold text-text-muted mb-1">
               {t("task.description")}
             </label>
             {isEditing ? (
@@ -265,10 +265,10 @@ export default function ProjectDetailsPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900"
+                className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-text"
               />
             ) : (
-              <p className="text-gray-600">
+              <p className="text-text-muted">
                 {project.description || t("project.noDescription")}
               </p>
             )}
@@ -279,8 +279,8 @@ export default function ProjectDetailsPage() {
             {/* Difficulty */}
             {project.difficulty && (
               <div className="bg-gray-50 rounded-lg p-3 text-center">
-                <FiTarget className="mx-auto mb-1 text-gray-500" size={20} />
-                <p className="text-xs text-gray-500 mb-1">
+                <FiTarget className="mx-auto mb-1 text-text-muted" size={20} />
+                <p className="text-xs text-text-muted mb-1">
                   {t("project.difficulty")}
                 </p>
                 <p className="font-semibold text-sm">{project.difficulty}</p>
@@ -290,8 +290,8 @@ export default function ProjectDetailsPage() {
             {/* Period */}
             {getPeriodDays() !== null && (
               <div className="bg-gray-50 rounded-lg p-3 text-center">
-                <FiCalendar className="mx-auto mb-1 text-gray-500" size={20} />
-                <p className="text-xs text-gray-500 mb-1">
+                <FiCalendar className="mx-auto mb-1 text-text-muted" size={20} />
+                <p className="text-xs text-text-muted mb-1">
                   {t("project.period")}
                 </p>
                 <p className="font-semibold text-sm">
@@ -307,7 +307,7 @@ export default function ProjectDetailsPage() {
                   className="mx-auto mb-1 text-amber-600"
                   size={20}
                 />
-                <p className="text-xs text-gray-500 mb-1">
+                <p className="text-xs text-text-muted mb-1">
                   {t("project.reward")}
                 </p>
                 <p className="font-semibold text-sm text-amber-600">
@@ -319,17 +319,17 @@ export default function ProjectDetailsPage() {
 
           {/* Reward Section */}
           {status === "completed" && (
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border">
               {project.rewardClaimed ? (
-                <div className="px-4 py-3 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-green-700 font-medium text-center">
+                <div className="px-4 py-3 bg-accent/10 border border-accent rounded-lg">
+                  <p className="text-sm text-accent font-medium text-center">
                     보상 받음 ({PROJECT_REWARD} 코인)
                   </p>
                 </div>
               ) : (
                 <motion.button
                   onClick={handleClaimReward}
-                  className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all"
+                  className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary-dark hover:to-accent text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -342,7 +342,7 @@ export default function ProjectDetailsPage() {
 
           {/* Action Buttons (Edit Mode) */}
           {isEditing && (
-            <div className="flex gap-3 pt-4 border-t border-gray-200">
+            <div className="flex gap-3 pt-4 border-t border">
               <button
                 onClick={handleDelete}
                 className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"
@@ -352,7 +352,7 @@ export default function ProjectDetailsPage() {
               </button>
               <button
                 onClick={handleSave}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                className="flex-1 bg-primary hover:bg-primary-dark text-white py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
               >
                 <FiSave size={16} />
                 {t("common.save")}
@@ -368,7 +368,7 @@ export default function ProjectDetailsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <h3 className="text-lg font-bold text-gray-800 mb-3">
+            <h3 className="text-lg font-bold text-text mb-3">
               {t("habit.title")}
             </h3>
             <div className="space-y-2">
@@ -379,19 +379,19 @@ export default function ProjectDetailsPage() {
                 return (
                   <div
                     key={habit.id}
-                    className="bg-white rounded-lg p-4 shadow-sm"
+                    className="bg-background-surface rounded-lg p-4 shadow-sm"
                   >
                     <div className="flex items-start gap-3">
                       <input
                         type="checkbox"
                         checked={habit.completed}
                         readOnly
-                        className="w-5 h-5 mt-1 rounded border-gray-300 text-green-600 flex-shrink-0"
+                        className="w-5 h-5 mt-1 rounded border text-accent flex-shrink-0"
                       />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-800">{habit.title}</p>
+                        <p className="font-medium text-text">{habit.title}</p>
                         {habit.description && (
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-sm text-text-muted mt-1">
                             {habit.description}
                           </p>
                         )}
@@ -399,17 +399,17 @@ export default function ProjectDetailsPage() {
                         {/* Habit-specific Info */}
                         <div className="mt-2 space-y-1">
                           {period && (
-                            <div className="flex items-center gap-1 text-xs text-gray-600">
+                            <div className="flex items-center gap-1 text-xs text-text-muted">
                               <FiCalendar size={12} />
                               <span>{period}</span>
                             </div>
                           )}
                           {frequency && (
-                            <div className="flex items-center gap-1 text-xs text-gray-600">
+                            <div className="flex items-center gap-1 text-xs text-text-muted">
                               <FiRepeat size={12} />
                               <span>{frequency}</span>
                               {habit.completionCount !== undefined && (
-                                <span className="text-purple-600 font-semibold ml-1">
+                                <span className="text-primary-dark font-semibold ml-1">
                                   ({habit.completionCount}회 달성)
                                 </span>
                               )}
@@ -417,7 +417,7 @@ export default function ProjectDetailsPage() {
                           )}
                           {habit.streak && habit.streak > 0 && (
                             <div className="flex items-center gap-1 text-xs">
-                              <span className="text-orange-600 font-semibold">
+                              <span className="text-text-muted font-semibold">
                                 🔥 {habit.streak}일 연속
                               </span>
                             </div>
@@ -439,7 +439,7 @@ export default function ProjectDetailsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <h3 className="text-lg font-bold text-gray-800 mb-3">
+            <h3 className="text-lg font-bold text-text mb-3">
               {t("todo.title")}
             </h3>
             <div className="space-y-2">
@@ -449,19 +449,19 @@ export default function ProjectDetailsPage() {
                 return (
                   <div
                     key={todo.id}
-                    className="bg-white rounded-lg p-4 shadow-sm"
+                    className="bg-background-surface rounded-lg p-4 shadow-sm"
                   >
                     <div className="flex items-start gap-3">
                       <input
                         type="checkbox"
                         checked={todo.completed}
                         readOnly
-                        className="w-5 h-5 mt-1 rounded border-gray-300 text-blue-600 flex-shrink-0"
+                        className="w-5 h-5 mt-1 rounded border text-primary-dark flex-shrink-0"
                       />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-800">{todo.title}</p>
+                        <p className="font-medium text-text">{todo.title}</p>
                         {todo.description && (
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-sm text-text-muted mt-1">
                             {todo.description}
                           </p>
                         )}
@@ -469,7 +469,7 @@ export default function ProjectDetailsPage() {
                         {/* Todo-specific Info */}
                         {todo.endDate && (
                           <div className="mt-2 space-y-1">
-                            <div className="flex items-center gap-1 text-xs text-gray-600">
+                            <div className="flex items-center gap-1 text-xs text-text-muted">
                               <FiCalendar size={12} />
                               <span>
                                 {new Date(todo.endDate).toLocaleDateString(locale, {
@@ -485,8 +485,8 @@ export default function ProjectDetailsPage() {
                                   daysRemaining < 0
                                     ? "text-red-500"
                                     : daysRemaining <= 3
-                                    ? "text-orange-500"
-                                    : "text-gray-600"
+                                    ? "text-text-muted"
+                                    : "text-text-muted"
                                 }`}
                               >
                                 <FiClock size={12} />
@@ -510,7 +510,7 @@ export default function ProjectDetailsPage() {
 
         {/* Empty State */}
         {habits.length === 0 && todos.length === 0 && (
-          <div className="text-center py-12 text-gray-400">
+          <div className="text-center py-12 text-text-muted">
             <p className="text-lg">{t("project.noTasks")}</p>
             <p className="text-sm">{t("project.addTasksDescription")}</p>
           </div>
@@ -525,7 +525,7 @@ export default function ProjectDetailsPage() {
           exit={{ opacity: 0, y: -50 }}
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
         >
-          <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-8 py-4 rounded-2xl shadow-2xl text-center">
+          <div className="bg-gradient-to-r from-primary to-accent text-white px-8 py-4 rounded-2xl shadow-2xl text-center">
             <FiAward size={40} className="mx-auto mb-2" />
             <p className="text-2xl font-bold">+{PROJECT_REWARD} 코인</p>
             <p className="text-sm">보상을 받았습니다!</p>

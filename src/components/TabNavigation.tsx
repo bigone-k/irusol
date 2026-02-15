@@ -18,7 +18,7 @@ export default function TabNavigation({ activeTab, setActiveTab }: TabNavigation
   ];
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-2">
+    <div className="bg-background-surface border border rounded-xl shadow-sm p-2">
       <div className="flex justify-around items-center">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -29,8 +29,8 @@ export default function TabNavigation({ activeTab, setActiveTab }: TabNavigation
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
                 isActive
-                  ? "text-purple-600 bg-purple-50"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "text-primary bg-primary/10"
+                  : "text-text-muted hover:text-text"
               }`}
             >
               <Icon className="text-xl" />

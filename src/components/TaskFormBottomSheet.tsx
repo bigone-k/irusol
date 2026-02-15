@@ -79,13 +79,13 @@ export default function TaskFormBottomSheet({
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
           >
             {/* Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between rounded-t-3xl">
+            <div className="sticky top-0 bg-white border-b border p-4 flex items-center justify-between rounded-t-3xl">
               <h2 className="text-xl font-bold">
                 {type === "habit" ? t("habit.create") : t("todo.create")}
               </h2>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 hover:bg-primary/5 rounded-full transition-colors"
               >
                 <FiX size={24} />
               </button>
@@ -95,7 +95,7 @@ export default function TaskFormBottomSheet({
             <form onSubmit={handleSubmit} className="p-4 space-y-5">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-text mb-2">
                   {t("task.title")}
                 </label>
                 <input
@@ -104,7 +104,7 @@ export default function TaskFormBottomSheet({
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder={t("task.titlePlaceholder")}
                   required
                 />
@@ -112,7 +112,7 @@ export default function TaskFormBottomSheet({
 
               {/* Frequency */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-text mb-2">
                   {t("task.frequency")}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -126,8 +126,8 @@ export default function TaskFormBottomSheet({
                     }
                     className={`py-3 px-4 rounded-lg font-medium transition-all ${
                       formData.recurrence?.type === "daily"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-primary text-white"
+                        : "bg-track text-text hover:bg-track"
                     }`}
                   >
                     {t("task.daily")}
@@ -142,8 +142,8 @@ export default function TaskFormBottomSheet({
                     }
                     className={`py-3 px-4 rounded-lg font-medium transition-all ${
                       formData.recurrence?.type === "weekly"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-primary text-white"
+                        : "bg-track text-text hover:bg-track"
                     }`}
                   >
                     {t("task.weekly")}
@@ -158,8 +158,8 @@ export default function TaskFormBottomSheet({
                     }
                     className={`py-3 px-4 rounded-lg font-medium transition-all ${
                       formData.recurrence?.type === "custom"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-primary text-white"
+                        : "bg-track text-text hover:bg-track"
                     }`}
                   >
                     {t("task.custom")}
@@ -169,7 +169,7 @@ export default function TaskFormBottomSheet({
 
               {/* Target Days */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-text mb-2">
                   {t("task.targetDays")}
                 </label>
                 <input
@@ -181,7 +181,7 @@ export default function TaskFormBottomSheet({
                       targetDays: parseInt(e.target.value) || undefined,
                     })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="30"
                   min="1"
                 />
@@ -189,7 +189,7 @@ export default function TaskFormBottomSheet({
 
               {/* Start Date */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-text mb-2">
                   {t("task.startDate")}
                 </label>
                 <input
@@ -207,14 +207,14 @@ export default function TaskFormBottomSheet({
                         : undefined,
                     })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
 
               {/* Reminder */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-text">
                     {t("task.reminder")}
                   </label>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -232,7 +232,7 @@ export default function TaskFormBottomSheet({
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    <div className="w-11 h-6 bg-track rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
 
@@ -249,7 +249,7 @@ export default function TaskFormBottomSheet({
                         },
                       })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 )}
               </div>
@@ -257,7 +257,7 @@ export default function TaskFormBottomSheet({
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors"
+                className="w-full bg-primary text-white py-4 rounded-lg font-bold text-lg hover:bg-primary-dark transition-colors"
               >
                 {t("common.save")}
               </button>
