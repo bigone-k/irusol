@@ -11,7 +11,7 @@ export default function BottomNavigation() {
   const tabs = [
     { id: "goals", label: t("nav.goals"), icon: FiTarget, href: "/goals" },
     { id: "projects", label: t("nav.projects"), icon: FiBriefcase, href: "/projects" },
-    { id: "todos", label: t("nav.todos"), icon: FiList, href: "/todos" },
+    { id: "quest", label: t("nav.quest"), icon: FiList, href: "/quest" },
   ];
 
   return (

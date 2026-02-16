@@ -144,8 +144,7 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
           {/* Progress Bar */}
           <ProgressBar
             progress={progress}
-            colorFrom="from-primary"
-            colorTo="to-primary-dark"
+            color="bg-primary"
             height="h-2"
           />
         </div>

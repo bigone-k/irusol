@@ -402,7 +402,7 @@ agents/color-system/
 
 **브랜드 색상**:
 - `primary` (#7DE6C3) - 메인 브랜드 색상, 강조, 링크
-- `primary-dark` (#4FD4A8) - 호버, 그라디언트
+- `primary-dark` (#4FD4A8) - 호버 상태
 - `secondary` (#FFF6BF) - 보조 강조, 경고, 진행중
 - `accent` (#F19ED2) - 성공, 완료, CTA
 

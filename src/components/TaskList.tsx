@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { FiCalendar, FiClock, FiRepeat, FiTarget } from "react-icons/fi";
+import QuestDetailSheet from "@/components/QuestDetailSheet";
 
 interface TaskListProps {
   activeTab?: TabType;
@@ -20,6 +21,8 @@ export default function TaskList({ activeTab }: TaskListProps) {
   const toggleTask = useTaskStore((state) => state.toggleTask);
   const completeTask = usePlayerStore((state) => state.completeTask);
   const [celebratingTask, setCelebratingTask] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
 
   // Get D-day for todos
   const getDaysRemaining = (endDate?: Date) => {
@@ -44,11 +47,11 @@ export default function TaskList({ activeTab }: TaskListProps) {
     return `${start} - ${end}`;
   };
 
-  // Get frequency text
+  // Get frequency text (weekday labels)
   const getFrequencyText = (task: Task) => {
-    if (!task.frequencyTarget || !task.frequencyPeriod) return null;
-    const periodKey = task.frequencyPeriod === "daily" ? "일" : task.frequencyPeriod === "weekly" ? "주" : "월";
-    return `${periodKey} ${task.frequencyTarget}회`;
+    if (!task.frequency || task.frequency.length === 0) return null;
+    const dayLabels = ["일", "월", "화", "수", "목", "금", "토"];
+    return task.frequency.map(d => dayLabels[d]).join(", ");
   };
 
   const handleToggle = (task: Task) => {
@@ -84,6 +87,11 @@ export default function TaskList({ activeTab }: TaskListProps) {
       })
     : tasks;
 
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+    setIsDetailSheetOpen(true);
+  };
+
   if (filteredTasks.length === 0) {
     return (
       <div className="text-center py-12 text-text-muted">
@@ -94,10 +102,11 @@ export default function TaskList({ activeTab }: TaskListProps) {
   }
 
   return (
-    <div className="space-y-3">
-      {filteredTasks.map((task, index) => {
+    <>
+      <div className="space-y-3">
+        {filteredTasks.map((task, index) => {
         const project = task.projectId ? projects.find((p) => p.id === task.projectId) : null;
-        const daysRemaining = task.type === "todo" ? getDaysRemaining(task.endDate) : null;
+        const daysRemaining = task.type === "todo" ? getDaysRemaining(task.dueDate) : null;
         const frequency = task.type === "habit" ? getFrequencyText(task) : null;
         const period = task.type === "habit" ? formatPeriod(task.startDate, task.endDate) : null;
 
@@ -118,9 +127,13 @@ export default function TaskList({ activeTab }: TaskListProps) {
                 type="checkbox"
                 checked={task.completed}
                 onChange={() => handleToggle(task)}
-                className="w-6 h-6 mt-1 rounded border text-primary focus:ring-primary"
+                onClick={(e) => e.stopPropagation()}
+                className="w-6 h-6 mt-1 rounded border text-primary focus:ring-primary cursor-pointer"
               />
-              <div className="flex-1">
+              <div
+                className="flex-1 cursor-pointer"
+                onClick={() => handleTaskClick(task)}
+              >
                 {/* Project Name */}
                 {project && (
                   <p className="text-xs text-text-muted mb-1">
@@ -164,11 +177,6 @@ export default function TaskList({ activeTab }: TaskListProps) {
                       <div className="flex items-center gap-1 text-xs text-text-muted">
                         <FiRepeat size={12} />
                         <span>{frequency}</span>
-                        {task.completionCount !== undefined && (
-                          <span className="text-primary-dark font-semibold ml-1">
-                            ({task.completionCount}회 달성)
-                          </span>
-                        )}
                       </div>
                     )}
                     {task.streak && task.streak > 0 && (
@@ -182,12 +190,12 @@ export default function TaskList({ activeTab }: TaskListProps) {
                 )}
 
                 {/* Todo-specific Info */}
-                {task.type === "todo" && task.endDate && (
+                {task.type === "todo" && task.dueDate && (
                   <div className="mt-2 space-y-1">
                     <div className="flex items-center gap-1 text-xs text-text-muted">
                       <FiCalendar size={12} />
                       <span>
-                        {new Date(task.endDate).toLocaleDateString("ko-KR", {
+                        {new Date(task.dueDate).toLocaleDateString("ko-KR", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
@@ -219,6 +227,16 @@ export default function TaskList({ activeTab }: TaskListProps) {
           </motion.div>
         );
       })}
-    </div>
+      </div>
+
+      <QuestDetailSheet
+        task={selectedTask}
+        isOpen={isDetailSheetOpen}
+        onClose={() => {
+          setIsDetailSheetOpen(false);
+          setSelectedTask(null);
+        }}
+      />
+    </>
   );
 }

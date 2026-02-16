@@ -27,7 +27,7 @@ export default function StatsBars() {
         </div>
         <div className="h-3 bg-track rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-primary to-primary-dark"
+            className="h-full bg-primary"
             initial={{ width: 0 }}
             animate={{ width: `${expPercent}%` }}
             transition={{ duration: 0.5 }}

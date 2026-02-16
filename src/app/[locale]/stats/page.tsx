@@ -17,7 +17,7 @@ export default function StatsPage() {
             <motion.div
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="w-24 h-24 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center"
+              className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center"
             >
               <FiBarChart2 className="text-primary-dark" size={48} />
             </motion.div>
@@ -50,7 +50,7 @@ export default function StatsPage() {
         </p>
 
         {/* Message */}
-        <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl p-6 border-2 border mb-6">
+        <div className="bg-primary/5 rounded-2xl p-6 border-2 border mb-6">
           <p className="text-lg font-semibold text-text mb-2">
             🚧 현재 기능 개발 중입니다
           </p>
@@ -85,7 +85,7 @@ export default function StatsPage() {
           transition={{ duration: 2, repeat: Infinity }}
           className="mt-6 inline-block"
         >
-          <div className="bg-gradient-to-r from-primary to-accent text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg">
+          <div className="bg-accent text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg">
             Coming Soon! 곧 만나요 ✨
           </div>
         </motion.div>

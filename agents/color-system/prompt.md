@@ -26,7 +26,7 @@ orange-*, pink-*, gray-*
 | 색상 | Tailwind Class | Hex Code | 용도 |
 |------|----------------|----------|------|
 | **Primary** | `primary` | `#7DE6C3` | 메인 브랜드 색상, 강조, 액티브 상태 |
-| **Primary Dark** | `primary-dark` | `#4FD4A8` | 호버, 그라디언트 엔드 |
+| **Primary Dark** | `primary-dark` | `#4FD4A8` | 호버 상태 |
 | **Secondary** | `secondary` | `#FFF6BF` | 보조 강조, 진행중 상태 |
 | **Accent** | `accent` | `#F19ED2` | 성공, 완료 상태, CTA |
 
@@ -94,20 +94,7 @@ orange-*, pink-*, gray-*
 <div className="border-blue-500">
 ```
 
-### 4. 그라디언트 (Gradient)
-
-```tsx
-// ✅ 올바른 사용
-<div className="bg-gradient-to-r from-primary to-primary-dark">
-<div className="bg-gradient-to-br from-primary to-accent">
-<div className="bg-gradient-to-t from-background to-background-surface">
-
-// ❌ 절대 금지
-<div className="bg-gradient-to-r from-purple-500 to-pink-500">
-<div className="bg-gradient-to-br from-blue-400 to-cyan-500">
-```
-
-### 5. 호버 상태 (Hover)
+### 4. 호버 상태 (Hover)
 
 ```tsx
 // ✅ 올바른 사용
@@ -120,7 +107,7 @@ orange-*, pink-*, gray-*
 <div className="hover:bg-gray-100">
 ```
 
-### 6. 포커스 상태 (Focus)
+### 5. 포커스 상태 (Focus)
 
 ```tsx
 // ✅ 올바른 사용
@@ -263,7 +250,7 @@ className="border"
 ```tsx
 // 기본 진행바
 <div className="bg-track rounded-full">
-  <div className="bg-gradient-to-r from-primary to-primary-dark rounded-full"
+  <div className="bg-primary rounded-full"
        style={{ width: `${progress}%` }}
   />
 </div>
@@ -322,21 +309,6 @@ border-yellow-*
 border-orange-*
 border-pink-*
 border-gray-*
-
-from-purple-*
-from-blue-*
-from-cyan-*
-from-green-*
-from-yellow-*
-from-orange-*
-from-pink-*
-to-purple-*
-to-blue-*
-to-cyan-*
-to-green-*
-to-yellow-*
-to-orange-*
-to-pink-*
 ```
 
 ### 수정 매핑 테이블
@@ -344,7 +316,7 @@ to-pink-*
 | 레거시 패턴 | 새 패턴 | 용도 |
 |------------|---------|------|
 | `purple-*` / `blue-*` | `primary` | 메인 색상 |
-| `cyan-*` | `primary-dark` | 그라디언트 |
+| `cyan-*` | `primary-dark` | 호버 상태 |
 | `green-*` | `accent` | 성공/완료 |
 | `pink-*` | `accent` | 강조 |
 | `yellow-*` | `secondary` | 경고/진행중 |

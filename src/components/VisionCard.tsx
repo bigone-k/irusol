@@ -17,7 +17,7 @@ export default function VisionCard({ onClick }: VisionCardProps) {
     return (
       <motion.div
         onClick={onClick}
-        className="relative bg-gradient-to-br from-primary/20 via-accent/10 to-primary/20 rounded-2xl p-6 shadow-lg border-2 border overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+        className="relative bg-primary/10 rounded-2xl p-6 shadow-lg border-2 border overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.02 }}
@@ -46,7 +46,7 @@ export default function VisionCard({ onClick }: VisionCardProps) {
 
   return (
     <motion.div
-      className="relative bg-gradient-to-br from-primary/20 via-accent/10 to-primary/20 rounded-2xl p-6 shadow-lg border-2 border overflow-hidden"
+      className="relative bg-primary/10 rounded-2xl p-6 shadow-lg border-2 border overflow-hidden"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
     >

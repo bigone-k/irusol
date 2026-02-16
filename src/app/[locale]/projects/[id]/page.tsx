@@ -9,7 +9,7 @@ import { usePlayerStore } from "@/store/usePlayerStore";
 import { useTaskStore } from "@/store/useTaskStore";
 import { useToastStore } from "@/store/useToastStore";
 import { motion } from "framer-motion";
-import { FiArrowLeft, FiCalendar, FiTarget, FiEdit2, FiSave, FiTrash2, FiAward, FiClock, FiRepeat } from "react-icons/fi";
+import { FiArrowLeft, FiCalendar, FiTarget, FiEdit2, FiSave, FiTrash2, FiAward, FiClock, FiRepeat, FiCheckCircle } from "react-icons/fi";
 import { GiTwoCoins } from "react-icons/gi";
 import { PROJECT_REWARD } from "@/lib/rewards";
 import type { ProjectStatus } from "@/types";
@@ -275,47 +275,49 @@ export default function ProjectDetailsPage() {
           </div>
 
           {/* Metadata Grid */}
-          <div className="grid grid-cols-3 gap-3">
-            {/* Difficulty */}
-            {project.difficulty && (
-              <div className="bg-gray-50 rounded-lg p-3 text-center">
-                <FiTarget className="mx-auto mb-1 text-text-muted" size={20} />
-                <p className="text-xs text-text-muted mb-1">
-                  {t("project.difficulty")}
-                </p>
-                <p className="font-semibold text-sm">{project.difficulty}</p>
-              </div>
-            )}
+          {(project.difficulty || getPeriodDays() !== null || project.reward) && (
+            <div className="grid grid-cols-3 gap-3">
+              {/* Difficulty */}
+              {project.difficulty && (
+                <div className="bg-gray-50 rounded-lg p-3 text-center">
+                  <FiTarget className="mx-auto mb-1 text-text-muted" size={20} />
+                  <p className="text-xs text-text-muted mb-1">
+                    {t("project.difficulty")}
+                  </p>
+                  <p className="font-semibold text-sm">{project.difficulty}</p>
+                </div>
+              )}
 
-            {/* Period */}
-            {getPeriodDays() !== null && (
-              <div className="bg-gray-50 rounded-lg p-3 text-center">
-                <FiCalendar className="mx-auto mb-1 text-text-muted" size={20} />
-                <p className="text-xs text-text-muted mb-1">
-                  {t("project.period")}
-                </p>
-                <p className="font-semibold text-sm">
-                  {getPeriodDays()} {t("common.days")}
-                </p>
-              </div>
-            )}
+              {/* Period */}
+              {getPeriodDays() !== null && (
+                <div className="bg-gray-50 rounded-lg p-3 text-center">
+                  <FiCalendar className="mx-auto mb-1 text-text-muted" size={20} />
+                  <p className="text-xs text-text-muted mb-1">
+                    {t("project.period")}
+                  </p>
+                  <p className="font-semibold text-sm">
+                    {getPeriodDays()} {t("common.days")}
+                  </p>
+                </div>
+              )}
 
-            {/* Reward */}
-            {project.reward && (
-              <div className="bg-amber-50 rounded-lg p-3 text-center">
-                <GiTwoCoins
-                  className="mx-auto mb-1 text-amber-600"
-                  size={20}
-                />
-                <p className="text-xs text-text-muted mb-1">
-                  {t("project.reward")}
-                </p>
-                <p className="font-semibold text-sm text-amber-600">
-                  +{project.reward}
-                </p>
-              </div>
-            )}
-          </div>
+              {/* Reward */}
+              {project.reward && (
+                <div className="bg-amber-50 rounded-lg p-3 text-center">
+                  <GiTwoCoins
+                    className="mx-auto mb-1 text-amber-600"
+                    size={20}
+                  />
+                  <p className="text-xs text-text-muted mb-1">
+                    {t("project.reward")}
+                  </p>
+                  <p className="font-semibold text-sm text-amber-600">
+                    +{project.reward}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Reward Section */}
           {status === "completed" && (
@@ -329,7 +331,7 @@ export default function ProjectDetailsPage() {
               ) : (
                 <motion.button
                   onClick={handleClaimReward}
-                  className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary-dark hover:to-accent text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all"
+                  className="w-full bg-accent text-white font-bold py-3 px-4 rounded-lg hover:brightness-110 flex items-center justify-center gap-2 transition-all"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -342,7 +344,7 @@ export default function ProjectDetailsPage() {
 
           {/* Action Buttons (Edit Mode) */}
           {isEditing && (
-            <div className="flex gap-3 pt-4 border-t border">
+            <div className={`flex gap-3 ${(project.difficulty || getPeriodDays() !== null || project.reward || status === "completed") ? "pt-4 border-t border" : "pt-2"}`}>
               <button
                 onClick={handleDelete}
                 className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"
@@ -379,17 +381,20 @@ export default function ProjectDetailsPage() {
                 return (
                   <div
                     key={habit.id}
-                    className="bg-background-surface rounded-lg p-4 shadow-sm"
+                    className={`rounded-lg p-4 shadow-sm ${
+                      habit.completed
+                        ? "bg-accent/10 border-2 border-accent"
+                        : "bg-background-surface border border"
+                    }`}
                   >
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        checked={habit.completed}
-                        readOnly
-                        className="w-5 h-5 mt-1 rounded border text-accent flex-shrink-0"
-                      />
+                    <div className="flex items-start gap-2">
+                      {habit.completed && (
+                        <FiCheckCircle className="text-accent flex-shrink-0 mt-0.5" size={20} />
+                      )}
                       <div className="flex-1">
-                        <p className="font-medium text-text">{habit.title}</p>
+                        <p className={`font-medium ${habit.completed ? "text-text-muted line-through" : "text-text"}`}>
+                          {habit.title}
+                        </p>
                         {habit.description && (
                           <p className="text-sm text-text-muted mt-1">
                             {habit.description}
@@ -449,17 +454,20 @@ export default function ProjectDetailsPage() {
                 return (
                   <div
                     key={todo.id}
-                    className="bg-background-surface rounded-lg p-4 shadow-sm"
+                    className={`rounded-lg p-4 shadow-sm ${
+                      todo.completed
+                        ? "bg-accent/10 border-2 border-accent"
+                        : "bg-background-surface border border"
+                    }`}
                   >
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        checked={todo.completed}
-                        readOnly
-                        className="w-5 h-5 mt-1 rounded border text-primary-dark flex-shrink-0"
-                      />
+                    <div className="flex items-start gap-2">
+                      {todo.completed && (
+                        <FiCheckCircle className="text-accent flex-shrink-0 mt-0.5" size={20} />
+                      )}
                       <div className="flex-1">
-                        <p className="font-medium text-text">{todo.title}</p>
+                        <p className={`font-medium ${todo.completed ? "text-text-muted line-through" : "text-text"}`}>
+                          {todo.title}
+                        </p>
                         {todo.description && (
                           <p className="text-sm text-text-muted mt-1">
                             {todo.description}
@@ -525,7 +533,7 @@ export default function ProjectDetailsPage() {
           exit={{ opacity: 0, y: -50 }}
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
         >
-          <div className="bg-gradient-to-r from-primary to-accent text-white px-8 py-4 rounded-2xl shadow-2xl text-center">
+          <div className="bg-accent text-white px-8 py-4 rounded-2xl shadow-2xl text-center">
             <FiAward size={40} className="mx-auto mb-2" />
             <p className="text-2xl font-bold">+{PROJECT_REWARD} 코인</p>
             <p className="text-sm">보상을 받았습니다!</p>

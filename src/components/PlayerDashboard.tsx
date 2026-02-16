@@ -48,7 +48,7 @@ export default function PlayerDashboard() {
         <div className="flex gap-6">
           {/* Left: Avatar + Stage Badge */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
-            <div className="w-32 h-32 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center overflow-hidden border-2 border">
+            <div className="w-32 h-32 bg-primary/10 rounded-xl flex items-center justify-center overflow-hidden border-2 border">
               <Image
                 src={getStageImagePath(displayStage)}
                 alt={t(`character.stage.${displayStage}`)}
@@ -87,7 +87,7 @@ export default function PlayerDashboard() {
               </div>
               <div className="h-6 bg-track rounded-full overflow-hidden border border">
                 <div
-                  className="h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full transition-all"
+                  className="h-full bg-red-500 rounded-full transition-all"
                   style={{ width: `${healthPercent}%` }}
                 />
               </div>
@@ -103,7 +103,7 @@ export default function PlayerDashboard() {
               </div>
               <div className="h-6 bg-track rounded-full overflow-hidden border border">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-primary to-primary-dark rounded-full"
+                  className="h-full bg-primary rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${expPercent}%` }}
                   transition={{ duration: 0.5 }}

@@ -8,7 +8,7 @@
 
 ```bash
 # 모든 레거시 색상 패턴 검색
-grep -r "bg-purple-\|bg-blue-\|bg-cyan-\|bg-green-\|bg-yellow-\|bg-orange-\|bg-pink-\|bg-gray-\|text-purple-\|text-blue-\|text-cyan-\|text-green-\|text-yellow-\|text-orange-\|text-pink-\|text-gray-\|border-purple-\|border-blue-\|border-cyan-\|border-green-\|border-yellow-\|border-orange-\|border-pink-\|border-gray-\|from-purple-\|from-blue-\|from-cyan-\|from-green-\|from-yellow-\|from-orange-\|from-pink-\|to-purple-\|to-blue-\|to-cyan-\|to-green-\|to-yellow-\|to-orange-\|to-pink-" src --include="*.tsx" --include="*.ts"
+grep -r "bg-purple-\|bg-blue-\|bg-cyan-\|bg-green-\|bg-yellow-\|bg-orange-\|bg-pink-\|bg-gray-\|text-purple-\|text-blue-\|text-cyan-\|text-green-\|text-yellow-\|text-orange-\|text-pink-\|text-gray-\|border-purple-\|border-blue-\|border-cyan-\|border-green-\|border-yellow-\|border-orange-\|border-pink-\|border-gray-" src --include="*.tsx" --include="*.ts"
 ```
 
 ### 2. 빌드 캐시 정리
@@ -78,15 +78,6 @@ npm install
 | `border-yellow-400` | `border` | 기본 테두리 |
 | `border-gray-200` | `border` | 기본 테두리 |
 | `border-gray-300` | `border` | 기본 테두리 |
-
-### 그라디언트 (Gradient)
-
-| 레거시 | 새 색상 | 용도 |
-|--------|---------|------|
-| `from-purple-500 to-pink-500` | `from-primary to-primary-dark` | 메인 그라디언트 |
-| `from-blue-400 to-cyan-500` | `from-primary to-primary-dark` | 메인 그라디언트 |
-| `from-yellow-400 to-orange-400` | `from-primary to-accent` | 축하 그라디언트 |
-| `from-purple-50 to-blue-50` | `from-background to-background-surface` | 배경 그라디언트 |
 
 ### 호버 상태 (Hover)
 

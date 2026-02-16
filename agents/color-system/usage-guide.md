@@ -110,7 +110,7 @@ export default function ProgressCard({ goal }: { goal: Goal }) {
   const getProgressColor = () => {
     if (progress >= 100) return 'bg-accent'
     if (progress >= 70) return 'bg-primary'
-    if (progress >= 30) return 'bg-secondary'
+    if (progress >= 50) return 'bg-primary'
     return 'bg-track'
   }
 
@@ -624,19 +624,6 @@ export default function ConfirmModal({
     cursor-not-allowed
   "
 >
-```
-
-### 4. 그라디언트 배경
-
-```tsx
-// Primary 그라디언트
-<div className="bg-gradient-to-r from-primary to-primary-dark">
-
-// Success 그라디언트
-<div className="bg-gradient-to-br from-primary to-accent">
-
-// Subtle 배경
-<div className="bg-gradient-to-b from-background to-background-surface">
 ```
 
 ## 체크리스트

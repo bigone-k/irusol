@@ -99,10 +99,20 @@
     "reminder": "Reminder",
     "titlePlaceholder": "Enter task title",
     "endDate": "End Date",
+    "dueDate": "Due Date",
     "period": "Period",
     "completionCount": "Completion Count",
     "streak": "Streak",
-    "achieved": "Achieved"
+    "achieved": "Achieved",
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    }
   },
   "quest": {
     "title": "Quests",
@@ -184,7 +194,7 @@
     "today": "Today",
     "goals": "Goals",
     "projects": "Projects",
-    "todos": "To-Do",
+    "quest": "Quest",
     "character": "Character",
     "stats": "Stats"
   },

@@ -218,7 +218,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-primary/10 to-primary/5 z-50">
+    <div className="fixed inset-0 bg-primary/5 z-50">
       <div className="max-w-md mx-auto h-full flex flex-col p-6">
         {/* Progress Bar */}
         <div className="mb-8 mt-8">
@@ -263,7 +263,7 @@ export default function Onboarding() {
             disabled={!currentStep.canNext}
             className={`w-full py-4 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2 ${
               currentStep.canNext
-                ? "bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-accent"
+                ? "bg-primary hover:bg-primary-dark"
                 : "bg-border cursor-not-allowed"
             }`}
           >

@@ -99,10 +99,20 @@
     "reminder": "알림",
     "titlePlaceholder": "작업 제목을 입력하세요",
     "endDate": "종료 날짜",
+    "dueDate": "마감 날짜",
     "period": "기간",
     "completionCount": "완료 횟수",
     "streak": "연속",
-    "achieved": "달성"
+    "achieved": "달성",
+    "days": {
+      "sun": "일",
+      "mon": "월",
+      "tue": "화",
+      "wed": "수",
+      "thu": "목",
+      "fri": "금",
+      "sat": "토"
+    }
   },
   "quest": {
     "title": "퀘스트",
@@ -184,7 +194,7 @@
     "today": "오늘",
     "goals": "목표",
     "projects": "프로젝트",
-    "todos": "할일",
+    "quest": "쿼스트",
     "character": "캐릭터",
     "stats": "기록"
   },

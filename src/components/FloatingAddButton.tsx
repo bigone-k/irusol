@@ -18,7 +18,7 @@ export default function FloatingAddButton() {
   const getFormTypeFromPath = (): CreateOption => {
     if (pathname.includes("/goals")) return "goal";
     if (pathname.includes("/projects")) return "project";
-    return "task"; // Default: /todos and others
+    return "task"; // Default: /quest and others
   };
 
   const handleButtonClick = () => {
@@ -37,7 +37,7 @@ export default function FloatingAddButton() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={handleButtonClick}
-        className="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-br from-primary to-primary-dark text-white rounded-full shadow-lg flex items-center justify-center z-fab"
+        className="fixed bottom-20 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center z-fab hover:bg-primary-dark transition-colors"
       >
         <FiPlus size={24} />
       </motion.button>

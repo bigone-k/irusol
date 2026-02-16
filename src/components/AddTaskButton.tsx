@@ -42,6 +42,12 @@ export default function AddTaskButton({
   const [goalId, setGoalId] = useState("");
   const [projectId, setProjectId] = useState("");
 
+  // Period fields
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [frequency, setFrequency] = useState<number[]>([]);
+
   const addTask = useTaskStore((state) => state.addTask);
   const goals = useGoalStore((state) => state.goals);
   const projects = useProjectStore((state) => state.projects);
@@ -55,6 +61,14 @@ export default function AddTaskButton({
     e.preventDefault();
     if (!title.trim() || !goalId || !projectId) return;
 
+    // Validate period fields based on type
+    if (type === "habit" && (!startDate || !endDate || frequency.length === 0)) {
+      return;
+    }
+    if (type === "todo" && !dueDate) {
+      return;
+    }
+
     addTask({
       title: title.trim(),
       description: description.trim(),
@@ -62,6 +76,14 @@ export default function AddTaskButton({
       difficulty,
       goalId,
       projectId,
+      ...(type === "habit" && {
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        frequency,
+      }),
+      ...(type === "todo" && {
+        dueDate: new Date(dueDate),
+      }),
     });
 
     // Reset form
@@ -71,6 +93,10 @@ export default function AddTaskButton({
     setDifficulty("normal");
     setGoalId("");
     setProjectId("");
+    setStartDate("");
+    setEndDate("");
+    setDueDate("");
+    setFrequency([]);
     setIsOpen(false);
   };
 
@@ -82,7 +108,7 @@ export default function AddTaskButton({
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-br from-primary to-primary-dark text-white rounded-full shadow-lg flex items-center justify-center z-fab"
+          className="fixed bottom-20 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center z-fab hover:bg-primary-dark transition-colors"
         >
           <FaPlus className="text-2xl" />
         </motion.button>
@@ -209,7 +235,7 @@ export default function AddTaskButton({
                 {/* 타입 */}
                 <div>
                   <label className="block text-sm font-semibold text-text mb-1">
-                    {t("task.type")}
+                    {t("task.type")} *
                   </label>
                   <select
                     value={type}
@@ -220,6 +246,90 @@ export default function AddTaskButton({
                     <option value="todo">{t("tasks.types.todo")}</option>
                   </select>
                 </div>
+
+                {/* 기간 - Habit */}
+                {type === "habit" && (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-text mb-1">
+                          {t("task.startDate")} *
+                        </label>
+                        <input
+                          type="date"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                          className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-text mb-1">
+                          {t("task.endDate")} *
+                        </label>
+                        <input
+                          type="date"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                          className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-text mb-1">
+                        {t("task.frequency")} *
+                      </label>
+                      <div className="flex gap-2 flex-wrap">
+                        {[
+                          { value: 0, label: t("task.days.sun") },
+                          { value: 1, label: t("task.days.mon") },
+                          { value: 2, label: t("task.days.tue") },
+                          { value: 3, label: t("task.days.wed") },
+                          { value: 4, label: t("task.days.thu") },
+                          { value: 5, label: t("task.days.fri") },
+                          { value: 6, label: t("task.days.sat") },
+                        ].map((day) => (
+                          <button
+                            key={day.value}
+                            type="button"
+                            onClick={() => {
+                              setFrequency(
+                                frequency.includes(day.value)
+                                  ? frequency.filter((d) => d !== day.value)
+                                  : [...frequency, day.value].sort()
+                              );
+                            }}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              frequency.includes(day.value)
+                                ? "bg-primary text-white"
+                                : "bg-track text-text-muted"
+                            }`}
+                          >
+                            {day.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* 기간 - Todo */}
+                {type === "todo" && (
+                  <div>
+                    <label className="block text-sm font-semibold text-text mb-1">
+                      {t("task.dueDate")} *
+                    </label>
+                    <input
+                      type="date"
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
+                      required
+                    />
+                  </div>
+                )}
 
                 {/* 난이도 */}
                 <div>
@@ -241,7 +351,7 @@ export default function AddTaskButton({
 
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-semibold py-3 rounded-lg hover:from-primary-dark hover:to-primary transition-all"
+                  className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-dark transition-all"
                 >
                   {t("task.create")}
                 </button>

@@ -216,7 +216,7 @@ export default function GoalDetailSheet({
                     ) : (
                       <motion.button
                         onClick={handleClaimReward}
-                        className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary-dark hover:to-accent text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all"
+                        className="w-full bg-accent text-white font-bold py-2 px-4 rounded-lg hover:brightness-110 flex items-center justify-center gap-2 transition-all"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
@@ -293,21 +293,14 @@ export default function GoalDetailSheet({
                 {projects.length === 0 ? (
                   <p className="text-sm text-text-muted">{t("noProjects")}</p>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="flex flex-wrap gap-2">
                     {projects.map((project) => (
                       <button
                         key={project.id}
                         onClick={() => handleProjectClick(project.id)}
-                        className="w-full px-4 py-3 bg-secondary hover:bg-secondary rounded-lg text-left transition-colors"
+                        className="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary hover:text-primary-dark rounded-full font-medium text-sm transition-all"
                       >
-                        <p className="font-medium text-text">
-                          {project.title}
-                        </p>
-                        {project.description && (
-                          <p className="text-sm text-primary-dark mt-1">
-                            {project.description}
-                          </p>
-                        )}
+                        #{project.title}
                       </button>
                     ))}
                   </div>
@@ -372,7 +365,7 @@ export default function GoalDetailSheet({
               exit={{ opacity: 0, y: -50 }}
               className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
             >
-              <div className="bg-gradient-to-r from-primary to-accent text-white px-8 py-4 rounded-2xl shadow-2xl text-center">
+              <div className="bg-accent text-white px-8 py-4 rounded-2xl shadow-2xl text-center">
                 <FiAward size={40} className="mx-auto mb-2" />
                 <p className="text-2xl font-bold">+{GOAL_REWARD} 코인</p>
                 <p className="text-sm">보상을 받았습니다!</p>

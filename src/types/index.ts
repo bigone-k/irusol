@@ -52,11 +52,15 @@ export interface Task {
   projectId?: string;
   recurrence?: TaskRecurrence;
   targetDays?: number;
-  startDate?: Date;
   reminder?: TaskReminder;
 
-  // 신규 필드
-  endDate?: Date;
+  // Period fields
+  startDate?: Date; // Habit: 시작일
+  endDate?: Date; // Habit: 종료일
+  dueDate?: Date; // Todo: 특정일자
+  frequency?: number[]; // Habit: 빈도 (0=일, 1=월, 2=화, 3=수, 4=목, 5=금, 6=토)
+
+  // Completion tracking
   frequencyTarget?: number;
   frequencyPeriod?: "daily" | "weekly" | "monthly";
   completionCount?: number;

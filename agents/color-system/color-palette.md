@@ -32,7 +32,6 @@ Irusol 프로젝트의 공식 색상 팔레트입니다.
 - `bg-primary`: 배경색
 - `text-primary`: 텍스트색
 - `border-primary`: 테두리색
-- `from-primary` / `to-primary`: 그라디언트
 
 **사용처**:
 - 메인 버튼
@@ -52,7 +51,7 @@ Irusol 프로젝트의 공식 색상 팔레트입니다.
 │  hsl(160, 61%, 57%)                 │
 │                                     │
 │  진한 민트 그린                       │
-│  호버 상태, 그라디언트                │
+│  호버 상태                           │
 └─────────────────────────────────────┘
 ```
 
@@ -63,7 +62,6 @@ Irusol 프로젝트의 공식 색상 팔레트입니다.
 
 **사용처**:
 - Primary 버튼 호버 상태
-- 그라디언트 끝점
 - 강조된 텍스트
 - 활성 링크
 
@@ -284,7 +282,17 @@ Irusol 프로젝트의 공식 색상 팔레트입니다.
 
 **효과**: 부드럽고 차분한 강조
 
-### 조합 3: Surface + Accent (성공 표시)
+### 조합 3: Primary + White (버튼)
+
+```tsx
+<button className="bg-primary hover:bg-primary-dark text-white">
+  완료하기
+</button>
+```
+
+**효과**: 명확한 액션 버튼
+
+### 조합 4: Surface + Accent (성공 표시)
 
 ```tsx
 <div className="bg-background-surface border-2 border-accent">
@@ -295,20 +303,6 @@ Irusol 프로젝트의 공식 색상 팔레트입니다.
 ```
 
 **효과**: 명확한 성공 피드백
-
-### 조합 4: Gradient (역동적 효과)
-
-```tsx
-<div className="bg-gradient-to-r from-primary to-primary-dark">
-  <span className="text-white">진행중</span>
-</div>
-
-<div className="bg-gradient-to-br from-primary to-accent">
-  <span className="text-white">완료!</span>
-</div>
-```
-
-**효과**: 역동적이고 현대적인 느낌
 
 ## 접근성 (Accessibility)
 

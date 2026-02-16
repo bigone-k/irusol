@@ -59,7 +59,7 @@ export default function GoalForm({ isOpen, onClose }: GoalFormProps) {
 
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-semibold py-3 rounded-lg hover:from-primary-dark hover:to-primary transition-all"
+          className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-dark transition-all"
         >
           {t("goal.create")}
         </button>
