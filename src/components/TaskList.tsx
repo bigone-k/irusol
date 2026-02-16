@@ -154,13 +154,10 @@ export default function TaskList({ activeTab }: TaskListProps) {
                   <p className="text-sm text-text-muted mt-1">{task.description}</p>
                 )}
 
-                {/* Type & Difficulty Badges */}
+                {/* Type Badge */}
                 <div className="flex flex-wrap gap-2 mt-2">
                   <span className="text-xs px-2 py-1 rounded-full bg-secondary text-text">
                     {t(`tasks.types.${task.type}`)}
-                  </span>
-                  <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary-dark">
-                    {t(`tasks.difficulty.${task.difficulty}`)}
                   </span>
                 </div>
 

@@ -6,8 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiX, FiSave, FiTrash2 } from "react-icons/fi";
 import { useTaskStore } from "@/store/useTaskStore";
 import { useProjectStore } from "@/store/useProjectStore";
-import { useGoalStore } from "@/store/useGoalStore";
-import type { Task, Difficulty } from "@/types";
+import type { Task } from "@/types";
 
 interface QuestDetailSheetProps {
   task: Task | null;
@@ -24,11 +23,9 @@ export default function QuestDetailSheet({
   const updateTask = useTaskStore((state) => state.updateTask);
   const deleteTask = useTaskStore((state) => state.deleteTask);
   const projects = useProjectStore((state) => state.projects);
-  const goals = useGoalStore((state) => state.goals);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [difficulty, setDifficulty] = useState<Difficulty>("normal");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -38,7 +35,6 @@ export default function QuestDetailSheet({
     if (task) {
       setTitle(task.title);
       setDescription(task.description);
-      setDifficulty(task.difficulty);
 
       if (task.type === "habit") {
         setStartDate(task.startDate ? new Date(task.startDate).toISOString().split("T")[0] : "");
@@ -53,7 +49,6 @@ export default function QuestDetailSheet({
   if (!task) return null;
 
   const project = task.projectId ? projects.find((p) => p.id === task.projectId) : null;
-  const goal = task.goalId ? goals.find((g) => g.id === task.goalId) : null;
 
   const handleSave = () => {
     if (!title.trim()) {
@@ -71,7 +66,6 @@ export default function QuestDetailSheet({
     updateTask(task.id, {
       title,
       description,
-      difficulty,
       ...(task.type === "habit" && {
         startDate: new Date(startDate),
         endDate: new Date(endDate),
@@ -170,16 +164,11 @@ export default function QuestDetailSheet({
                 </div>
               </div>
 
-              {/* Project & Goal Info */}
-              <div className="mb-4 space-y-2">
+              {/* Project Info */}
+              <div className="mb-4">
                 {project && (
                   <div className="flex items-center gap-2 text-sm text-text-muted">
                     <span>📂 {project.title}</span>
-                  </div>
-                )}
-                {goal && (
-                  <div className="text-sm text-text-muted">
-                    🎯 {goal.title}
                   </div>
                 )}
               </div>
@@ -303,22 +292,6 @@ export default function QuestDetailSheet({
                     />
                   </div>
                 )}
-
-                {/* Difficulty */}
-                <div>
-                  <label className="block text-sm font-semibold text-text mb-1">
-                    {t("task.difficulty.label")}
-                  </label>
-                  <select
-                    value={difficulty}
-                    onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-                    className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
-                  >
-                    <option value="easy">{t("task.difficulty.easy")}</option>
-                    <option value="normal">{t("task.difficulty.normal")}</option>
-                    <option value="hard">{t("task.difficulty.hard")}</option>
-                  </select>
-                </div>
 
                 {/* Save Button */}
                 <button
