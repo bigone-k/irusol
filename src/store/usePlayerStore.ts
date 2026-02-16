@@ -14,6 +14,7 @@ const initialStats: PlayerStats = {
 
 interface PlayerStore extends PlayerStats {
   completeTask: (difficulty: Difficulty) => RewardResult;
+  completeTaskXPOnly: (difficulty: Difficulty) => RewardResult;
   addExperience: (amount: number) => void;
   addCoins: (amount: number) => void;
   reset: () => void;
@@ -59,6 +60,46 @@ export const usePlayerStore = create<PlayerStore>()(
         return {
           exp,
           coins,
+          leveledUp,
+          evolved,
+          newLevel: leveledUp ? newLevel : undefined,
+          newStage: evolved ? newStage : undefined,
+        };
+      },
+
+      completeTaskXPOnly: (difficulty: Difficulty): RewardResult => {
+        const { level, experience } = get();
+
+        // Calculate XP only
+        const exp = calculateExp(difficulty);
+
+        const newExp = experience + exp;
+        let newLevel = level;
+        let remainingExp = newExp;
+        let leveledUp = false;
+
+        // Handle level-ups
+        while (remainingExp >= getRequiredExp(newLevel)) {
+          remainingExp -= getRequiredExp(newLevel);
+          newLevel += 1;
+          leveledUp = true;
+        }
+
+        // Check for evolution
+        const evolved = checkEvolution(level, newLevel);
+        const newStage = getStageForLevel(newLevel);
+
+        // Update state (no coins)
+        set({
+          level: newLevel,
+          experience: remainingExp,
+          maxExperience: getRequiredExp(newLevel),
+          stage: newStage,
+        });
+
+        return {
+          exp,
+          coins: 0,
           leveledUp,
           evolved,
           newLevel: leveledUp ? newLevel : undefined,

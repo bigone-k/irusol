@@ -64,6 +64,7 @@ export interface Task {
   frequencyTarget?: number;
   frequencyPeriod?: "daily" | "weekly" | "monthly";
   completionCount?: number;
+  completedDates?: string[]; // YYYY-MM-DD 형식의 완료 날짜 배열
   rewardClaimed: boolean;
 }
 

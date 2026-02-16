@@ -232,5 +232,12 @@
       "info": "말을 바꾸면 바로 적용돼요.",
       "infoEnglish": "Language changes will be applied immediately."
     }
+  },
+  "calendar": {
+    "title": "달력",
+    "weekView": "주간",
+    "monthView": "월간",
+    "weekViewPlaceholder": "주간 보기를 준비 중입니다",
+    "monthViewPlaceholder": "월간 보기를 준비 중입니다"
   }
 }

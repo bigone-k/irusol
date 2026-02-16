@@ -232,5 +232,12 @@
       "info": "Language changes will be applied immediately.",
       "infoEnglish": "말을 바꾸면 바로 적용돼요."
     }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "weekView": "Week",
+    "monthView": "Month",
+    "weekViewPlaceholder": "Weekly view coming soon",
+    "monthViewPlaceholder": "Monthly view coming soon"
   }
 }

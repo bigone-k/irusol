@@ -1,24 +1,97 @@
-# Calendar 화면 구현 계획서
+# Calendar 화면 구현 계획서 (주간/월간 뷰)
 
 ## 📅 개요
 
-**목표**: 월별 달력 UI를 통해 습관(Habit)과 할일(Todo)을 날짜별로 시각화하고 완료 처리할 수 있는 캘린더 페이지 구현
+**목표**: 주간/월간 뷰를 전환할 수 있는 달력 UI를 통해 습관(Habit)과 할일(Todo)을 날짜별로 시각화하고 완료 처리할 수 있는 캘린더 페이지 구현
 
 **경로**: `/{locale}/calendar`
 
 **디자인 참고**: `docs/calendar.png`
 
+**선택 라이브러리**: **react-calendar** (월간 뷰) + **Custom Weekly View** (주간 뷰)
+
+**🆕 핵심 기능**: **주간/월간 뷰 토글** (기본값: 주간 뷰)
+
 ---
 
 ## 🎯 핵심 기능
 
-### 1. 월별 달력 표시
-- **월 단위 네비게이션**: 이전/다음 달 이동
-- **현재 날짜 강조**: 오늘 날짜 시각적 표시
-- **요일 헤더**: 일~토 요일 표시
-- **날짜 셀**: 각 날짜에 작업 인디케이터 표시
+### 1. 뷰 모드 전환
+- **기본 뷰**: 주간 내역 (Weekly View) ✅
+- **대체 뷰**: 월별 내역 (Monthly View)
+- **토글 버튼**: 상단 헤더에 주간/월간 전환 버튼
+- **상태 저장**: localStorage에 사용자 선호도 저장
 
-### 2. 작업 필터링 로직
+### 2. 주간 뷰 (Weekly View) - 기본
+
+#### 레이아웃
+```
+┌─────────────────────────────────┐
+│ TopAppBar: "달력"               │
+├─────────────────────────────────┤
+│ [주간] [월간]          2월 3주  │  ← 뷰 토글 + 주차 표시
+├─────────────────────────────────┤
+│  ◀  2월 16일 - 2월 22일  ▶     │  ← 주 네비게이션
+├─────────────────────────────────┤
+│ ┌────────────────────────────┐ │
+│ │ 월 2/17              3개    │ │  ← 날짜별 작업 목록
+│ │ ☐ 운동하기 (습관)    +10XP │ │
+│ │ ☐ 보고서 작성 (할일) +10XP │ │
+│ │ ☐ 독서하기 (습관)    +10XP │ │
+│ ├────────────────────────────┤ │
+│ │ 화 2/18              1개    │ │
+│ │ ☐ 팀 미팅 (할일)     +10XP │ │
+│ ├────────────────────────────┤ │
+│ │ 수 2/19              오늘   │ │  ← 오늘 강조
+│ │ ☐ 운동하기 (습관)    +10XP │ │
+│ ├────────────────────────────┤ │
+│ │ 목 2/20              2개    │ │
+│ │ 금 2/21              0개    │ │
+│ │ 토 2/22              1개    │ │
+│ └────────────────────────────┘ │
+├─────────────────────────────────┤
+│ BottomNavigation                │
+└─────────────────────────────────┘
+```
+
+#### 특징
+- ✅ **세로 스크롤**: 일주일 전체 작업 한눈에 보기
+- ✅ **인라인 완료**: 각 작업 옆 체크박스로 즉시 완료 처리
+- ✅ **날짜별 섹션**: 날짜 헤더 + 작업 목록
+- ✅ **좌우 네비게이션**: 이전/다음 주 이동
+- ✅ **오늘 강조**: 현재 날짜 배경 강조
+- ✅ **빈 날짜 축소**: 작업 없는 날은 1줄로 표시
+
+### 3. 월간 뷰 (Monthly View) - 대체
+
+#### 레이아웃
+```
+┌─────────────────────────────────┐
+│ TopAppBar: "달력"               │
+├─────────────────────────────────┤
+│ [주간] [월간]        2026년 2월 │  ← 뷰 토글
+├─────────────────────────────────┤
+│  ◀  2026년 2월  ▶              │  ← 월 네비게이션
+├─────────────────────────────────┤
+│ 일  월  화  수  목  금  토      │
+├─────────────────────────────────┤
+│                    1    2    3  │
+│  4    5    6    7    8    9   10│  ← 날짜 그리드
+│ 11   12   13   14   15   16   17│     (작업 인디케이터)
+│ 18   19   20   21   22   23   24│
+│ 25   26   27   28               │
+├─────────────────────────────────┤
+│ BottomNavigation                │
+└─────────────────────────────────┘
+```
+
+#### 특징
+- ✅ **월 단위 조망**: 한 달 전체 작업 패턴 파악
+- ✅ **작업 인디케이터**: 날짜 셀에 점으로 작업 표시
+- ✅ **날짜 클릭**: Bottom Sheet로 상세 작업 목록
+- ✅ **오늘 강조**: 현재 날짜 배경 강조
+
+### 4. 작업 필터링 로직 (공통)
 
 #### Habit (습관)
 - **표시 조건**:
@@ -36,114 +109,167 @@
   - 2026-02-20 선택 시 → 표시 ✅
   - 다른 날짜 선택 시 → 표시 안 함 ❌
 
-### 3. 날짜 선택 및 작업 관리
-- **날짜 클릭**: Bottom Sheet로 해당 날짜의 작업 목록 표시
-- **작업 카드**: 각 습관/할일을 카드 형태로 표시
-- **체크박스**: 완료 처리 (XP 지급)
-- **작업 추가**: 선택된 날짜 기준으로 새 작업 생성
-
-### 4. 시각적 인디케이터
-- **작업 개수 뱃지**: 날짜 셀에 해당 날짜의 작업 개수 표시
-- **완료 상태**: 모든 작업 완료 시 시각적 표시 (예: 초록색 점)
-- **작업 타입**: Habit/Todo 구분 색상 (Primary/Accent)
+### 5. 작업 완료 처리 (공통)
+- **주간 뷰**: 인라인 체크박스로 즉시 완료
+- **월간 뷰**: Bottom Sheet 내 체크박스로 완료
+- **보상**: XP만 지급 (코인 없음)
+- **실시간 반영**: 완료 즉시 UI 업데이트
 
 ---
 
 ## 🎨 UI/UX 디자인
 
-### 레이아웃 구조
+### 뷰 모드 토글
 
-```
-┌─────────────────────────────────┐
-│ TopAppBar: "달력"               │
-├─────────────────────────────────┤
-│  ◀  2026년 2월  ▶              │  ← 월 네비게이션
-├─────────────────────────────────┤
-│ 일  월  화  수  목  금  토      │  ← 요일 헤더
-├─────────────────────────────────┤
-│                    1    2    3  │
-│  4    5    6    7    8    9   10│
-│ 11   12   13   14   15   16   17│  ← 날짜 그리드
-│ 18   19   20   21   22   23   24│     (작업 인디케이터 포함)
-│ 25   26   27   28               │
-├─────────────────────────────────┤
-│ BottomNavigation                │
-└─────────────────────────────────┘
+```tsx
+// ViewToggle 컴포넌트
+┌──────────────────────┐
+│ [주간] [월간]        │  ← 세그먼트 컨트롤
+└──────────────────────┘
 
-[날짜 클릭 시 Bottom Sheet]
-┌─────────────────────────────────┐
-│ 2월 17일 (월)              [X]  │
-├─────────────────────────────────┤
-│ ☐ 운동하기 (습관)              │
-│   🔁 매주 월/수/금              │
-│   +10 XP                        │
-├─────────────────────────────────┤
-│ ☐ 보고서 작성 (할일)           │
-│   📅 2월 17일 마감              │
-│   +10 XP                        │
-├─────────────────────────────────┤
-│ [+ 새 작업 추가]                │
-└─────────────────────────────────┘
+// 주간 선택 시 (기본)
+┌──────────────────────┐
+│ [주간●] [월간]       │
+└──────────────────────┘
+
+// 월간 선택 시
+┌──────────────────────┐
+│ [주간] [월간●]       │
+└──────────────────────┘
 ```
 
 ### 색상 시스템 (Duto Mint Clean)
 
-| 요소 | 색상 | 용도 |
-|------|------|------|
-| 오늘 날짜 | `primary` (#7DE6C3) | 배경 강조 |
-| Habit 인디케이터 | `primary` (#7DE6C3) | 습관 표시 |
-| Todo 인디케이터 | `accent` (#F19ED2) | 할일 표시 |
-| 완료된 날짜 | `accent` (#F19ED2) | 모든 작업 완료 |
-| 선택된 날짜 | `primary-dark` (#4FD4A8) | 호버/선택 상태 |
-| 날짜 셀 배경 | `background-surface` (#FFFFFF) | 기본 배경 |
-| 테두리 | `border` (#DCEEE7) | 구분선 |
-| 텍스트 | `text` (#0F172A) | 날짜 숫자 |
-| 다른 달 날짜 | `text-muted` (#64748B) | 이전/다음 달 |
+#### 공통 색상
+
+| 요소 | 색상 | Tailwind Class | 용도 |
+|------|------|----------------|------|
+| 오늘 날짜 | `primary` (#7DE6C3) | `bg-primary text-white` | 배경 강조 |
+| Habit | `primary` (#7DE6C3) | `bg-primary/20 text-primary` | 습관 뱃지 |
+| Todo | `accent` (#F19ED2) | `bg-accent/20 text-accent` | 할일 뱃지 |
+| 완료 체크 | `accent` (#F19ED2) | `checked:bg-accent` | 완료 상태 |
+| 선택된 뷰 | `primary` (#7DE6C3) | `bg-primary text-white` | 활성 탭 |
+| 비선택 뷰 | `text-muted` (#64748B) | `text-text-muted` | 비활성 탭 |
+| 날짜 헤더 | `background-surface` (#FFFFFF) | `bg-background-surface` | 섹션 헤더 |
+| 구분선 | `border` (#DCEEE7) | `border-border` | 섹션 구분 |
+
+#### 주간 뷰 전용 색상
+
+| 요소 | 색상 | Tailwind Class |
+|------|------|----------------|
+| 날짜 섹션 배경 | `background-surface` (#FFFFFF) | `bg-background-surface` |
+| 오늘 섹션 | `primary` (#7DE6C3) | `bg-primary/10 border-l-4 border-primary` |
+| 빈 날짜 | `text-muted` (#64748B) | `text-text-muted` |
+| 작업 카드 | `background` (#F7F9F2) | `bg-background` |
+
+#### 월간 뷰 전용 색상
+
+| 요소 | 색상 | Tailwind Class |
+|------|------|----------------|
+| 날짜 셀 | `background-surface` (#FFFFFF) | `bg-background-surface` |
+| 작업 있는 날짜 | `primary` (#7DE6C3) | `border-2 border-primary` |
+| 완료된 날짜 | `accent` (#F19ED2) | `bg-accent/20 border-accent` |
 
 ### 반응형 디자인
-- **Mobile (< 640px)**: 1주일 7컬럼 그리드
-- **Tablet/Desktop (≥ 640px)**: 1주일 7컬럼 그리드 (셀 크기 확대)
+- **Mobile (< 640px)**:
+  - 주간 뷰: 세로 스크롤
+  - 월간 뷰: 7컬럼 그리드, 터치 최적화
+- **Tablet/Desktop (≥ 640px)**:
+  - 주간 뷰: 더 넓은 작업 카드
+  - 월간 뷰: 7컬럼 그리드 (셀 크기 확대)
 
 ---
 
 ## 🔧 기술 스택
 
-### 추천 캘린더 라이브러리
+### 라이브러리 선택
 
-#### Option 1: react-calendar (추천) ✅
-```bash
-npm install react-calendar
-```
-
-**장점**:
-- ✅ 가볍고 빠름 (번들 크기 작음)
-- ✅ 커스터마이징 용이
+#### 월간 뷰: react-calendar
+- ✅ 번들 크기 ~20KB
+- ✅ Tailwind 통합 용이
 - ✅ TypeScript 지원
-- ✅ 접근성 준수 (ARIA)
-- ✅ Tailwind CSS와 호환
+- ✅ MIT 라이선스
 
-**사용법**:
-```tsx
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
-
-<Calendar
-  onChange={setSelectedDate}
-  value={selectedDate}
-  tileContent={({ date }) => <TaskIndicator date={date} />}
-  tileClassName={({ date }) => getDateClassName(date)}
-/>
-```
-
-#### Option 2: date-fns (날짜 유틸리티)
 ```bash
-npm install date-fns
+npm install react-calendar date-fns
 ```
 
-**용도**: 커스텀 캘린더 구현 시 날짜 계산
-- 월 시작/종료일 계산
-- 요일 판별
-- 날짜 포맷팅
+#### 주간 뷰: Custom Component
+- **date-fns** 활용하여 직접 구현
+- 주 시작/종료일 계산
+- 날짜 범위 생성
+- 더 높은 커스터마이징 자유도
+
+### 주요 유틸리티 함수
+
+```typescript
+// src/lib/calendar-utils.ts
+import {
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  format,
+  isSameDay,
+  addWeeks,
+  subWeeks
+} from 'date-fns';
+import { ko } from 'date-fns/locale';
+
+/**
+ * 주간 날짜 배열 생성
+ */
+export function getWeekDays(date: Date): Date[] {
+  const start = startOfWeek(date, { weekStartsOn: 1 }); // 월요일 시작
+  const end = endOfWeek(date, { weekStartsOn: 1 });
+
+  return eachDayOfInterval({ start, end });
+}
+
+/**
+ * 주차 레이블 생성 (예: "2월 3주")
+ */
+export function getWeekLabel(date: Date): string {
+  const start = startOfWeek(date, { weekStartsOn: 1 });
+  const month = format(start, 'M월', { locale: ko });
+  const weekOfMonth = Math.ceil(start.getDate() / 7);
+
+  return `${month} ${weekOfMonth}주`;
+}
+
+/**
+ * 주간 범위 레이블 (예: "2월 16일 - 2월 22일")
+ */
+export function getWeekRangeLabel(date: Date): string {
+  const start = startOfWeek(date, { weekStartsOn: 1 });
+  const end = endOfWeek(date, { weekStartsOn: 1 });
+
+  return `${format(start, 'M월 d일', { locale: ko })} - ${format(end, 'M월 d일', { locale: ko })}`;
+}
+
+/**
+ * 특정 날짜에 표시될 작업 필터링
+ */
+export function getTasksForDate(date: Date, tasks: Task[]): Task[] {
+  const dayOfWeek = date.getDay();
+
+  return tasks.filter(task => {
+    if (task.type === "habit") {
+      const inDateRange =
+        task.startDate && task.endDate &&
+        task.startDate <= date &&
+        date <= task.endDate;
+      const matchesFrequency = task.frequency?.includes(dayOfWeek) ?? false;
+      return inDateRange && matchesFrequency;
+    }
+
+    if (task.type === "todo") {
+      return task.dueDate && isSameDay(task.dueDate, date);
+    }
+
+    return false;
+  });
+}
+```
 
 ---
 
@@ -171,244 +297,791 @@ interface Task {
 }
 ```
 
-### 캘린더 전용 유틸리티 함수
+### 뷰 모드 상태 관리
 
 ```typescript
-// 특정 날짜에 표시될 작업 필터링
-function getTasksForDate(date: Date, tasks: Task[]): Task[] {
-  const dayOfWeek = date.getDay(); // 0=일, 1=월, ..., 6=토
+// src/store/useCalendarStore.ts (신규)
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-  return tasks.filter(task => {
-    if (task.type === "habit") {
-      // 기간 내 + 요일 일치
-      const inDateRange = task.startDate <= date && date <= task.endDate;
-      const matchesFrequency = task.frequency?.includes(dayOfWeek);
-      return inDateRange && matchesFrequency;
-    }
+type ViewMode = 'week' | 'month';
 
-    if (task.type === "todo") {
-      // 마감일 일치
-      return isSameDay(task.dueDate, date);
-    }
+interface CalendarStore {
+  viewMode: ViewMode;
+  currentDate: Date;
 
-    return false;
-  });
+  setViewMode: (mode: ViewMode) => void;
+  setCurrentDate: (date: Date) => void;
+  goToPreviousWeek: () => void;
+  goToNextWeek: () => void;
+  goToPreviousMonth: () => void;
+  goToNextMonth: () => void;
+  goToToday: () => void;
 }
 
-// 날짜 셀 스타일 결정
-function getDateTileClass(date: Date, tasks: Task[]): string {
-  const tasksForDate = getTasksForDate(date, tasks);
-  const allCompleted = tasksForDate.length > 0 &&
-                       tasksForDate.every(t => t.completed);
+export const useCalendarStore = create<CalendarStore>()(
+  persist(
+    (set) => ({
+      viewMode: 'week',  // 기본값: 주간 뷰
+      currentDate: new Date(),
 
-  if (isToday(date)) return "bg-primary text-white";
-  if (allCompleted) return "bg-accent/20 border-accent";
-  if (tasksForDate.length > 0) return "border-primary";
-  return "";
-}
+      setViewMode: (mode) => set({ viewMode: mode }),
+      setCurrentDate: (date) => set({ currentDate: date }),
+
+      goToPreviousWeek: () => set((state) => ({
+        currentDate: subWeeks(state.currentDate, 1)
+      })),
+
+      goToNextWeek: () => set((state) => ({
+        currentDate: addWeeks(state.currentDate, 1)
+      })),
+
+      goToPreviousMonth: () => set((state) => ({
+        currentDate: new Date(
+          state.currentDate.getFullYear(),
+          state.currentDate.getMonth() - 1,
+          1
+        )
+      })),
+
+      goToNextMonth: () => set((state) => ({
+        currentDate: new Date(
+          state.currentDate.getFullYear(),
+          state.currentDate.getMonth() + 1,
+          1
+        )
+      })),
+
+      goToToday: () => set({ currentDate: new Date() })
+    }),
+    {
+      name: 'calendar-storage',
+      partialize: (state) => ({ viewMode: state.viewMode })
+    }
+  )
+);
 ```
 
 ---
 
 ## 🚀 구현 계획
 
-### Phase 1: 기본 캘린더 UI (4-6시간)
+### Phase 1: 기본 UI 및 뷰 전환 (3-4시간)
 
-**Task 1.1: 캘린더 컴포넌트 생성**
-- Duration: 2시간
-- Files: `src/components/CalendarView.tsx`
-- Deliverables:
-  - react-calendar 설치 및 설정
-  - 월 네비게이션 구현
-  - 기본 날짜 그리드 표시
+#### **Task 1.1: 라이브러리 설치 및 설정**
+- **Duration**: 30분
+- **Files**: `package.json`, `tailwind.config.ts`
+- **Deliverables**:
+  ```bash
+  npm install react-calendar date-fns
+  npm install --save-dev @types/react-calendar
+  ```
+
+#### **Task 1.2: CalendarStore 생성**
+- **Duration**: 1시간
+- **Files**: `src/store/useCalendarStore.ts`
+- **Deliverables**:
+  - viewMode 상태 관리
+  - currentDate 상태 관리
+  - 네비게이션 함수들
+  - localStorage persist
+
+#### **Task 1.3: ViewToggle 컴포넌트**
+- **Duration**: 1시간
+- **Files**: `src/components/ViewToggle.tsx`
+- **Deliverables**:
+  - 주간/월간 세그먼트 컨트롤
   - Duto Mint Clean 색상 적용
+  - 선택 상태 시각화
 
-**Task 1.2: 날짜 필터링 로직**
-- Duration: 2시간
-- Files: `src/lib/calendar-utils.ts`
-- Deliverables:
-  - `getTasksForDate()` 함수 구현
-  - Habit/Todo 필터링 로직
-  - 요일 판별 로직
-  - 날짜 비교 유틸리티
+**구현 예시**:
+```tsx
+// src/components/ViewToggle.tsx
+'use client';
 
-**Task 1.3: 작업 인디케이터**
-- Duration: 2시간
-- Files: `src/components/TaskIndicator.tsx`
-- Deliverables:
-  - 날짜 셀에 작업 개수 뱃지 표시
-  - 작업 타입별 색상 구분
-  - 완료 상태 시각화
+import { useCalendarStore } from '@/store/useCalendarStore';
+import { useTranslations } from 'next-intl';
 
-### Phase 2: 날짜별 작업 상세 (3-4시간)
+export default function ViewToggle() {
+  const t = useTranslations('calendar');
+  const { viewMode, setViewMode } = useCalendarStore();
 
-**Task 2.1: DateTaskSheet 컴포넌트**
-- Duration: 2시간
-- Files: `src/components/DateTaskSheet.tsx`
-- Deliverables:
-  - Bottom Sheet 형태 구현
-  - 선택된 날짜의 작업 목록 표시
-  - 작업 카드 UI (제목, 타입, 난이도, XP)
+  return (
+    <div className="flex gap-2 p-1 bg-background rounded-lg">
+      <button
+        onClick={() => setViewMode('week')}
+        className={`px-4 py-2 rounded-md font-medium transition-all ${
+          viewMode === 'week'
+            ? 'bg-primary text-white'
+            : 'text-text-muted hover:text-text'
+        }`}
+      >
+        {t('viewMode.week')}
+      </button>
+      <button
+        onClick={() => setViewMode('month')}
+        className={`px-4 py-2 rounded-md font-medium transition-all ${
+          viewMode === 'month'
+            ? 'bg-primary text-white'
+            : 'text-text-muted hover:text-text'
+        }`}
+      >
+        {t('viewMode.month')}
+      </button>
+    </div>
+  );
+}
+```
 
-**Task 2.2: 완료 처리 통합**
-- Duration: 1시간
-- Files: `DateTaskSheet.tsx`, `useTaskStore.ts`
-- Deliverables:
-  - 체크박스로 완료 토글
-  - XP 지급 (기존 로직 활용)
-  - 완료 상태 실시간 업데이트
-
-**Task 2.3: 작업 추가 기능**
-- Duration: 1시간
-- Files: `DateTaskSheet.tsx`
-- Deliverables:
-  - "새 작업 추가" 버튼
-  - QuestDetailSheet 열기 (create 모드)
-  - 선택된 날짜를 dueDate/startDate로 자동 설정
-
-### Phase 3: 페이지 통합 및 최적화 (2-3시간)
-
-**Task 3.1: Calendar 페이지 생성**
-- Duration: 1시간
-- Files: `src/app/[locale]/calendar/page.tsx`
-- Deliverables:
+#### **Task 1.4: Calendar 페이지 기본 구조**
+- **Duration**: 1시간
+- **Files**: `src/app/[locale]/calendar/page.tsx`
+- **Deliverables**:
   - 페이지 라우트 설정
-  - TopAppBar + CalendarView + BottomNavigation 구성
-  - 네비게이션에 캘린더 메뉴 추가
+  - ViewToggle + 조건부 뷰 렌더링
+  - TopAppBar + BottomNavigation
 
-**Task 3.2: i18n 추가**
-- Duration: 1시간
-- Files: `messages/ko.json`, `messages/en.json`
-- Deliverables:
+**구현 예시**:
+```tsx
+// src/app/[locale]/calendar/page.tsx
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { useCalendarStore } from '@/store/useCalendarStore';
+import TopAppBar from '@/components/TopAppBar';
+import ViewToggle from '@/components/ViewToggle';
+import WeeklyView from '@/components/WeeklyView';
+import MonthlyView from '@/components/MonthlyView';
+import BottomNavigation from '@/components/BottomNavigation';
+
+export default function CalendarPage() {
+  const t = useTranslations('calendar');
+  const { viewMode } = useCalendarStore();
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <TopAppBar title={t('title')} />
+
+      {/* View Toggle */}
+      <div className="p-4 bg-background-surface border-b border-border">
+        <ViewToggle />
+      </div>
+
+      {/* Conditional View Rendering */}
+      <main className="flex-1 overflow-y-auto pb-20">
+        {viewMode === 'week' ? <WeeklyView /> : <MonthlyView />}
+      </main>
+
+      <BottomNavigation />
+    </div>
+  );
+}
+```
+
+---
+
+### Phase 2: 주간 뷰 구현 (4-5시간) - 우선
+
+#### **Task 2.1: WeeklyView 컴포넌트**
+- **Duration**: 2시간
+- **Files**: `src/components/WeeklyView.tsx`
+- **Deliverables**:
+  - 주간 네비게이션 (이전/다음 주)
+  - 주차 레이블 표시
+  - 일주일 날짜 배열 생성
+  - 날짜별 섹션 렌더링
+
+**구현 예시**:
+```tsx
+// src/components/WeeklyView.tsx
+'use client';
+
+import { useMemo } from 'react';
+import { format, isSameDay } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { useTranslations } from 'next-intl';
+import { useCalendarStore } from '@/store/useCalendarStore';
+import { useTaskStore } from '@/store/useTaskStore';
+import {
+  getWeekDays,
+  getWeekLabel,
+  getWeekRangeLabel,
+  getTasksForDate
+} from '@/lib/calendar-utils';
+import DaySection from '@/components/DaySection';
+
+export default function WeeklyView() {
+  const t = useTranslations('calendar');
+  const { currentDate, goToPreviousWeek, goToNextWeek } = useCalendarStore();
+  const tasks = useTaskStore((state) => state.tasks);
+
+  const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);
+  const weekLabel = useMemo(() => getWeekLabel(currentDate), [currentDate]);
+  const rangeLabel = useMemo(() => getWeekRangeLabel(currentDate), [currentDate]);
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Week Navigation */}
+      <div className="sticky top-0 bg-background-surface border-b border-border p-4 z-10">
+        <div className="flex items-center justify-between mb-2">
+          <button
+            onClick={goToPreviousWeek}
+            className="p-2 hover:bg-background rounded-lg transition-colors"
+          >
+            ◀
+          </button>
+          <div className="text-center">
+            <div className="text-sm text-text-muted">{weekLabel}</div>
+            <div className="text-lg font-bold text-text">{rangeLabel}</div>
+          </div>
+          <button
+            onClick={goToNextWeek}
+            className="p-2 hover:bg-background rounded-lg transition-colors"
+          >
+            ▶
+          </button>
+        </div>
+      </div>
+
+      {/* Day Sections */}
+      <div className="flex-1 overflow-y-auto">
+        {weekDays.map((date) => {
+          const tasksForDate = getTasksForDate(date, tasks);
+          const isToday = isSameDay(date, new Date());
+
+          return (
+            <DaySection
+              key={date.toISOString()}
+              date={date}
+              tasks={tasksForDate}
+              isToday={isToday}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+```
+
+#### **Task 2.2: DaySection 컴포넌트**
+- **Duration**: 2시간
+- **Files**: `src/components/DaySection.tsx`
+- **Deliverables**:
+  - 날짜 헤더 (요일, 날짜, 작업 개수)
+  - 작업 목록 (인라인 체크박스)
+  - 빈 날짜 축소 표시
+  - 오늘 강조 스타일
+
+**구현 예시**:
+```tsx
+// src/components/DaySection.tsx
+'use client';
+
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { Task } from '@/types';
+import { useTaskStore } from '@/store/useTaskStore';
+import { usePlayerStore } from '@/store/usePlayerStore';
+import TaskCard from '@/components/TaskCard';
+
+interface DaySectionProps {
+  date: Date;
+  tasks: Task[];
+  isToday: boolean;
+}
+
+export default function DaySection({ date, tasks, isToday }: DaySectionProps) {
+  const toggleTask = useTaskStore((state) => state.toggleTask);
+  const completeTaskXPOnly = usePlayerStore((state) => state.completeTaskXPOnly);
+
+  const dayLabel = format(date, 'EEE', { locale: ko });
+  const dateLabel = format(date, 'M/d', { locale: ko });
+
+  const handleToggle = (task: Task) => {
+    toggleTask(task.id);
+    if (!task.completed) {
+      completeTaskXPOnly(task.difficulty);
+    }
+  };
+
+  // 빈 날짜 축소 표시
+  if (tasks.length === 0) {
+    return (
+      <div className="border-b border-border p-3 bg-background-surface">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className={`font-bold ${isToday ? 'text-primary' : 'text-text'}`}>
+              {dayLabel} {dateLabel}
+            </span>
+            {isToday && (
+              <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full">
+                오늘
+              </span>
+            )}
+          </div>
+          <span className="text-sm text-text-muted">작업 없음</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 작업 있는 날짜
+  return (
+    <div
+      className={`border-b border-border p-4 ${
+        isToday ? 'bg-primary/10 border-l-4 border-l-primary' : 'bg-background-surface'
+      }`}
+    >
+      {/* Date Header */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className={`font-bold text-lg ${isToday ? 'text-primary' : 'text-text'}`}>
+            {dayLabel} {dateLabel}
+          </span>
+          {isToday && (
+            <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full">
+              오늘
+            </span>
+          )}
+        </div>
+        <span className="text-sm text-text-muted">{tasks.length}개</span>
+      </div>
+
+      {/* Task List */}
+      <div className="space-y-2">
+        {tasks.map((task) => (
+          <TaskCard
+            key={task.id}
+            task={task}
+            onToggle={() => handleToggle(task)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+#### **Task 2.3: TaskCard 컴포넌트**
+- **Duration**: 1시간
+- **Files**: `src/components/TaskCard.tsx`
+- **Deliverables**:
+  - 작업 제목, 타입, XP 표시
+  - 인라인 체크박스
+  - 완료 상태 스타일
+  - Duto Mint Clean 색상
+
+**구현 예시**:
+```tsx
+// src/components/TaskCard.tsx
+import { Task } from '@/types';
+
+interface TaskCardProps {
+  task: Task;
+  onToggle: () => void;
+}
+
+export default function TaskCard({ task, onToggle }: TaskCardProps) {
+  return (
+    <div className="bg-background border border-border rounded-lg p-3 flex items-start gap-3 hover:shadow-md transition-shadow">
+      {/* Checkbox */}
+      <input
+        type="checkbox"
+        checked={task.completed}
+        onChange={onToggle}
+        className="mt-1 w-5 h-5 rounded border-2 border-primary checked:bg-accent cursor-pointer"
+      />
+
+      {/* Task Info */}
+      <div className="flex-1">
+        <h3
+          className={`font-medium ${
+            task.completed ? 'line-through text-text-muted' : 'text-text'
+          }`}
+        >
+          {task.title}
+        </h3>
+
+        <div className="flex items-center gap-2 mt-1">
+          {/* Type Badge */}
+          <span
+            className={`text-xs px-2 py-0.5 rounded-full ${
+              task.type === 'habit'
+                ? 'bg-primary/20 text-primary'
+                : 'bg-accent/20 text-accent'
+            }`}
+          >
+            {task.type === 'habit' ? '🔁 습관' : '📅 할일'}
+          </span>
+
+          {/* XP Badge */}
+          <span className="text-xs text-text-muted">
+            +{task.difficulty * 10} XP
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+### Phase 3: 월간 뷰 구현 (3-4시간)
+
+#### **Task 3.1: MonthlyView 컴포넌트**
+- **Duration**: 2시간
+- **Files**: `src/components/MonthlyView.tsx`
+- **Deliverables**:
+  - react-calendar 통합
+  - 월 네비게이션
+  - 날짜 셀 커스터마이징
+  - 작업 인디케이터
+
+**구현 예시**:
+```tsx
+// src/components/MonthlyView.tsx
+'use client';
+
+import { useState } from 'react';
+import Calendar from 'react-calendar';
+import { useCalendarStore } from '@/store/useCalendarStore';
+import { useTaskStore } from '@/store/useTaskStore';
+import { getTasksForDate, getDateTileClass } from '@/lib/calendar-utils';
+import DateTaskSheet from '@/components/DateTaskSheet';
+import 'react-calendar/dist/Calendar.css';
+
+export default function MonthlyView() {
+  const { currentDate, setCurrentDate } = useCalendarStore();
+  const tasks = useTaskStore((state) => state.tasks);
+
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    setCurrentDate(date);
+    setIsSheetOpen(true);
+  };
+
+  return (
+    <>
+      <div className="p-4">
+        <Calendar
+          onChange={handleDateClick}
+          value={currentDate}
+          locale="ko-KR"
+
+          // 날짜 셀 커스텀 클래스
+          tileClassName={({ date, view }) => {
+            if (view !== 'month') return '';
+            return getDateTileClass(date, tasks);
+          }}
+
+          // 날짜 셀 인디케이터
+          tileContent={({ date, view }) => {
+            if (view !== 'month') return null;
+
+            const tasksForDate = getTasksForDate(date, tasks);
+            if (tasksForDate.length === 0) return null;
+
+            return (
+              <div className="flex items-center justify-center gap-0.5 mt-1">
+                {tasksForDate.slice(0, 3).map((task, idx) => (
+                  <div
+                    key={idx}
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      task.type === 'habit' ? 'bg-primary' : 'bg-accent'
+                    }`}
+                  />
+                ))}
+                {tasksForDate.length > 3 && (
+                  <span className="text-[10px] text-text-muted">
+                    +{tasksForDate.length - 3}
+                  </span>
+                )}
+              </div>
+            );
+          }}
+
+          // 요일 헤더
+          formatShortWeekday={(locale, date) => {
+            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            return weekdays[date.getDay()];
+          }}
+
+          // 월 레이블
+          formatMonthYear={(locale, date) => {
+            return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
+          }}
+
+          // 네비게이션
+          prevLabel="◀"
+          nextLabel="▶"
+          prev2Label={null}
+          next2Label={null}
+
+          showNeighboringMonth={true}
+          className="border-none shadow-none w-full"
+        />
+      </div>
+
+      {/* Date Task Sheet */}
+      {selectedDate && (
+        <DateTaskSheet
+          date={selectedDate}
+          isOpen={isSheetOpen}
+          onClose={() => setIsSheetOpen(false)}
+        />
+      )}
+    </>
+  );
+}
+```
+
+#### **Task 3.2: DateTaskSheet 컴포넌트**
+- **Duration**: 1.5시간
+- **Files**: `src/components/DateTaskSheet.tsx`
+- **Deliverables**:
+  - Bottom Sheet UI
+  - 선택된 날짜의 작업 목록
+  - 완료 처리
+  - 애니메이션
+
+**구현 예시**: (Phase 2의 TaskCard 재사용)
+```tsx
+// src/components/DateTaskSheet.tsx
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { motion, AnimatePresence } from 'framer-motion';
+import { getTasksForDate } from '@/lib/calendar-utils';
+import { useTaskStore } from '@/store/useTaskStore';
+import { usePlayerStore } from '@/store/usePlayerStore';
+import TaskCard from '@/components/TaskCard';
+
+interface DateTaskSheetProps {
+  date: Date;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function DateTaskSheet({ date, isOpen, onClose }: DateTaskSheetProps) {
+  const t = useTranslations('calendar');
+  const tasks = useTaskStore((state) => state.tasks);
+  const toggleTask = useTaskStore((state) => state.toggleTask);
+  const completeTaskXPOnly = usePlayerStore((state) => state.completeTaskXPOnly);
+
+  const tasksForDate = getTasksForDate(date, tasks);
+  const dateLabel = format(date, 'M월 d일 (EEE)', { locale: ko });
+
+  const handleToggle = (task) => {
+    toggleTask(task.id);
+    if (!task.completed) {
+      completeTaskXPOnly(task.difficulty);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/50 z-40"
+          />
+
+          {/* Bottom Sheet */}
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed bottom-0 left-0 right-0 bg-background-surface rounded-t-3xl shadow-2xl z-50 max-h-[80vh] overflow-y-auto"
+          >
+            {/* Header */}
+            <div className="sticky top-0 bg-background-surface border-b border-border p-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-text">{dateLabel}</h2>
+              <button onClick={onClose} className="text-text-muted hover:text-text">
+                ✕
+              </button>
+            </div>
+
+            {/* Task List */}
+            <div className="p-4 space-y-3">
+              {tasksForDate.length === 0 ? (
+                <div className="text-center py-8 text-text-muted">
+                  {t('noTasks')}
+                </div>
+              ) : (
+                tasksForDate.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onToggle={() => handleToggle(task)}
+                  />
+                ))
+              )}
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+```
+
+#### **Task 3.3: react-calendar CSS 커스터마이징**
+- **Duration**: 30분
+- **Files**: `src/app/globals.css`
+- **Deliverables**:
+  - Duto Mint Clean 색상 적용
+  - 날짜 셀 스타일링
+  - 호버/선택 상태
+
+**CSS**: (기존 계획서의 CSS 재사용)
+
+---
+
+### Phase 4: 통합 및 최적화 (2-3시간)
+
+#### **Task 4.1: i18n 추가**
+- **Duration**: 1시간
+- **Files**: `messages/ko.json`, `messages/en.json`
+- **Deliverables**:
   - **⚠️ i18n-generator agent 사용 필수**
-  - 캘린더 관련 번역 키 추가
-  - 요일, 월, 작업 관련 텍스트
+  - 캘린더 관련 번역 키
 
-**Task 3.3: 성능 최적화**
-- Duration: 1시간
-- Deliverables:
-  - 날짜 필터링 메모이제이션
-  - 불필요한 리렌더링 방지
-  - 작업 목록 캐싱
+**필요한 번역 키**:
+```json
+{
+  "calendar": {
+    "title": "달력",
+    "viewMode": {
+      "week": "주간",
+      "month": "월간"
+    },
+    "today": "오늘",
+    "noTasks": "작업이 없습니다",
+    "taskCount": "{count}개"
+  },
+  "nav": {
+    "calendar": "달력"
+  }
+}
+```
 
-### Phase 4: 고급 기능 (선택사항, 3-4시간)
+#### **Task 4.2: 성능 최적화**
+- **Duration**: 1시간
+- **Deliverables**:
+  - `useMemo`로 날짜 계산 메모이제이션
+  - `React.memo`로 컴포넌트 최적화
+  - 작업 필터링 캐싱
 
-**Task 4.1: 주간 뷰 추가**
-- 월간/주간 토글 기능
-- 주간 작업 밀도 시각화
+**최적화 예시**:
+```tsx
+// WeeklyView.tsx
+const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);
 
-**Task 4.2: 작업 통계**
-- 월별 완료율 표시
-- 연속 달성 일수 (Streak) 표시
+// DaySection을 React.memo로 감싸기
+const DaySection = React.memo(({ date, tasks, isToday }: DaySectionProps) => {
+  // ...
+});
+```
 
-**Task 4.3: 드래그 앤 드롭**
-- 작업을 다른 날짜로 이동
-- dueDate/startDate 업데이트
+#### **Task 4.3: BottomNavigation 업데이트**
+- **Duration**: 30분
+- **Files**: `src/components/BottomNavigation.tsx`
+- **Deliverables**:
+  - 캘린더 메뉴 아이콘 추가
 
 ---
 
 ## 🔗 통합 포인트
 
-### Quest/Task 기능과의 연계
+### 1. TaskStore 공유
+- WeeklyView, MonthlyView 모두 동일한 `useTaskStore` 사용
+- 작업 생성/수정은 QuestDetailSheet 활용
 
-1. **TaskStore 공유**
-   - 동일한 `useTaskStore` 사용
-   - Calendar는 읽기 전용 뷰로 활용
-
-2. **QuestDetailSheet 재사용**
-   - Calendar에서 작업 추가 시 기존 컴포넌트 활용
-   - 날짜 자동 설정 기능 추가
-
-3. **보상 시스템**
-   - Calendar 완료 처리 시 XP만 지급 (기존 로직)
-   - `completeTaskXPOnly()` 함수 활용
-
-4. **프로젝트/목표 필터**
-   - (선택) 특정 프로젝트의 작업만 캘린더에 표시
-   - 필터 토글 UI 추가
-
----
-
-## 📝 필요한 번역 키
-
-**⚠️ 반드시 i18n-generator agent 사용**
-
-```json
-{
-  "calendar": {
-    "title": "달력",
-    "today": "오늘",
-    "addTask": "작업 추가",
-    "noTasks": "작업이 없습니다",
-    "tasksForDate": "{date}의 작업",
-    "weekdays": {
-      "sun": "일",
-      "mon": "월",
-      "tue": "화",
-      "wed": "수",
-      "thu": "목",
-      "fri": "금",
-      "sat": "토"
-    },
-    "months": {
-      "jan": "1월",
-      "feb": "2월",
-      // ... (생략)
-    },
-    "stats": {
-      "completionRate": "완료율",
-      "totalTasks": "전체 작업"
-    }
-  }
+### 2. PlayerStore 통합
+```tsx
+// usePlayerStore.ts에 추가 필요
+completeTaskXPOnly: (difficulty: Difficulty) => {
+  const exp = calculateExp(difficulty);
+  const leveledUp = applyExperience(exp);
+  return { exp, leveledUp };
 }
 ```
+
+### 3. QuestDetailSheet 연동 (향후)
+- 주간 뷰: DaySection에서 "+" 버튼 클릭
+- 월간 뷰: DateTaskSheet에서 "작업 추가" 버튼
+- 선택된 날짜를 dueDate/startDate로 자동 설정
 
 ---
 
 ## ✅ 수락 기준
 
 ### MVP (필수)
-- [ ] 월별 달력 표시 (react-calendar)
-- [ ] 오늘 날짜 강조
-- [ ] 날짜별 작업 필터링 (Habit/Todo 로직)
-- [ ] 날짜 클릭 → Bottom Sheet로 작업 목록 표시
-- [ ] 작업 완료 체크박스 (XP 지급)
-- [ ] 작업 개수 인디케이터 표시
+- [ ] react-calendar, date-fns 설치
+- [ ] 주간/월간 뷰 토글 버튼
+- [ ] **기본 뷰: 주간** ✅
+- [ ] 주간 뷰: 일주일 날짜별 작업 목록
+- [ ] 주간 뷰: 인라인 체크박스 완료 처리
+- [ ] 주간 뷰: 오늘 강조
+- [ ] 주간 뷰: 좌우 네비게이션 (이전/다음 주)
+- [ ] 월간 뷰: react-calendar 통합
+- [ ] 월간 뷰: 날짜 클릭 → Bottom Sheet
+- [ ] 월간 뷰: 작업 인디케이터 표시
 - [ ] Duto Mint Clean 색상 적용
 - [ ] i18n 지원 (ko/en)
 - [ ] 반응형 디자인
+- [ ] localStorage에 뷰 모드 저장
+- [ ] TypeScript strict 준수
+- [ ] 빌드 성공
 
 ### 권장사항
-- [ ] 작업 추가 기능 (선택된 날짜 기준)
-- [ ] 완료 상태 시각화 (모든 작업 완료 시)
-- [ ] 월 네비게이션 애니메이션
+- [ ] 주간 뷰: 빈 날짜 축소 표시
+- [ ] 주간 뷰: 작업 추가 버튼
+- [ ] 월간 뷰: 완료 상태 시각화
+- [ ] 애니메이션 (뷰 전환, Bottom Sheet)
 - [ ] 로딩 상태 표시
+- [ ] 접근성 (ARIA, 키보드 네비게이션)
 
 ### 고급 기능 (선택)
-- [ ] 주간 뷰 토글
-- [ ] 월별 통계 (완료율)
+- [ ] 주간 뷰: 스와이프 제스처
+- [ ] 월간 뷰: 주간 뷰로 바로 이동
+- [ ] 통계 (주간/월간 완료율)
 - [ ] 프로젝트 필터
-- [ ] 드래그 앤 드롭 일정 변경
 
 ---
 
 ## 📊 성공 지표
 
 ### 기능
-- ✅ 습관/할일 정확한 날짜 매칭
-- ✅ 완료 처리 실시간 반영
-- ✅ 네비게이션 부드러운 전환
+- ✅ 주간 뷰 기본 표시 (100%)
+- ✅ 뷰 모드 전환 (<100ms)
+- ✅ 작업 완료 실시간 반영 (<100ms)
+- ✅ localStorage 선호도 저장
 
 ### 품질
 - ✅ TypeScript strict 준수
-- ✅ 접근성 (ARIA, 키보드 네비게이션)
-- ✅ 성능 (60fps 스크롤)
-- ✅ 번들 크기 최적화
+- ✅ ESLint 에러 0건
+- ✅ 번들 크기 최적화 (<50KB 추가)
+- ✅ 접근성 (WCAG 2.1 AA)
 
 ### UX
-- ✅ 직관적인 날짜 선택
-- ✅ 작업 상태 명확한 시각화
-- ✅ 빠른 완료 처리 (<500ms)
+- ✅ 직관적인 뷰 전환
+- ✅ 주간 뷰 빠른 작업 완료 (<2초)
+- ✅ 월간 뷰 한눈에 패턴 파악
+- ✅ 모바일 터치 최적화
 
 ---
 
@@ -418,13 +1091,41 @@ function getDateTileClass(date: Date, tasks: Task[]): string {
 - **react-calendar**: https://github.com/wojtekmaj/react-calendar
 - **date-fns**: https://date-fns.org/
 
-### 디자인 참고
-- 이미지: `docs/calendar.png`
+### 프로젝트 문서
 - 색상: `agents/color-system/color-palette.md`
 - 번역: `agents/i18n-generator/prompt.md`
+- 디자인: `docs/calendar.png`
+
+---
+
+## 🔍 구현 체크리스트
+
+### Phase 1 (기본 UI + 토글)
+- [ ] react-calendar, date-fns 설치
+- [ ] CalendarStore 생성
+- [ ] ViewToggle 컴포넌트
+- [ ] Calendar 페이지 기본 구조
+
+### Phase 2 (주간 뷰 - 우선)
+- [ ] WeeklyView 컴포넌트
+- [ ] DaySection 컴포넌트
+- [ ] TaskCard 컴포넌트
+- [ ] 완료 처리 통합
+
+### Phase 3 (월간 뷰)
+- [ ] MonthlyView 컴포넌트
+- [ ] DateTaskSheet 컴포넌트
+- [ ] react-calendar CSS 커스터마이징
+
+### Phase 4 (통합 & 최적화)
+- [ ] i18n 번역 (i18n-generator agent)
+- [ ] 성능 최적화 (메모이제이션)
+- [ ] BottomNavigation 업데이트
 
 ---
 
 **Last Updated**: 2026-02-16
 **Status**: 계획 단계
-**Estimated Effort**: 9-13시간 (MVP), +3-4시간 (고급 기능)
+**선택 라이브러리**: react-calendar (월간) + Custom (주간) ✅
+**기본 뷰**: 주간 (Weekly View) ✅
+**Estimated Effort**: 12-16시간 (MVP)

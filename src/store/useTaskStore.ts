@@ -8,6 +8,7 @@ interface TaskStore {
   tasks: Task[];
   addTask: (task: Omit<Task, "id" | "createdAt" | "completed" | "rewardClaimed">) => void;
   toggleTask: (id: string) => void;
+  completeTask: (id: string, date?: string) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   incrementCompletion: (id: string) => void;
@@ -43,6 +44,24 @@ export const useTaskStore = create<TaskStore>()(
               ...task,
               completed: newCompleted,
               rewardClaimed: newCompleted ? true : task.rewardClaimed,
+            };
+          }),
+        }));
+      },
+
+      completeTask: (id: string, date?: string) => {
+        const today = date || new Date().toISOString().split('T')[0];
+        set((state) => ({
+          tasks: state.tasks.map((task) => {
+            if (task.id !== id) return task;
+
+            const completedDates = task.completedDates || [];
+            if (completedDates.includes(today)) return task; // 이미 완료됨
+
+            return {
+              ...task,
+              completedDates: [...completedDates, today],
+              completionCount: (task.completionCount || 0) + 1,
             };
           }),
         }));
