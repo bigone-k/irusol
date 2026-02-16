@@ -118,22 +118,12 @@ export default function TaskList({ activeTab }: TaskListProps) {
             transition={{ delay: index * 0.05 }}
             className={`bg-background-surface rounded-lg p-4 border-2 ${
               task.completed ? "border-accent bg-accent/10" : "border"
-            } shadow-sm ${
+            } shadow-sm cursor-pointer ${
               celebratingTask === task.id ? "scale-105 border-accent" : ""
             }`}
+            onClick={() => handleTaskClick(task)}
           >
-            <div className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => handleToggle(task)}
-                onClick={(e) => e.stopPropagation()}
-                className="w-6 h-6 mt-1 rounded border text-primary focus:ring-primary cursor-pointer"
-              />
-              <div
-                className="flex-1 cursor-pointer"
-                onClick={() => handleTaskClick(task)}
-              >
+              <div className="w-full">
                 {/* Project Name */}
                 {project && (
                   <p className="text-xs text-text-muted mb-1">
@@ -156,7 +146,13 @@ export default function TaskList({ activeTab }: TaskListProps) {
 
                 {/* Type Badge */}
                 <div className="flex flex-wrap gap-2 mt-2">
-                  <span className="text-xs px-2 py-1 rounded-full bg-secondary text-text">
+                  <span
+                    className="text-xs px-2 py-1 rounded-full font-medium"
+                    style={{
+                      backgroundColor: task.type === 'habit' ? '#7DE6C3' : '#F19ED2',
+                      color: 'white'
+                    }}
+                  >
                     {t(`tasks.types.${task.type}`)}
                   </span>
                 </div>
@@ -220,7 +216,6 @@ export default function TaskList({ activeTab }: TaskListProps) {
                   </div>
                 )}
               </div>
-            </div>
           </motion.div>
         );
       })}
