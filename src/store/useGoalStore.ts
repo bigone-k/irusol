@@ -5,7 +5,12 @@ import { migrateGoalStore } from "@/lib/migrations";
 
 interface GoalStore {
   goals: Goal[];
-  addGoal: (goal: Omit<Goal, "id" | "createdAt" | "completed" | "status" | "currentValue" | "targetValue" | "unit" | "valueHistory" | "rewardClaimed" | "rewardAmount">) => void;
+  addGoal: (goal: Omit<Goal, "id" | "createdAt" | "completed" | "valueHistory" | "rewardClaimed" | "rewardAmount" | "status" | "currentValue" | "targetValue" | "unit"> & {
+    status?: Goal["status"];
+    currentValue?: number;
+    targetValue?: number;
+    unit?: string;
+  }) => void;
   toggleGoal: (id: string) => void;
   updateGoal: (id: string, updates: Partial<Goal>) => void;
   deleteGoal: (id: string) => void;
@@ -23,17 +28,18 @@ export const useGoalStore = create<GoalStore>()(
 
       addGoal: (goalData) => {
         const newGoal: Goal = {
-          ...goalData,
           id: crypto.randomUUID(),
           createdAt: new Date(),
           completed: false,
-          status: "notStarted",
-          currentValue: 0,
-          targetValue: 100,
-          unit: "%",
           valueHistory: [],
           rewardClaimed: false,
           rewardAmount: 500,
+          // 사용자 입력값 사용, 없으면 기본값
+          status: goalData.status || "notStarted",
+          currentValue: goalData.currentValue ?? 0,
+          targetValue: goalData.targetValue ?? 100,
+          unit: goalData.unit || "%",
+          ...goalData,
         };
         set((state) => ({ goals: [...state.goals, newGoal] }));
       },
