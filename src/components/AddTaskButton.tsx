@@ -100,7 +100,7 @@ export default function AddTaskButton({
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center z-fab hover:bg-primary-dark transition-colors"
+          className="fixed bottom-20 right-6 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center z-fab hover:bg-primary-dark transition-colors"
         >
           <FaPlus className="text-2xl" />
         </motion.button>
@@ -125,7 +125,7 @@ export default function AddTaskButton({
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 bg-background-surface rounded-t-3xl shadow-2xl z-modal overflow-y-auto max-h-[90vh]"
+              className="fixed bottom-0 left-0 right-0 bg-background-surface rounded-t-3xl z-modal overflow-y-auto max-h-[90vh]"
             >
               {/* Handle Bar */}
               <div className="flex justify-center pt-3 pb-2 sticky top-0 bg-background-surface z-10">

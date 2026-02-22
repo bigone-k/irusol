@@ -61,98 +61,104 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
 
   return (
     <motion.div
-      className={`bg-background-surface rounded-2xl p-5 shadow-md border-2 transition-all cursor-pointer ${
+      className={`gummy-card p-5 cursor-pointer jelly-bounce ${
         goal.completed
-          ? "border-accent bg-accent/10"
-          : "border"
+          ? "border-accent bg-accent/15 "
+          : ""
       }`}
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.02, y: -2 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
     >
       {/* Header */}
-      <div className="mb-3">
-        <h3 className="font-bold text-lg text-text">
+      <div className="mb-4">
+        <h3 className="font-black text-lg text-text ">
           {goal.title}
         </h3>
         {goal.description && (
-          <p className="text-sm text-text-muted mt-1">
+          <p className="text-sm text-text-muted mt-1.5">
             {goal.description}
           </p>
         )}
       </div>
 
-      {/* Status Badge */}
-      <div className="mb-3">
+      {/* Status Badge - Gummy Style */}
+      <div className="mb-4">
         <StatusBadge status={goal.status} translationKey="goal" />
       </div>
 
-      {/* Value Tracker with Overlay Progress */}
-      <div className="mb-3 relative rounded-lg overflow-hidden border border">
+      {/* Value Tracker with Gummy Progress */}
+      <div className="mb-4 relative rounded-xl overflow-hidden border-2 border-primary/20">
         {/* Background Overlay */}
         <motion.div
           className={`absolute inset-0 ${getProgressColor(valueProgress)}`}
           initial={{ width: 0 }}
           animate={{ width: `${valueProgress}%` }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 0.8, ease: [0.68, -0.55, 0.265, 1.55] }}
         />
 
         {/* Content */}
-        <div className="relative z-10 p-3">
-          <div className="flex items-center justify-between">
+        <div className="relative z-10 p-4 backdrop-blur-xs">
+          <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
               <span
-                className={`text-sm font-bold transition-colors ${
+                className={`text-base font-black transition-colors  ${
                   valueProgress >= 80 ? "text-white" : "text-text"
                 }`}
               >
                 {goal.currentValue} / {goal.targetValue} {goal.unit}
               </span>
               <span
-                className={`ml-2 text-xs font-semibold transition-colors ${
-                  valueProgress >= 80 ? "text-white/80" : "text-text-muted"
+                className={`ml-2 text-xs font-bold transition-colors ${
+                  valueProgress >= 80 ? "text-white/90" : "text-text-muted"
                 }`}
               >
                 ({valueProgress}%)
               </span>
             </div>
             <div className="flex items-center gap-2">
+              {/* Decrement Button - Gummy Style */}
               <motion.button
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.15, y: -2 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleDecrement}
                 disabled={goal.currentValue <= 0}
-                className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center border-2 border-background-surface shadow-lg hover:bg-red-600 disabled:bg-track disabled:cursor-not-allowed transition-colors"
+                className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center border-2 border-white disabled:bg-track disabled:cursor-not-allowed transition-all glossy"
               >
-                <FiMinus size={16} />
+                <FiMinus size={18} strokeWidth={3} />
               </motion.button>
+              {/* Increment Button - Gummy Style */}
               <motion.button
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.15, y: -2 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleIncrement}
                 disabled={goal.currentValue >= goal.targetValue}
-                className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center border-2 border-background-surface shadow-lg hover:bg-accent/80 disabled:bg-track disabled:cursor-not-allowed transition-colors"
+                className="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center border-2 border-white  disabled:bg-track disabled:cursor-not-allowed transition-all glossy"
               >
-                <FiPlus size={16} />
+                <FiPlus size={18} strokeWidth={3} />
               </motion.button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Connected Projects */}
+      {/* Connected Projects - Gummy Badges */}
       {projects.length > 0 && (
         <div className="flex flex-wrap gap-2 items-center">
           {projects.slice(0, 3).map((project) => (
-            <span
+            <motion.span
               key={project.id}
-              className="text-xs font-medium text-text bg-secondary px-2 py-1 rounded"
+              whileHover={{ scale: 1.05 }}
+              className="text-xs font-bold text-text bg-secondary/50 px-3 py-1.5 rounded-full border border-secondary-dark/30"
             >
               #{project.title}
-            </span>
+            </motion.span>
           ))}
           {projects.length > 3 && (
-            <span className="text-xs text-text-muted font-medium">
+            <span className="text-xs text-text-muted font-bold">
               +{projects.length - 3}
             </span>
           )}

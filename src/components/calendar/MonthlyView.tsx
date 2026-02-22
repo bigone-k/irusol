@@ -38,10 +38,10 @@ export default function MonthlyView() {
     return (
       <div className="flex gap-1 justify-center mt-1">
         {hasHabit && (
-          <div className="w-1 h-1 rounded-full" style={{ backgroundColor: '#7DE6C3' }} />
+          <div className="w-1 h-1 rounded-full bg-primary" />
         )}
         {hasTodo && (
-          <div className="w-1 h-1 rounded-full" style={{ backgroundColor: '#F19ED2' }} />
+          <div className="w-1 h-1 rounded-full bg-accent" />
         )}
       </div>
     )

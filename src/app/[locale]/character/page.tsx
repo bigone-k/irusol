@@ -57,7 +57,7 @@ export default function CharacterPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-background-surface rounded-2xl p-6 shadow-lg"
+          className="bg-background-surface rounded-2xl p-6"
         >
           <div className="flex flex-col items-center">
             {/* Character Image */}
@@ -123,7 +123,7 @@ export default function CharacterPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-background-surface rounded-xl p-4 shadow-md"
+              className="bg-background-surface rounded-xl p-4"
             >
               <FiAward className="text-primary-dark text-2xl mb-2" />
               <p className="text-2xl font-bold text-text">
@@ -138,7 +138,7 @@ export default function CharacterPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-background-surface rounded-xl p-4 shadow-md"
+              className="bg-background-surface rounded-xl p-4"
             >
               <FiTrendingUp className="text-primary-dark text-2xl mb-2" />
               <p className="text-2xl font-bold text-text">{totalExp}</p>
@@ -151,7 +151,7 @@ export default function CharacterPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-background-surface rounded-xl p-4 shadow-md"
+              className="bg-background-surface rounded-xl p-4"
             >
               <GiCrownCoin className="text-accent text-2xl mb-2" />
               <p className="text-2xl font-bold text-text">{totalCoins}</p>
@@ -167,7 +167,7 @@ export default function CharacterPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-background-surface rounded-2xl p-6 shadow-lg"
+          className="bg-background-surface rounded-2xl p-6"
         >
           <h3 className="text-lg font-bold text-text mb-3">
             {t("character.currentStage")}
@@ -215,7 +215,7 @@ export default function CharacterPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + index * 0.1 }}
-                  className={`bg-background-surface rounded-xl p-4 shadow-md border-2 ${
+                  className={`bg-background-surface rounded-xl p-4 border-2 ${
                     isCurrent
                       ? "border-primary"
                       : isUnlocked

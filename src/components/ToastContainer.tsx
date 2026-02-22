@@ -48,7 +48,7 @@ export default function ToastContainer() {
             transition={{ duration: 0.2 }}
             className={`${getToastStyles(
               toast.type
-            )} rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]`}
+            )} rounded-lg p-4 flex items-center gap-3 min-w-[300px]`}
             role="alert"
             aria-live="polite"
           >

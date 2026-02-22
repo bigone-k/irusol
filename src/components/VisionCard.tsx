@@ -17,10 +17,11 @@ export default function VisionCard({ onClick }: VisionCardProps) {
     return (
       <motion.div
         onClick={onClick}
-        className="relative bg-primary/10 rounded-2xl p-6 shadow-lg border-2 border overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+        className="relative gummy-card p-6 overflow-hidden cursor-pointer jelly-bounce"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        whileHover={{ scale: 1.02 }}
+        transition={{ duration: 0.3 }}
+        whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
       >
         {/* Background Pattern */}
@@ -31,12 +32,17 @@ export default function VisionCard({ onClick }: VisionCardProps) {
 
         <div className="relative z-10 text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <FiPlus size={24} className="text-primary-dark" />
-            <h3 className="text-lg font-bold text-text">
+            <motion.div
+              className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center "
+              whileHover={{ scale: 1.1, rotate: 90 }}
+            >
+              <FiPlus size={24} className="text-primary-dark" />
+            </motion.div>
+            <h3 className="text-xl font-black text-text ">
               {t("createVision")}
             </h3>
           </div>
-          <p className="text-sm text-primary-dark">
+          <p className="text-sm text-primary-dark font-semibold">
             {t("visionDescription")}
           </p>
         </div>
@@ -46,9 +52,10 @@ export default function VisionCard({ onClick }: VisionCardProps) {
 
   return (
     <motion.div
-      className="relative bg-primary/10 rounded-2xl p-6 shadow-lg border-2 border overflow-hidden"
+      className="relative gummy-card p-6 overflow-hidden bg-primary/10 backdrop-blur-sm"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
     >
       {/* Background Image (if exists) */}
       {vision.imageUrl && (
@@ -85,7 +92,7 @@ export default function VisionCard({ onClick }: VisionCardProps) {
           </button>
         </div>
 
-        <h2 className="text-2xl font-bold text-text mb-2">
+        <h2 className="text-2xl font-black text-text mb-2 ">
           {vision.title}
         </h2>
 

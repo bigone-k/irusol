@@ -25,7 +25,7 @@ function DaySection({ date, tasks, locale }: DaySectionProps) {
     <div
       className={`
         bg-background-surface border rounded-lg overflow-hidden
-        ${isCurrentDay ? 'border-primary shadow-md' : 'border-border'}
+        ${isCurrentDay ? 'border-primary' : 'border-border'}
       `}
     >
       {/* Date Header */}

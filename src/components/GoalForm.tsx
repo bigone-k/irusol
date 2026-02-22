@@ -72,7 +72,7 @@ export default function GoalForm({ isOpen, onClose }: GoalFormProps) {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-background-surface rounded-t-3xl shadow-2xl z-50 max-h-[90vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 bg-background-surface rounded-t-3xl z-50 max-h-[90vh] overflow-y-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="goal-create-title"
@@ -118,9 +118,9 @@ export default function GoalForm({ isOpen, onClose }: GoalFormProps) {
                 <div className="flex gap-2">
                   {(["notStarted", "inProgress", "completed"] as GoalStatus[]).map((s) => {
                     const getStatusStyle = (status: GoalStatus) => {
-                      if (status === "notStarted") return "bg-track text-text border shadow-sm";
-                      if (status === "inProgress") return "bg-primary text-white border-primary-dark shadow-md";
-                      if (status === "completed") return "bg-accent text-white border-accent shadow-md";
+                      if (status === "notStarted") return "bg-track text-text border";
+                      if (status === "inProgress") return "bg-primary text-white border-primary-dark";
+                      if (status === "completed") return "bg-accent text-white border-accent";
                       return "";
                     };
 

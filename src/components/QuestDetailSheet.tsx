@@ -135,7 +135,7 @@ export default function QuestDetailSheet({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-background-surface rounded-t-3xl shadow-2xl z-modal overflow-y-auto max-h-[90vh]"
+            className="fixed bottom-0 left-0 right-0 bg-background-surface rounded-t-3xl z-modal overflow-y-auto max-h-[90vh]"
           >
             {/* Handle Bar */}
             <div className="flex justify-center pt-3 pb-2 sticky top-0 bg-background-surface z-10">

@@ -42,12 +42,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed top-0 left-0 bottom-0 w-80 max-w-[80vw] bg-background-surface shadow-2xl z-modal"
+            className="fixed top-0 left-0 bottom-0 w-80 max-w-[80vw] bg-background-surface z-modal"
           >
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border">
-                <h2 className="text-xl font-bold text-text">DoTo</h2>
+                <h2 className="text-xl font-bold text-text">DuTo</h2>
                 <button
                   onClick={onClose}
                   className="w-10 h-10 flex items-center justify-center text-text-muted hover:bg-primary/5 rounded-full transition-colors"
@@ -81,7 +81,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               {/* Footer */}
               <div className="p-4 border-t border">
                 <p className="text-xs text-text-muted text-center">
-                  DoTo v1.0.0
+                  DuTo v1.0.0
                 </p>
               </div>
             </div>

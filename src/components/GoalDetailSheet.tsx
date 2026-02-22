@@ -138,7 +138,7 @@ export default function GoalDetailSheet({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-background-surface rounded-t-3xl shadow-2xl z-50 max-h-[90vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 bg-background-surface rounded-t-3xl z-50 max-h-[90vh] overflow-y-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="goal-detail-title"
@@ -183,9 +183,9 @@ export default function GoalDetailSheet({
                 <div className="flex gap-2">
                   {(["notStarted", "inProgress", "completed"] as GoalStatus[]).map((s) => {
                     const getStatusStyle = (status: GoalStatus) => {
-                      if (status === "notStarted") return "bg-track text-text border shadow-sm";
-                      if (status === "inProgress") return "bg-primary text-white border-primary-dark shadow-md";
-                      if (status === "completed") return "bg-accent text-white border-accent shadow-md";
+                      if (status === "notStarted") return "bg-track text-text border";
+                      if (status === "inProgress") return "bg-primary text-white border-primary-dark";
+                      if (status === "completed") return "bg-accent text-white border-accent";
                       return "";
                     };
 
@@ -365,7 +365,7 @@ export default function GoalDetailSheet({
               exit={{ opacity: 0, y: -50 }}
               className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
             >
-              <div className="bg-accent text-white px-8 py-4 rounded-2xl shadow-2xl text-center">
+              <div className="bg-accent text-white px-8 py-4 rounded-2xl text-center">
                 <FiAward size={40} className="mx-auto mb-2" />
                 <p className="text-2xl font-bold">+{GOAL_REWARD} 코인</p>
                 <p className="text-sm">보상을 받았습니다!</p>

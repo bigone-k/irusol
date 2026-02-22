@@ -56,11 +56,10 @@ function TaskCard({ task, date }: TaskCardProps) {
           <div className="flex items-center gap-2">
             {/* Type Label */}
             <span
-              className="flex-shrink-0 text-xs px-2 py-0.5 rounded-full font-medium"
-              style={{
-                backgroundColor: task.type === 'habit' ? '#7DE6C3' : '#F19ED2',
-                color: 'white'
-              }}
+              className={`
+                flex-shrink-0 text-xs px-2 py-0.5 rounded-full font-medium text-white
+                ${task.type === 'habit' ? 'bg-primary' : 'bg-accent'}
+              `}
             >
               {task.type === 'habit'
                 ? (locale === 'ko' ? '습관' : 'Habit')

@@ -25,3 +25,64 @@ body {
     text-wrap: balance;
   }
 }
+
+/* 🎨 Playful Gummy + Neo-Mint Theme */
+@layer components {
+  /* Gummy Card: 3D depth */
+  .gummy-card {
+    @apply bg-background-surface rounded-2xl border-2 border transition-all duration-300;
+  }
+
+  .gummy-card:hover {
+    @apply -translate-y-1;
+  }
+
+  /* Gummy Progress Bar: Glossy jelly effect */
+  .gummy-progress-track {
+    @apply h-6 bg-track/50 rounded-full overflow-hidden border border backdrop-blur-xs;
+  }
+
+  .gummy-progress-bar {
+    @apply h-full rounded-full transition-all duration-500 ease-out;
+    background: currentColor;
+  }
+
+  /* Gummy Button: Bouncy interactive button */
+  .gummy-button {
+    @apply rounded-xl px-6 py-3 font-semibold transition-all duration-200;
+    @apply hover:-translate-y-1 active:translate-y-0;
+  }
+
+  /* Gummy Badge: Soft rounded badge */
+  .gummy-badge {
+    @apply px-4 py-1.5 rounded-full backdrop-blur-sm;
+    @apply transition-all duration-300;
+  }
+
+  /* Glossy Effect: Shiny surface like jelly */
+  .glossy {
+    position: relative;
+  }
+
+  .glossy::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /* Float Animation: Gentle floating effect */
+  .float-gentle {
+    animation: bounce-soft 3s ease-in-out infinite;
+  }
+
+  /* Jelly Bounce: Squish effect on hover */
+  .jelly-bounce:hover {
+    animation: jelly 0.6s ease-in-out;
+  }
+}

@@ -8,7 +8,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import ToastContainer from '@/components/ToastContainer';
 
 export const metadata: Metadata = {
-  title: "DoTo - Goal Mate",
+  title: "DuTo - Goal Mate",
   description: "RPG-style habit tracking app",
 };
 
@@ -39,7 +39,7 @@ export default async function LocaleLayout({
           <div className="flex flex-col min-h-screen">
             {/* Top App Bar - sticky */}
             <TopAppBar
-              title="DoTo"
+              title="DuTo"
               showMenu={true}
               showSearch={true}
               showAdd={false}

@@ -32,14 +32,18 @@ export default function FloatingAddButton() {
 
   return (
     <>
-      {/* Floating Action Button */}
+      {/* Floating Action Button - Gummy 3D Style */}
       <motion.button
-        whileHover={{ scale: 1.1 }}
+        whileHover={{
+          scale: 1.15,
+          y: -4,
+          rotate: 90
+        }}
         whileTap={{ scale: 0.9 }}
         onClick={handleButtonClick}
-        className="fixed bottom-20 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center z-fab hover:bg-primary-dark transition-colors"
+        className="fixed bottom-20 right-6 w-16 h-16 bg-primary hover:bg-primary-dark text-white rounded-full flex items-center justify-center z-fab transition-all duration-300 border-2 border-white/50 glossy animate-pulse-glow"
       >
-        <FiPlus size={24} />
+        <FiPlus size={28} strokeWidth={3} className="" />
       </motion.button>
 
       {/* Forms as Bottom Sheets */}

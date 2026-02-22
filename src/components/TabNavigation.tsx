@@ -18,7 +18,7 @@ export default function TabNavigation({ activeTab, setActiveTab }: TabNavigation
   ];
 
   return (
-    <div className="bg-background-surface border border rounded-xl shadow-sm p-2">
+    <div className="bg-background-surface border border rounded-xl p-2">
       <div className="flex justify-around items-center">
         {tabs.map((tab) => {
           const Icon = tab.icon;

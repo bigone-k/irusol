@@ -16,7 +16,7 @@ function ViewToggle() {
   return (
     <button
       onClick={handleToggle}
-      className="fixed bottom-24 left-4 z-40 bg-primary text-white rounded-full p-4 shadow-lg hover:bg-primary-dark transition-all duration-200 hover:scale-110"
+      className="fixed bottom-24 left-4 z-40 bg-primary text-white rounded-full p-4 hover:bg-primary-dark transition-all duration-200 hover:scale-110"
       aria-label={viewMode === 'week' ? t('monthView') : t('weekView')}
     >
       {viewMode === 'week' ? (

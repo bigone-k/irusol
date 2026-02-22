@@ -1,4 +1,4 @@
-# DoTo MVP 미구현 기능 목록
+# DuTo MVP 미구현 기능 목록
 
 > project-plan.md와 대조한 누락 기능 정리
 > 분석 일자: 2026-02-07

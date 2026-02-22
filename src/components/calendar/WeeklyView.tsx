@@ -81,7 +81,7 @@ export default function WeeklyView() {
               className={`
                 flex flex-col items-center py-3 rounded-lg transition-all
                 ${isSelected
-                  ? 'bg-primary text-white shadow-md'
+                  ? 'bg-primary text-white'
                   : isCurrentDay
                   ? 'bg-secondary/50 text-text border border-secondary'
                   : 'bg-background-surface text-text-muted hover:bg-border'

@@ -6,7 +6,7 @@
 구성: Flex Row (좌측 정렬 + 중앙 정렬 + 우측 정렬)
 요소:
 Left: 햄버거 메뉴 아이콘, 검색(돋보기) 아이콘
-Center: 페이지 타이틀 ("DoTo")
+Center: 페이지 타이틀 ("DuTo")
 Right: 추가 버튼 (+)
 특징: 상단에 고정(position: sticky or fixed)되어 스크롤 시에도 유지될 것으로 보입니다.
 

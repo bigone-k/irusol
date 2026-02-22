@@ -118,7 +118,7 @@ export default function TaskList({ activeTab }: TaskListProps) {
             transition={{ delay: index * 0.05 }}
             className={`bg-background-surface rounded-lg p-4 border-2 ${
               task.completed ? "border-accent bg-accent/10" : "border"
-            } shadow-sm cursor-pointer ${
+            } cursor-pointer ${
               celebratingTask === task.id ? "scale-105 border-accent" : ""
             }`}
             onClick={() => handleTaskClick(task)}
@@ -147,11 +147,10 @@ export default function TaskList({ activeTab }: TaskListProps) {
                 {/* Type Badge */}
                 <div className="flex flex-wrap gap-2 mt-2">
                   <span
-                    className="text-xs px-2 py-1 rounded-full font-medium"
-                    style={{
-                      backgroundColor: task.type === 'habit' ? '#7DE6C3' : '#F19ED2',
-                      color: 'white'
-                    }}
+                    className={`
+                      text-xs px-2 py-1 rounded-full font-medium text-white
+                      ${task.type === 'habit' ? 'bg-primary' : 'bg-accent'}
+                    `}
                   >
                     {t(`tasks.types.${task.type}`)}
                   </span>

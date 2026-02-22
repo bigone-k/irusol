@@ -16,12 +16,16 @@ export default function ProgressBar({
   animated = true,
 }: ProgressBarProps) {
   return (
-    <div className={`${height} bg-track rounded-full overflow-hidden`}>
+    <div className={`${height} gummy-progress-track`}>
       <motion.div
-        className={`h-full ${color} rounded-full`}
+        className={`gummy-progress-bar ${color === 'bg-primary' ? 'text-primary' : color === 'bg-accent' ? 'text-accent' : color === 'bg-secondary' ? 'text-secondary' : 'text-primary'}`}
         initial={animated ? { width: 0 } : undefined}
         animate={{ width: `${progress}%` }}
-        transition={animated ? { duration: 0.5, ease: "easeOut" } : undefined}
+        transition={
+          animated
+            ? { duration: 0.8, ease: [0.68, -0.55, 0.265, 1.55] }
+            : undefined
+        }
       />
     </div>
   );

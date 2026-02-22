@@ -141,11 +141,11 @@ export default function ProjectDetailsPage() {
   const getStatusColor = (s: ProjectStatus) => {
     switch (s) {
       case "notStarted":
-        return "bg-track text-text border shadow-sm";
+        return "bg-track text-text border";
       case "inProgress":
-        return "bg-primary text-white border-primary-dark shadow-md";
+        return "bg-primary text-white border-primary-dark";
       case "completed":
-        return "bg-accent text-white border-accent shadow-md";
+        return "bg-accent text-white border-accent";
     }
   };
 
@@ -179,7 +179,7 @@ export default function ProjectDetailsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-primary text-white p-4 sticky top-0 z-10 shadow-md">
+      <div className="bg-primary text-white p-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => router.back()}>
@@ -199,7 +199,7 @@ export default function ProjectDetailsPage() {
       <div className="p-4 space-y-4">
         {/* Project Info Card */}
         <motion.div
-          className="bg-background-surface rounded-2xl p-6 shadow-md space-y-4"
+          className="bg-background-surface rounded-2xl p-6 space-y-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
@@ -381,7 +381,7 @@ export default function ProjectDetailsPage() {
                 return (
                   <div
                     key={habit.id}
-                    className={`rounded-lg p-4 shadow-sm ${
+                    className={`rounded-lg p-4 ${
                       habit.completed
                         ? "bg-accent/10 border-2 border-accent"
                         : "bg-background-surface border border"
@@ -454,7 +454,7 @@ export default function ProjectDetailsPage() {
                 return (
                   <div
                     key={todo.id}
-                    className={`rounded-lg p-4 shadow-sm ${
+                    className={`rounded-lg p-4 ${
                       todo.completed
                         ? "bg-accent/10 border-2 border-accent"
                         : "bg-background-surface border border"
@@ -533,7 +533,7 @@ export default function ProjectDetailsPage() {
           exit={{ opacity: 0, y: -50 }}
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
         >
-          <div className="bg-accent text-white px-8 py-4 rounded-2xl shadow-2xl text-center">
+          <div className="bg-accent text-white px-8 py-4 rounded-2xl text-center">
             <FiAward size={40} className="mx-auto mb-2" />
             <p className="text-2xl font-bold">+{PROJECT_REWARD} 코인</p>
             <p className="text-sm">보상을 받았습니다!</p>

@@ -85,7 +85,7 @@ export default function StatsPage() {
           transition={{ duration: 2, repeat: Infinity }}
           className="mt-6 inline-block"
         >
-          <div className="bg-accent text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg">
+          <div className="bg-accent text-white px-6 py-2 rounded-full font-bold text-sm">
             Coming Soon! 곧 만나요 ✨
           </div>
         </motion.div>

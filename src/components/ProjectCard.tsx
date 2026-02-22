@@ -57,13 +57,16 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
   return (
     <Link href={`/${locale}/projects/${project.id}`}>
       <motion.div
-        className={`bg-background-surface rounded-2xl p-5 shadow-md border-2 transition-all ${
+        className={`gummy-card p-5 jelly-bounce ${
           project.completed
-            ? "border-accent bg-accent/10"
-            : "border"
+            ? "border-accent bg-accent/20 "
+            : ""
         }`}
-        whileHover={{ scale: 1.02 }}
+        whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
       >
         {/* Header: Title */}
         <div className="mb-3">
@@ -75,7 +78,7 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
           )}
 
           <h3
-            className={`font-bold text-lg mb-1 ${
+            className={`font-black text-lg mb-1  ${
               project.completed
                 ? "line-through text-text-muted"
                 : "text-text"
@@ -102,10 +105,13 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
         <div className="flex items-center gap-3 mb-3">
           {/* Coin Reward */}
           {project.reward && (
-            <div className="flex items-center gap-1 text-amber-600">
-              <GiTwoCoins size={16} />
-              <span className="text-sm font-semibold">+{project.reward}</span>
-            </div>
+            <motion.div
+              className="flex items-center gap-1 px-3 py-1.5 bg-secondary/60 rounded-full  border border-secondary-dark/30"
+              whileHover={{ scale: 1.05 }}
+            >
+              <GiTwoCoins size={16} className="text-accent" />
+              <span className="text-sm font-bold text-text">+{project.reward}</span>
+            </motion.div>
           )}
 
           {/* D-day */}
