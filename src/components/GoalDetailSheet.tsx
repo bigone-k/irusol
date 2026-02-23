@@ -54,7 +54,10 @@ export default function GoalDetailSheet({
 
   if (!goal) return null;
 
-  const projects = getProjectsByGoal(goal.id);
+  const statusOrder: Record<string, number> = { notStarted: 0, inProgress: 1, completed: 2 };
+  const projects = [...getProjectsByGoal(goal.id)].sort(
+    (a, b) => (statusOrder[a.status] ?? 0) - (statusOrder[b.status] ?? 0)
+  );
 
   // 목표 진척도 (currentValue / targetValue * 100)
   const goalProgress = targetValue > 0 ? Math.round((currentValue / targetValue) * 100) : 0;

@@ -48,14 +48,18 @@ export default function ProjectsPage() {
       }
     });
 
+    const statusOrder: Record<string, number> = { notStarted: 0, inProgress: 1, completed: 2 };
+    const sortByStatus = (a: Project, b: Project) =>
+      (statusOrder[a.status] ?? 0) - (statusOrder[b.status] ?? 0);
+
     const groups: ProjectGroup[] = [];
     goalMap.forEach((groupProjects, gid) => {
       const goal = goals.find((g) => g.id === gid) ?? null;
-      groups.push({ goal, projects: groupProjects });
+      groups.push({ goal, projects: [...groupProjects].sort(sortByStatus) });
     });
 
     if (noGoalProjects.length > 0) {
-      groups.push({ goal: null, projects: noGoalProjects });
+      groups.push({ goal: null, projects: [...noGoalProjects].sort(sortByStatus) });
     }
 
     return groups;

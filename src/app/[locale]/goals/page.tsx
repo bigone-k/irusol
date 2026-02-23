@@ -15,7 +15,11 @@ import { FiTarget } from "react-icons/fi";
 
 export default function GoalsPage() {
   const t = useTranslations();
-  const goals = useGoalStore((state) => state.goals);
+  const rawGoals = useGoalStore((state) => state.goals);
+  const STATUS_ORDER = { notStarted: 0, inProgress: 1, completed: 2 };
+  const goals = [...rawGoals].sort(
+    (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]
+  );
   const toggleGoal = useGoalStore((state) => state.toggleGoal);
 
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);

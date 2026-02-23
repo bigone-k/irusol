@@ -71,6 +71,7 @@ export default function MonthlyView() {
           onActiveStartDateChange={handleActiveStartDateChange}
           locale={locale}
           tileContent={tileContent}
+          formatDay={(_, date) => String(date.getDate())}
           formatShortWeekday={(locale, date) =>
             format(date, 'EEEEE', { locale: locale === 'ko' ? ko : undefined })
           }

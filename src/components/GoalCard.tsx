@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useProjectStore } from "@/store/useProjectStore";
 import { useGoalStore } from "@/store/useGoalStore";
-import { useToastStore } from "@/store/useToastStore";
 import { motion } from "framer-motion";
 import { FiPlus, FiMinus } from "react-icons/fi";
 import StatusBadge from "@/components/StatusBadge";
@@ -21,8 +20,6 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
   const getProjectsByGoal = useProjectStore((state) => state.getProjectsByGoal);
   const incrementValue = useGoalStore((state) => state.incrementValue);
   const decrementValue = useGoalStore((state) => state.decrementValue);
-  const { info, warning } = useToastStore();
-
   const projects = getProjectsByGoal(goal.id);
   const completedProjects = projects.filter((p) => p.completed).length;
   const projectProgress = projects.length > 0
@@ -35,22 +32,14 @@ export default function GoalCard({ goal, onToggle, onClick }: GoalCardProps) {
 
   const handleIncrement = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (goal.currentValue >= goal.targetValue) {
-      warning(`${t("title")} 목표값에 도달했습니다!`);
-      return;
-    }
+    if (goal.currentValue >= goal.targetValue) return;
     incrementValue(goal.id, 1);
-    info(`+1 ${goal.unit}`);
   };
 
   const handleDecrement = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (goal.currentValue <= 0) {
-      warning(`${t("title")} 최소값입니다!`);
-      return;
-    }
+    if (goal.currentValue <= 0) return;
     decrementValue(goal.id, 1);
-    info(`-1 ${goal.unit}`);
   };
 
   const getProgressColor = (progress: number) => {
