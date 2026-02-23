@@ -5,7 +5,8 @@ import {
   format,
   isSameDay,
   isWithinInterval,
-  parseISO
+  parseISO,
+  startOfDay
 } from 'date-fns'
 import type { Task } from '@/types'
 
@@ -35,18 +36,23 @@ export function getTasksForDate(tasks: Task[], targetDate: Date): Task[] {
     if (task.type === 'habit') {
       if (!task.startDate) return false
 
-      const startDate = typeof task.startDate === 'string'
-        ? parseISO(task.startDate)
-        : task.startDate
+      // new Date("YYYY-MM-DD")는 UTC 자정으로 파싱되므로 로컬 자정으로 정규화
+      const startDate = startOfDay(
+        typeof task.startDate === 'string'
+          ? parseISO(task.startDate)
+          : task.startDate
+      )
 
       const endDate = task.endDate
-        ? (typeof task.endDate === 'string' ? parseISO(task.endDate) : task.endDate)
+        ? startOfDay(typeof task.endDate === 'string' ? parseISO(task.endDate) : task.endDate)
         : null
+
+      const normalizedTarget = startOfDay(targetDate)
 
       // 기간 체크
       const isInRange = endDate
-        ? isWithinInterval(targetDate, { start: startDate, end: endDate })
-        : targetDate >= startDate
+        ? isWithinInterval(normalizedTarget, { start: startDate, end: endDate })
+        : normalizedTarget >= startDate
 
       if (!isInRange) return false
 

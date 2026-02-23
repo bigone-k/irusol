@@ -24,8 +24,8 @@ function TaskCard({ task, date }: TaskCardProps) {
   const handleToggle = () => {
     if (isCompleted) return // 이미 완료된 작업은 토글 안 함
 
-    // 작업 완료 처리 (useTaskStore에서 completedDates 업데이트)
-    completeTask(task.id)
+    // 작업 완료 처리 - 선택된 날짜 기준으로 기록
+    completeTask(task.id, dateKey)
 
     // XP만 획득 (코인 없음, 기본 난이도 'normal' 사용)
     completeTaskXPOnly(task.difficulty || 'normal')
