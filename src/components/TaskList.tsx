@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { FiCalendar, FiClock, FiRepeat, FiTarget } from "react-icons/fi";
 import QuestDetailSheet from "@/components/QuestDetailSheet";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 
 interface TaskListProps {
   activeTab?: TabType;
@@ -52,6 +53,42 @@ export default function TaskList({ activeTab }: TaskListProps) {
     if (!task.frequency || task.frequency.length === 0) return null;
     const dayLabels = ["일", "월", "화", "수", "목", "금", "토"];
     return task.frequency.map(d => dayLabels[d]).join(", ");
+  };
+
+  // Calculate task progress (0-100)
+  const getProgress = (task: Task): number => {
+    if (task.type === "todo") {
+      return task.completed ? 100 : 0;
+    }
+    // Habit
+    if (task.targetDays) {
+      return Math.min(100, ((task.completionCount || 0) / task.targetDays) * 100);
+    }
+    if (task.frequencyTarget && task.completedDates && task.frequencyPeriod) {
+      const today = new Date();
+      let periodStart: Date;
+      let periodEnd: Date;
+      if (task.frequencyPeriod === "weekly") {
+        periodStart = startOfWeek(today, { weekStartsOn: 1 });
+        periodEnd = endOfWeek(today, { weekStartsOn: 1 });
+      } else if (task.frequencyPeriod === "monthly") {
+        periodStart = startOfMonth(today);
+        periodEnd = endOfMonth(today);
+      } else {
+        // daily
+        const todayStr = format(today, "yyyy-MM-dd");
+        return task.completedDates.includes(todayStr) ? 100 : 0;
+      }
+      const periodStartStr = format(periodStart, "yyyy-MM-dd");
+      const periodEndStr = format(periodEnd, "yyyy-MM-dd");
+      const periodCompletions = task.completedDates.filter(
+        (d) => d >= periodStartStr && d <= periodEndStr
+      ).length;
+      return Math.min(100, (periodCompletions / task.frequencyTarget) * 100);
+    }
+    // Fallback: today completed?
+    const todayStr = format(new Date(), "yyyy-MM-dd");
+    return task.completedDates?.includes(todayStr) ? 100 : 0;
   };
 
   const handleToggle = (task: Task) => {
@@ -110,20 +147,33 @@ export default function TaskList({ activeTab }: TaskListProps) {
         const frequency = task.type === "habit" ? getFrequencyText(task) : null;
         const period = task.type === "habit" ? formatPeriod(task.startDate, task.endDate) : null;
 
+        const progress = getProgress(task);
+
         return (
           <motion.div
             key={task.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
-            className={`bg-background-surface rounded-lg p-4 border-2 ${
-              task.completed ? "border-accent bg-accent/10" : "border"
+            className={`relative overflow-hidden bg-background-surface rounded-lg p-4 border-2 ${
+              task.completed ? "border-accent" : "border"
             } cursor-pointer ${
               celebratingTask === task.id ? "scale-105 border-accent" : ""
             }`}
             onClick={() => handleTaskClick(task)}
           >
-              <div className="w-full">
+            {/* Background fill progress */}
+            <motion.div
+              className={`absolute inset-y-0 left-0 rounded-lg pointer-events-none
+                ${task.type === "habit"
+                  ? progress >= 100 ? "bg-primary/25" : "bg-primary/15"
+                  : progress >= 100 ? "bg-accent/25" : "bg-accent/15"
+                }`}
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.8, ease: [0.68, -0.55, 0.265, 1.55] }}
+            />
+              <div className="relative z-10 w-full">
                 {/* Project Name */}
                 {project && (
                   <p className="text-xs text-text-muted mb-1">
@@ -214,6 +264,17 @@ export default function TaskList({ activeTab }: TaskListProps) {
                     )}
                   </div>
                 )}
+
+                {/* Progress Text */}
+                <div className="flex justify-end mt-1">
+                  {task.type === "habit" && task.targetDays ? (
+                    <span className="text-xs text-text-muted font-medium">
+                      {task.completionCount || 0}/{task.targetDays}
+                    </span>
+                  ) : task.type === "todo" && task.completed ? (
+                    <span className="text-xs font-medium text-accent">완료</span>
+                  ) : null}
+                </div>
               </div>
           </motion.div>
         );
