@@ -8,7 +8,7 @@ import Link from "next/link";
 import { FiCalendar, FiClock, FiTarget } from "react-icons/fi";
 import { GiTwoCoins } from "react-icons/gi";
 import StatusBadge from "@/components/StatusBadge";
-import { getProgress } from "@/lib/taskProgress";
+import { getProgress, getDaysRemaining } from "@/lib/taskProgress";
 import type { Project } from "@/types";
 
 interface ProjectCardProps {
@@ -35,23 +35,13 @@ export default function ProjectCard({ project, locale, showGoal = false }: Proje
   // 완료된 퀘스트 수 (getProgress >= 100)
   const completedCount = projectTasks.filter((task) => getProgress(task) >= 100).length;
 
-  // D-day
-  const getDaysRemaining = () => {
-    if (!project.endDate) return null;
-    const today = new Date();
-    const end = new Date(project.endDate);
-    return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  };
-  const daysRemaining = getDaysRemaining();
+  const daysRemaining = getDaysRemaining(project.endDate);
 
-  // Period
-  const formatPeriod = () => {
-    if (!project.startDate || !project.endDate) return null;
-    const loc = locale === "ko" ? "ko-KR" : "en-US";
-    const start = new Date(project.startDate).toLocaleDateString(loc, { month: "short", day: "numeric" });
-    const end = new Date(project.endDate).toLocaleDateString(loc, { month: "short", day: "numeric" });
-    return `${start} - ${end}`;
-  };
+  const loc = locale === "ko" ? "ko-KR" : "en-US";
+  const period =
+    project.startDate && project.endDate
+      ? `${new Date(project.startDate).toLocaleDateString(loc, { month: "short", day: "numeric" })} - ${new Date(project.endDate).toLocaleDateString(loc, { month: "short", day: "numeric" })}`
+      : null;
 
   return (
     <Link href={`/${locale}/projects/${project.id}`}>
@@ -99,10 +89,10 @@ export default function ProjectCard({ project, locale, showGoal = false }: Proje
           </div>
 
           {/* Row 2: 기간 */}
-          {formatPeriod() && (
+          {period && (
             <div className="flex items-center gap-1 text-xs text-text-muted mb-2">
               <FiCalendar size={11} />
-              <span>{formatPeriod()}</span>
+              <span>{period}</span>
             </div>
           )}
 

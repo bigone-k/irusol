@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { FiTarget } from "react-icons/fi";
 
 export default function ObjectiveCard() {
-  const [objectives] = useState([
+  const objectives = [
     {
       id: "1",
       title: "첫 습관 만들기",
@@ -13,7 +12,7 @@ export default function ObjectiveCard() {
       completed: false,
       reward: 10,
     },
-  ]);
+  ];
 
   return (
     <motion.div

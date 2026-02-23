@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { getStageImagePath } from "@/lib/evolution";
 import { GiCrownCoin } from "react-icons/gi";
-import { FiStar } from "react-icons/fi";
+import { FiZap, FiShield, FiAward, FiCheckCircle } from "react-icons/fi";
 import Image from "next/image";
 
 export default function PlayerDashboard() {
@@ -23,7 +23,6 @@ export default function PlayerDashboard() {
   const hp = usePlayerStore((state) => state.hp);
   const maxHp = usePlayerStore((state) => state.maxHp);
 
-  // tasks를 직접 구독해야 완료 상태 변경 시 re-render됨
   const tasks = useTaskStore((state) => state.tasks);
   const getDailyStats = useTaskStore((state) => state.getDailyStats);
 
@@ -41,7 +40,6 @@ export default function PlayerDashboard() {
   const displayHp = mounted ? hp : 50;
   const displayMaxHp = mounted ? maxHp : 50;
 
-  // tasks 구독으로 인해 완료 시 자동 재계산됨
   const stats = useMemo(
     () =>
       mounted
@@ -54,147 +52,168 @@ export default function PlayerDashboard() {
   const healthPercent = displayMaxHp > 0 ? Math.round((displayHp / displayMaxHp) * 100) : 0;
   const expPercent = Math.round((displayExperience / displayMaxExperience) * 100);
 
+  const hpBarColor =
+    healthPercent > 50
+      ? "from-red-500 to-red-400"
+      : healthPercent > 25
+      ? "from-orange-500 to-yellow-400"
+      : "from-red-700 to-red-500";
+
   return (
-    <div className="space-y-4">
-      {/* Character Card */}
+    <div className="space-y-3">
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.68, -0.55, 0.265, 1.55] }}
-        className="gummy-card p-6 jelly-bounce"
+        transition={{ duration: 0.4 }}
+        className="relative overflow-hidden rounded-2xl bg-background-surface border border-border"
+        style={{ boxShadow: "0 2px 16px rgba(79,212,168,0.1)" }}
       >
-        <div className="flex gap-6">
-          {/* Left: Avatar + Stage Badge */}
-          <div className="flex flex-col items-center gap-3 flex-shrink-0">
-            <motion.div
-              className="w-32 h-32 bg-background-surface rounded-2xl flex items-center justify-center overflow-hidden border-2 border glossy float-gentle"
-              whileHover={{ scale: 1.05 }}
+        {/* 상단 포인트 라인 */}
+        <div className="h-1 w-full bg-gradient-to-r from-primary via-primary-dark to-primary" />
+
+        {/* ── Header: 레벨 + 코인 ── */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-3">
+          {/* 레벨 배지 */}
+          <div className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 bg-primary/10 border border-primary/30">
+            <span className="text-[10px] font-bold tracking-[0.2em] text-primary-dark">LV</span>
+            <motion.span
+              className="text-2xl font-black text-text leading-none"
+              key={displayLevel}
+              initial={{ scale: 1.4, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 300 }}
+            >
+              {displayLevel}
+            </motion.span>
+          </div>
+
+          {/* 코인 */}
+          <motion.div
+            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 bg-secondary border border-secondary"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <GiCrownCoin className="text-accent text-base" />
+            <span className="text-text font-bold text-sm">{displayCoins.toLocaleString()}</span>
+          </motion.div>
+        </div>
+
+        {/* ── 캐릭터 초상화 (중앙) ── */}
+        <div className="flex flex-col items-center px-5 pb-4">
+          <motion.div
+            className="relative"
+            whileHover={{ scale: 1.04 }}
+            transition={{ type: "spring", stiffness: 260 }}
+          >
+            <div
+              className="relative w-40 h-40 rounded-2xl overflow-hidden bg-background border-2 border-primary/30"
+              style={{ boxShadow: "0 4px 20px rgba(125,230,195,0.2)" }}
             >
               <Image
                 src={getStageImagePath(displayStage)}
                 alt={t(`character.stage.${displayStage}`)}
-                width={100}
-                height={100}
-                className="object-contain"
+                width={160}
+                height={160}
+                className="object-contain w-full h-full"
+                priority
               />
-            </motion.div>
+              {/* 코너 장식 */}
+              <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-primary/50 rounded-tl" />
+              <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-primary/50 rounded-tr" />
+              <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-primary/50 rounded-bl" />
+              <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-primary/50 rounded-br" />
+            </div>
+          </motion.div>
 
-            <motion.div
-              className="gummy-badge bg-accent/20 border border-accent/40"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
-              <span className="text-sm font-bold text-accent">
-                {t("character.stage.label")}: {t(`character.stage.${displayStage}`)}
+          {/* 스테이지 뱃지 */}
+          <div className="mt-2.5 px-4 py-1 rounded-full text-xs font-bold tracking-widest bg-accent/10 border border-accent/30 text-accent">
+            {t(`character.stage.${displayStage}`)}
+          </div>
+        </div>
+
+        {/* ── 스탯 바 ── */}
+        <div className="px-5 pb-4 space-y-3">
+          {/* HP */}
+          <div>
+            <div className="flex justify-between items-center mb-1.5">
+              <div className="flex items-center gap-1.5">
+                <FiShield className="text-red-400 text-xs" />
+                <span className="text-xs font-bold tracking-widest text-text-muted">HP</span>
+              </div>
+              <span className="text-[11px] font-semibold text-text-muted">
+                {displayHp} / {displayMaxHp}
               </span>
-            </motion.div>
-          </div>
-
-          {/* Right: Stats */}
-          <div className="flex-1 flex flex-col gap-4">
-            <div className="text-center">
-              <motion.h2
-                className="text-3xl font-black text-text tracking-wider"
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200 }}
-              >
-                {t("character.level").toUpperCase()} {displayLevel}
-              </motion.h2>
             </div>
-
-            {/* Coins Badge */}
-            <div className="flex items-center gap-2 justify-end">
+            <div className="h-3 rounded-full overflow-hidden bg-track">
               <motion.div
-                className="flex items-center gap-2 px-4 py-2 bg-secondary/30 rounded-full border border-secondary-dark/30"
-                whileHover={{ scale: 1.05, y: -2 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <GiCrownCoin className="text-accent text-xl" />
-                <span className="font-black text-text text-lg">{displayCoins}</span>
-              </motion.div>
-            </div>
-
-            {/* Health Bar */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-bold text-text">
-                  {t("stats.health")}
-                </span>
-                <span className="text-xs text-text-muted font-semibold">
-                  {displayHp} / {displayMaxHp}
-                </span>
-              </div>
-              <div className="gummy-progress-track">
-                <motion.div
-                  className="gummy-progress-bar text-red-500"
-                  style={{ width: `${healthPercent}%` }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${healthPercent}%` }}
-                  transition={{ duration: 0.8, ease: [0.68, -0.55, 0.265, 1.55] }}
-                />
-              </div>
-            </div>
-
-            {/* Experience Bar */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-bold text-text">
-                  {t("character.exp")}
-                </span>
-                <span className="text-xs text-text-muted font-semibold">
-                  {displayExperience} / {displayMaxExperience}
-                </span>
-              </div>
-              <div className="gummy-progress-track">
-                <motion.div
-                  className="gummy-progress-bar text-primary"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${expPercent}%` }}
-                  transition={{ duration: 0.8, ease: [0.68, -0.55, 0.265, 1.55] }}
-                />
-              </div>
+                className={`h-full rounded-full bg-gradient-to-r ${hpBarColor}`}
+                initial={{ width: 0 }}
+                animate={{ width: `${healthPercent}%` }}
+                transition={{ duration: 0.9, ease: "easeOut" }}
+              />
             </div>
           </div>
-        </div>
-      </motion.div>
 
-      {/* Daily Statistics Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-        className="bg-secondary/80 backdrop-blur-sm rounded-2xl p-4 grid grid-cols-2 gap-4 border border-secondary-dark/20 jelly-bounce"
-      >
-        {/* 마친 퀘스트 */}
-        <div className="space-y-1">
-          <p className="text-xs text-text-muted font-medium">
-            {t("today.tasksCompleted")}
-          </p>
-          <p className="text-2xl font-black text-primary-dark">
-            {stats.completedTasks}
-            <span className="text-sm text-text-muted font-semibold">
-              /{stats.totalTasks}
-            </span>
-          </p>
+          {/* EXP */}
+          <div>
+            <div className="flex justify-between items-center mb-1.5">
+              <div className="flex items-center gap-1.5">
+                <FiZap className="text-primary-dark text-xs" />
+                <span className="text-xs font-bold tracking-widest text-text-muted">EXP</span>
+              </div>
+              <span className="text-[11px] font-semibold text-text-muted">
+                {displayExperience} / {displayMaxExperience}
+              </span>
+            </div>
+            <div className="h-3 rounded-full overflow-hidden bg-track">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-primary to-primary-dark"
+                initial={{ width: 0 }}
+                animate={{ width: `${expPercent}%` }}
+                transition={{ duration: 0.9, delay: 0.1, ease: "easeOut" }}
+              />
+            </div>
+            <p className="mt-1 text-[10px] text-text-muted">
+              NEXT LV. → {displayMaxExperience - displayExperience} EXP
+            </p>
+          </div>
         </div>
 
-        {/* 오늘 받은 보상 */}
-        <div className="space-y-1">
-          <p className="text-xs text-text-muted font-medium">
-            {t("today.todayRewards")}
-          </p>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-lg font-bold text-primary-dark flex items-center gap-1">
-              <FiStar className="text-yellow-400 fill-yellow-400" />
-              {mounted ? todayEarnedXP : 0}
-            </span>
-            <span className="text-text-muted">·</span>
-            <span className="text-lg font-bold text-accent flex items-center gap-1">
-              <GiCrownCoin className="text-accent" />
-              {mounted ? todayEarnedCoins : 0}
-            </span>
+        {/* ── 하단 통계 풋터 ── */}
+        <div className="px-5 py-3 flex items-center justify-between border-t border-border bg-background">
+          <div className="flex items-center gap-2">
+            <FiCheckCircle className="text-primary/60 text-base" />
+            <div>
+              <p className="text-[10px] font-medium text-text-muted">
+                {t("today.tasksCompleted")}
+              </p>
+              <p className="text-sm font-black text-text leading-tight">
+                {stats.completedTasks}
+                <span className="text-xs font-semibold ml-0.5 text-text-muted">
+                  /{stats.totalTasks}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div className="w-px h-8 bg-border" />
+
+          <div className="flex items-center gap-2">
+            <FiAward className="text-accent text-base" />
+            <div>
+              <p className="text-[10px] font-medium text-text-muted">
+                {t("today.todayRewards")}
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-black text-primary-dark">
+                  +{mounted ? todayEarnedXP : 0} XP
+                </span>
+                <span className="text-sm font-bold text-accent flex items-center gap-0.5">
+                  +{mounted ? todayEarnedCoins : 0}
+                  <GiCrownCoin className="text-xs" />
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </motion.div>

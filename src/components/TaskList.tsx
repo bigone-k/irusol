@@ -46,11 +46,6 @@ export default function TaskList({
       setCelebratingTask(task.id);
       setTimeout(() => setCelebratingTask(null), 1000);
 
-      if (result.evolved) {
-        console.log(`Evolved to ${result.newStage}!`);
-      } else if (result.leveledUp) {
-        console.log(`Level up! Now level ${result.newLevel}`);
-      }
     } else {
       toggleTask(task.id);
     }

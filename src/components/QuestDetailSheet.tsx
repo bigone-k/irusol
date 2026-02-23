@@ -110,11 +110,6 @@ export default function QuestDetailSheet({
     }
   };
 
-  const formatFrequency = () => {
-    if (!task.frequency || task.frequency.length === 0) return "";
-    const dayLabels = ["일", "월", "화", "수", "목", "금", "토"];
-    return task.frequency.map(d => dayLabels[d]).join(", ");
-  };
 
   return (
     <AnimatePresence>

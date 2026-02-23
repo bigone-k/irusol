@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useVisionStore } from "@/store/useVisionStore";
 import { motion } from "framer-motion";
 import { FiEdit2, FiPlus } from "react-icons/fi";
+import Image from "next/image";
 
 interface VisionCardProps {
   onClick: () => void;
@@ -60,10 +61,12 @@ export default function VisionCard({ onClick }: VisionCardProps) {
       {/* Background Image (if exists) */}
       {vision.imageUrl && (
         <div className="absolute inset-0 rounded-2xl overflow-hidden opacity-10">
-          <img
+          <Image
             src={vision.imageUrl}
             alt={vision.title}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="100vw"
           />
         </div>
       )}
