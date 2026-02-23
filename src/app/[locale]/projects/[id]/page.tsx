@@ -14,6 +14,7 @@ import { GiTwoCoins } from "react-icons/gi";
 import { PROJECT_REWARD } from "@/lib/rewards";
 import type { ProjectStatus, TabType } from "@/types";
 import TaskList from "@/components/TaskList";
+import { getProgress } from "@/lib/taskProgress";
 import AddTaskButton from "@/components/AddTaskButton";
 import { FiPlus } from "react-icons/fi";
 
@@ -39,6 +40,13 @@ export default function ProjectDetailsPage() {
   const projectTasks = tasks.filter((t) => t.projectId === projectId);
   const habitCount = projectTasks.filter((t) => t.type === "habit").length;
   const todoCount = projectTasks.filter((t) => t.type === "todo").length;
+
+  const projectProgress = projectTasks.length > 0
+    ? Math.floor(
+        projectTasks.reduce((sum, task) => sum + getProgress(task), 0) / projectTasks.length
+      )
+    : 0;
+  const canComplete = projectProgress >= 80;
 
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState("");
@@ -94,6 +102,10 @@ export default function ProjectDetailsPage() {
     });
 
     if (status !== project.status) {
+      if (status === "completed" && !canComplete) {
+        error("퀘스트 진행률이 80% 이상이어야 완료할 수 있습니다");
+        return;
+      }
       updateStatus(projectId, status);
     }
 
@@ -212,20 +224,37 @@ export default function ProjectDetailsPage() {
               {t("project.status.label")}
             </label>
             <div className="flex gap-2">
-              {(["notStarted", "inProgress", "completed"] as ProjectStatus[]).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => isEditing && setStatus(s)}
-                  disabled={!isEditing}
-                  className={`flex-1 px-3 py-1.5 rounded-lg border font-bold text-xs transition-all ${
-                    status === s
-                      ? getStatusColor(s)
-                      : "bg-background-surface text-text-muted border hover:bg-gray-50"
-                  } ${!isEditing && "opacity-60 cursor-not-allowed"}`}
-                >
-                  {t(`project.status.${s}`)}
-                </button>
-              ))}
+              {(["notStarted", "inProgress", "completed"] as ProjectStatus[]).map((s) => {
+                const isCompleteBtn = s === "completed";
+                const isDisabled = !isEditing || (isCompleteBtn && !canComplete);
+                return (
+                  <div key={s} className="flex-1 flex flex-col items-stretch gap-0.5">
+                    <button
+                      onClick={() => {
+                        if (!isEditing) return;
+                        if (isCompleteBtn && !canComplete) {
+                          error("퀘스트 진행률이 80% 이상이어야 완료할 수 있습니다");
+                          return;
+                        }
+                        setStatus(s);
+                      }}
+                      disabled={isDisabled}
+                      className={`px-3 py-1.5 rounded-lg border font-bold text-xs transition-all ${
+                        status === s
+                          ? getStatusColor(s)
+                          : "bg-background-surface text-text-muted border"
+                      } ${isDisabled ? "opacity-40 cursor-not-allowed" : "hover:bg-track"}`}
+                    >
+                      {t(`project.status.${s}`)}
+                    </button>
+                    {isCompleteBtn && isEditing && !canComplete && (
+                      <span className="text-center text-[10px] text-text-muted leading-tight">
+                        {projectProgress}% / 80% 필요
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
