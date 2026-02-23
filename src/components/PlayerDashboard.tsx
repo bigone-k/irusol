@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { getStageImagePath } from "@/lib/evolution";
 import { GiCrownCoin } from "react-icons/gi";
-import { FiZap, FiShield, FiAward, FiCheckCircle } from "react-icons/fi";
+import { FiShield, FiAward, FiCheckCircle } from "react-icons/fi";
 import Image from "next/image";
 
 export default function PlayerDashboard() {
@@ -27,6 +27,7 @@ export default function PlayerDashboard() {
   const getDailyStats = useTaskStore((state) => state.getDailyStats);
 
   const t = useTranslations();
+  const tc = useTranslations("character");
 
   useEffect(() => {
     setMounted(true);
@@ -138,7 +139,7 @@ export default function PlayerDashboard() {
             <div className="flex justify-between items-center mb-1.5">
               <div className="flex items-center gap-1.5">
                 <FiShield className="text-red-400 text-xs" />
-                <span className="text-xs font-bold tracking-widest text-text-muted">HP</span>
+                <span className="text-xs font-bold tracking-widest text-text-muted">{tc("hpLabel")}</span>
               </div>
               <span className="text-[11px] font-semibold text-text-muted">
                 {displayHp} / {displayMaxHp}
@@ -158,8 +159,8 @@ export default function PlayerDashboard() {
           <div>
             <div className="flex justify-between items-center mb-1.5">
               <div className="flex items-center gap-1.5">
-                <FiZap className="text-primary-dark text-xs" />
-                <span className="text-xs font-bold tracking-widest text-text-muted">EXP</span>
+                <span className="text-xs leading-none">⚡</span>
+                <span className="text-xs font-bold tracking-widest text-text-muted">{tc("expLabel")}</span>
               </div>
               <span className="text-[11px] font-semibold text-text-muted">
                 {displayExperience} / {displayMaxExperience}
@@ -174,7 +175,7 @@ export default function PlayerDashboard() {
               />
             </div>
             <p className="mt-1 text-[10px] text-text-muted">
-              NEXT LV. → {displayMaxExperience - displayExperience} EXP
+              {tc("nextLevel", { amount: displayMaxExperience - displayExperience })}
             </p>
           </div>
         </div>
@@ -206,7 +207,7 @@ export default function PlayerDashboard() {
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-black text-primary-dark">
-                  +{mounted ? todayEarnedXP : 0} XP
+                  +{mounted ? todayEarnedXP : 0} ⚡
                 </span>
                 <span className="text-sm font-bold text-accent flex items-center gap-0.5">
                   +{mounted ? todayEarnedCoins : 0}

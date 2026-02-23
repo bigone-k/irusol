@@ -31,7 +31,7 @@ export default function TopAppBar({
   return (
     <>
       <header className="sticky top-0 z-app-bar bg-background-surface/95 backdrop-blur-md border-b border ">
-        <div className="max-w-md mx-auto h-14 px-4 flex items-center justify-between">
+        <div className="max-w-md mx-auto h-14 px-4 flex items-center justify-between relative">
           {/* Left Section */}
           <div className="flex items-center">
             {showBack && onBack && (
@@ -58,8 +58,8 @@ export default function TopAppBar({
             )}
           </div>
 
-        {/* Center Section - Title */}
-        <h1 className="text-lg font-black text-text truncate px-2 ">
+        {/* Center Section - Title (absolute center) */}
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-lg font-black text-text truncate pointer-events-none">
           {title}
         </h1>
 

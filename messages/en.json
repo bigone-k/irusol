@@ -18,6 +18,10 @@
     "name": "Sprout",
     "level": "Level",
     "exp": "Experience",
+    "hpLabel": "HP",
+    "expLabel": "EXP",
+
+    "nextLevel": "NEXT LV. → {amount} EXP",
     "title": "Character",
     "evolution": "Evolution",
     "currentStage": "Current Stage",
