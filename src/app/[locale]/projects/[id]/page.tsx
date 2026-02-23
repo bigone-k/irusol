@@ -9,10 +9,13 @@ import { usePlayerStore } from "@/store/usePlayerStore";
 import { useTaskStore } from "@/store/useTaskStore";
 import { useToastStore } from "@/store/useToastStore";
 import { motion } from "framer-motion";
-import { FiArrowLeft, FiCalendar, FiTarget, FiEdit2, FiSave, FiTrash2, FiAward, FiClock, FiRepeat, FiCheckCircle } from "react-icons/fi";
+import { FiArrowLeft, FiCalendar, FiTarget, FiEdit2, FiSave, FiTrash2, FiAward } from "react-icons/fi";
 import { GiTwoCoins } from "react-icons/gi";
 import { PROJECT_REWARD } from "@/lib/rewards";
-import type { ProjectStatus } from "@/types";
+import type { ProjectStatus, TabType } from "@/types";
+import TaskList from "@/components/TaskList";
+import AddTaskButton from "@/components/AddTaskButton";
+import { FiPlus } from "react-icons/fi";
 
 export default function ProjectDetailsPage() {
   const t = useTranslations();
@@ -34,14 +37,16 @@ export default function ProjectDetailsPage() {
   const project = projects.find((p) => p.id === projectId);
   const goal = project ? goals.find((g) => g.id === project.goalId) : null;
   const projectTasks = tasks.filter((t) => t.projectId === projectId);
-  const habits = projectTasks.filter((t) => t.type === "habit");
-  const todos = projectTasks.filter((t) => t.type === "todo");
+  const habitCount = projectTasks.filter((t) => t.type === "habit").length;
+  const todoCount = projectTasks.filter((t) => t.type === "todo").length;
 
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<ProjectStatus>("notStarted");
   const [showRewardAnimation, setShowRewardAnimation] = useState(false);
+  const [questTab, setQuestTab] = useState<"all" | TabType>("all");
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
 
   useEffect(() => {
     if (project) {
@@ -73,40 +78,6 @@ export default function ProjectDetailsPage() {
     const start = new Date(project.startDate);
     const end = new Date(project.endDate);
     return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-  };
-
-  // Helper functions for task display
-  const getDaysRemaining = (endDate?: Date) => {
-    if (!endDate) return null;
-    const today = new Date();
-    const end = new Date(endDate);
-    const diff = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    return diff;
-  };
-
-  const formatPeriod = (startDate?: Date, endDate?: Date) => {
-    if (!startDate || !endDate) return null;
-    const start = new Date(startDate).toLocaleDateString(locale, {
-      month: "short",
-      day: "numeric",
-    });
-    const end = new Date(endDate).toLocaleDateString(locale, {
-      month: "short",
-      day: "numeric",
-    });
-    return `${start} - ${end}`;
-  };
-
-  const getFrequencyText = (task: any) => {
-    if (!task.frequencyTarget || !task.frequencyPeriod) return null;
-    // Use the same format as TaskList component
-    const periodKey =
-      task.frequencyPeriod === "daily"
-        ? "일"
-        : task.frequencyPeriod === "weekly"
-        ? "주"
-        : "월";
-    return `${periodKey} ${task.frequencyTarget}회`;
   };
 
   const handleSave = () => {
@@ -209,7 +180,10 @@ export default function ProjectDetailsPage() {
               <label className="block text-xs font-semibold text-text-muted mb-1">
                 {t("goal.title")}
               </label>
-              <p className="text-sm text-text">📂 {goal.title}</p>
+              <p className="text-sm text-text flex items-center gap-1.5">
+                <FiTarget size={14} className="text-text-muted flex-shrink-0" />
+                {goal.title}
+              </p>
             </div>
           )}
 
@@ -363,167 +337,65 @@ export default function ProjectDetailsPage() {
           )}
         </motion.div>
 
-        {/* Habits Section */}
-        {habits.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <h3 className="text-lg font-bold text-text mb-3">
-              {t("habit.title")}
-            </h3>
-            <div className="space-y-2">
-              {habits.map((habit) => {
-                const period = formatPeriod(habit.startDate, habit.endDate);
-                const frequency = getFrequencyText(habit);
+        {/* Quest Tabs */}
+        <div className="flex gap-2">
+          {(
+            [
+              { key: "all", label: t("quest.title"), count: projectTasks.length },
+              { key: "habits", label: t("habit.title"), count: habitCount },
+              { key: "todos", label: t("todo.title"), count: todoCount },
+            ] as { key: "all" | TabType; label: string; count: number }[]
+          ).map(({ key, label, count }) => (
+            <button
+              key={key}
+              onClick={() => setQuestTab(key)}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                questTab === key
+                  ? "bg-primary text-white"
+                  : "bg-track text-text-muted hover:bg-border"
+              }`}
+            >
+              {label}
+              <span
+                className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
+                  questTab === key ? "bg-white/30 text-white" : "bg-background text-text-muted"
+                }`}
+              >
+                {count}
+              </span>
+            </button>
+          ))}
+        </div>
 
-                return (
-                  <div
-                    key={habit.id}
-                    className={`rounded-lg p-4 ${
-                      habit.completed
-                        ? "bg-accent/10 border-2 border-accent"
-                        : "bg-background-surface border border"
-                    }`}
-                  >
-                    <div className="flex items-start gap-2">
-                      {habit.completed && (
-                        <FiCheckCircle className="text-accent flex-shrink-0 mt-0.5" size={20} />
-                      )}
-                      <div className="flex-1">
-                        <p className={`font-medium ${habit.completed ? "text-text-muted line-through" : "text-text"}`}>
-                          {habit.title}
-                        </p>
-                        {habit.description && (
-                          <p className="text-sm text-text-muted mt-1">
-                            {habit.description}
-                          </p>
-                        )}
-
-                        {/* Habit-specific Info */}
-                        <div className="mt-2 space-y-1">
-                          {period && (
-                            <div className="flex items-center gap-1 text-xs text-text-muted">
-                              <FiCalendar size={12} />
-                              <span>{period}</span>
-                            </div>
-                          )}
-                          {frequency && (
-                            <div className="flex items-center gap-1 text-xs text-text-muted">
-                              <FiRepeat size={12} />
-                              <span>{frequency}</span>
-                              {habit.completionCount !== undefined && (
-                                <span className="text-primary-dark font-semibold ml-1">
-                                  ({habit.completionCount}회 달성)
-                                </span>
-                              )}
-                            </div>
-                          )}
-                          {habit.streak && habit.streak > 0 && (
-                            <div className="flex items-center gap-1 text-xs">
-                              <span className="text-text-muted font-semibold">
-                                🔥 {habit.streak}일 연속
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-
-        {/* To-Dos Section */}
-        {todos.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <h3 className="text-lg font-bold text-text mb-3">
-              {t("todo.title")}
-            </h3>
-            <div className="space-y-2">
-              {todos.map((todo) => {
-                const daysRemaining = getDaysRemaining(todo.endDate);
-
-                return (
-                  <div
-                    key={todo.id}
-                    className={`rounded-lg p-4 ${
-                      todo.completed
-                        ? "bg-accent/10 border-2 border-accent"
-                        : "bg-background-surface border border"
-                    }`}
-                  >
-                    <div className="flex items-start gap-2">
-                      {todo.completed && (
-                        <FiCheckCircle className="text-accent flex-shrink-0 mt-0.5" size={20} />
-                      )}
-                      <div className="flex-1">
-                        <p className={`font-medium ${todo.completed ? "text-text-muted line-through" : "text-text"}`}>
-                          {todo.title}
-                        </p>
-                        {todo.description && (
-                          <p className="text-sm text-text-muted mt-1">
-                            {todo.description}
-                          </p>
-                        )}
-
-                        {/* Todo-specific Info */}
-                        {todo.endDate && (
-                          <div className="mt-2 space-y-1">
-                            <div className="flex items-center gap-1 text-xs text-text-muted">
-                              <FiCalendar size={12} />
-                              <span>
-                                {new Date(todo.endDate).toLocaleDateString(locale, {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                })}
-                              </span>
-                            </div>
-                            {daysRemaining !== null && (
-                              <div
-                                className={`flex items-center gap-1 text-xs font-semibold ${
-                                  daysRemaining < 0
-                                    ? "text-red-500"
-                                    : daysRemaining <= 3
-                                    ? "text-text-muted"
-                                    : "text-text-muted"
-                                }`}
-                              >
-                                <FiClock size={12} />
-                                <span>
-                                  {daysRemaining < 0
-                                    ? `D+${Math.abs(daysRemaining)}`
-                                    : `D-${daysRemaining}`}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Empty State */}
-        {habits.length === 0 && todos.length === 0 && (
-          <div className="text-center py-12 text-text-muted">
-            <p className="text-lg">{t("project.noTasks")}</p>
-            <p className="text-sm">{t("project.addTasksDescription")}</p>
-          </div>
-        )}
+        {/* Quest List */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <TaskList
+            projectId={projectId}
+            activeTab={questTab === "all" ? undefined : questTab}
+          />
+        </motion.div>
       </div>
+
+      {/* Floating Add Button */}
+      <motion.button
+        whileHover={{ scale: 1.15, y: -4, rotate: 90 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setIsAddTaskOpen(true)}
+        className="fixed bottom-20 right-6 w-16 h-16 bg-primary hover:bg-primary-dark text-white rounded-full flex items-center justify-center z-fab transition-all duration-300 border-2 border-white/50 glossy animate-pulse-glow"
+      >
+        <FiPlus size={28} strokeWidth={3} />
+      </motion.button>
+
+      <AddTaskButton
+        hideButton
+        defaultProjectId={projectId}
+        externalIsOpen={isAddTaskOpen}
+        onExternalClose={() => setIsAddTaskOpen(false)}
+      />
 
       {/* Reward Animation */}
       {showRewardAnimation && (

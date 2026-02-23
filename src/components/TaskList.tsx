@@ -3,19 +3,31 @@
 import { useTaskStore } from "@/store/useTaskStore";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import { useProjectStore } from "@/store/useProjectStore";
-import type { TabType, Task } from "@/types";
-import { motion } from "framer-motion";
+import type { TabType, Task, Project } from "@/types";
+import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
-import { FiCalendar, FiClock, FiRepeat } from "react-icons/fi";
+import { useState, useMemo } from "react";
+import { FiChevronDown, FiChevronUp, FiBriefcase } from "react-icons/fi";
 import QuestDetailSheet from "@/components/QuestDetailSheet";
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import QuestTaskCard from "@/components/QuestTaskCard";
+import { isTodoCompleted, getProgress } from "@/lib/taskProgress";
 
 interface TaskListProps {
   activeTab?: TabType;
+  groupByProject?: boolean;
+  projectId?: string;
 }
 
-export default function TaskList({ activeTab }: TaskListProps) {
+interface TaskGroup {
+  project: Project | null;
+  tasks: Task[];
+}
+
+export default function TaskList({
+  activeTab,
+  groupByProject = false,
+  projectId,
+}: TaskListProps) {
   const t = useTranslations();
   const tasks = useTaskStore((state) => state.tasks);
   const projects = useProjectStore((state) => state.projects);
@@ -24,109 +36,7 @@ export default function TaskList({ activeTab }: TaskListProps) {
   const [celebratingTask, setCelebratingTask] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
-
-  // Get D-day for todos
-  const getDaysRemaining = (endDate?: Date) => {
-    if (!endDate) return null;
-    const today = new Date();
-    const end = new Date(endDate);
-    const diff = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    return diff;
-  };
-
-  // Format period for habits
-  const formatPeriod = (startDate?: Date, endDate?: Date) => {
-    if (!startDate || !endDate) return null;
-    const start = new Date(startDate).toLocaleDateString("ko-KR", {
-      month: "short",
-      day: "numeric",
-    });
-    const end = new Date(endDate).toLocaleDateString("ko-KR", {
-      month: "short",
-      day: "numeric",
-    });
-    return `${start} - ${end}`;
-  };
-
-  // Get frequency text (weekday labels)
-  const getFrequencyText = (task: Task) => {
-    if (!task.frequency || task.frequency.length === 0) return null;
-    const dayLabels = ["일", "월", "화", "수", "목", "금", "토"];
-    return task.frequency.map(d => dayLabels[d]).join(", ");
-  };
-
-  // Calculate total scheduled days for a habit (startDate ~ endDate, filtered by frequency)
-  const getTotalScheduledDays = (task: Task): number => {
-    if (!task.startDate || !task.endDate || !task.frequency || task.frequency.length === 0) return 0;
-    const start = new Date(task.startDate);
-    const end = new Date(task.endDate);
-    let count = 0;
-    const cursor = new Date(start);
-    while (cursor <= end) {
-      if (task.frequency.includes(cursor.getDay())) count++;
-      cursor.setDate(cursor.getDate() + 1);
-    }
-    return count;
-  };
-
-  const isTodoCompleted = (task: Task): boolean =>
-    task.completed || ((task.completedDates?.length ?? 0) > 0);
-
-  // Calculate task progress (0-100)
-  const getProgress = (task: Task): number => {
-    if (task.type === "todo") {
-      return isTodoCompleted(task) ? 100 : 0;
-    }
-    // Habit: startDate + endDate + frequency 기반
-    if (task.startDate && task.endDate && task.frequency && task.frequency.length > 0) {
-      const totalDays = getTotalScheduledDays(task);
-      if (totalDays === 0) return 0;
-      const startStr = format(new Date(task.startDate), "yyyy-MM-dd");
-      const endStr = format(new Date(task.endDate), "yyyy-MM-dd");
-      const completedInRange = (task.completedDates || []).filter(
-        (d) => d >= startStr && d <= endStr
-      ).length;
-      return Math.min(100, (completedInRange / totalDays) * 100);
-    }
-    // Habit: targetDays 기반
-    if (task.targetDays) {
-      return Math.min(100, ((task.completionCount || 0) / task.targetDays) * 100);
-    }
-    if (task.frequencyTarget && task.completedDates && task.frequencyPeriod) {
-      const today = new Date();
-      let periodStart: Date;
-      let periodEnd: Date;
-      if (task.frequencyPeriod === "weekly") {
-        periodStart = startOfWeek(today, { weekStartsOn: 1 });
-        periodEnd = endOfWeek(today, { weekStartsOn: 1 });
-      } else if (task.frequencyPeriod === "monthly") {
-        periodStart = startOfMonth(today);
-        periodEnd = endOfMonth(today);
-      } else {
-        const todayStr = format(today, "yyyy-MM-dd");
-        return task.completedDates.includes(todayStr) ? 100 : 0;
-      }
-      const periodStartStr = format(periodStart, "yyyy-MM-dd");
-      const periodEndStr = format(periodEnd, "yyyy-MM-dd");
-      const periodCompletions = task.completedDates.filter(
-        (d) => d >= periodStartStr && d <= periodEndStr
-      ).length;
-      return Math.min(100, (periodCompletions / task.frequencyTarget) * 100);
-    }
-    const todayStr = format(new Date(), "yyyy-MM-dd");
-    return task.completedDates?.includes(todayStr) ? 100 : 0;
-  };
-
-  // Get progress label (% with floor) - delegates to getProgress to avoid duplication
-  const getProgressLabel = (task: Task): string | null => {
-    if (task.type === "todo") {
-      return isTodoCompleted(task) ? "100%" : "0%";
-    }
-    if ((task.startDate && task.endDate && task.frequency?.length) || task.targetDays) {
-      return `${Math.floor(getProgress(task))}%`;
-    }
-    return null;
-  };
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
   const handleToggle = (task: Task) => {
     if (!task.completed) {
@@ -137,10 +47,8 @@ export default function TaskList({ activeTab }: TaskListProps) {
       setTimeout(() => setCelebratingTask(null), 1000);
 
       if (result.evolved) {
-        // TODO: Show evolution animation
         console.log(`Evolved to ${result.newStage}!`);
       } else if (result.leveledUp) {
-        // TODO: Show level-up animation
         console.log(`Level up! Now level ${result.newLevel}`);
       }
     } else {
@@ -148,13 +56,57 @@ export default function TaskList({ activeTab }: TaskListProps) {
     }
   };
 
-  const filteredTasks = activeTab
-    ? tasks.filter((task) => {
-        if (activeTab === "habits") return task.type === "habit";
-        if (activeTab === "todos") return task.type === "todo";
-        return false;
-      })
-    : tasks;
+  const filteredTasks = useMemo(() => {
+    let result = tasks;
+    if (projectId) {
+      result = result.filter((task) => task.projectId === projectId);
+    }
+    if (activeTab === "habits") {
+      result = result.filter((task) => task.type === "habit");
+    } else if (activeTab === "todos") {
+      result = result.filter((task) => task.type === "todo");
+    }
+    return result;
+  }, [tasks, projectId, activeTab]);
+
+  // Group tasks by project
+  const taskGroups = useMemo((): TaskGroup[] => {
+    if (!groupByProject) return [{ project: null, tasks: filteredTasks }];
+
+    const projectMap = new Map<string, Task[]>();
+    const noProjectTasks: Task[] = [];
+
+    filteredTasks.forEach((task) => {
+      if (task.projectId) {
+        if (!projectMap.has(task.projectId)) projectMap.set(task.projectId, []);
+        projectMap.get(task.projectId)!.push(task);
+      } else {
+        noProjectTasks.push(task);
+      }
+    });
+
+    const groups: TaskGroup[] = [];
+    projectMap.forEach((groupTasks, pid) => {
+      const project = projects.find((p) => p.id === pid) ?? null;
+      groups.push({ project, tasks: groupTasks });
+    });
+
+    // 프로젝트 없는 태스크는 맨 아래
+    if (noProjectTasks.length > 0) {
+      groups.push({ project: null, tasks: noProjectTasks });
+    }
+
+    return groups;
+  }, [groupByProject, filteredTasks, projects]);
+
+  const toggleGroupCollapse = (groupKey: string) => {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupKey)) next.delete(groupKey);
+      else next.add(groupKey);
+      return next;
+    });
+  };
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
@@ -172,138 +124,65 @@ export default function TaskList({ activeTab }: TaskListProps) {
 
   return (
     <>
-      <div className="space-y-3">
-        {filteredTasks.map((task, index) => {
-          const project = task.projectId ? projects.find((p) => p.id === task.projectId) : null;
-          const daysRemaining = task.type === "todo" ? getDaysRemaining(task.dueDate) : null;
-          const frequency = task.type === "habit" ? getFrequencyText(task) : null;
-          const period = task.type === "habit" ? formatPeriod(task.startDate, task.endDate) : null;
-          const progress = getProgress(task);
-          const progressLabel = getProgressLabel(task);
+      <div className="space-y-6">
+        {taskGroups.map((group) => {
+          const groupKey = group.project?.id ?? "__no_project__";
+          const isCollapsed = collapsedGroups.has(groupKey);
+          const completedCount = group.tasks.filter(
+            (task) => task.type === "todo" ? isTodoCompleted(task) : getProgress(task) >= 100
+          ).length;
 
           return (
-            <motion.div
-              key={task.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className={`relative overflow-hidden bg-background-surface rounded-lg p-4 border-2 ${
-                task.completed ? "border-accent" : "border"
-              } cursor-pointer ${
-                celebratingTask === task.id ? "scale-105 border-accent" : ""
-              }`}
-              onClick={() => handleTaskClick(task)}
-            >
-              {/* Background fill progress */}
-              <motion.div
-                className={`absolute inset-y-0 left-0 rounded-lg pointer-events-none
-                  ${task.type === "habit"
-                    ? progress >= 100 ? "bg-primary/25" : "bg-primary/15"
-                    : progress >= 100 ? "bg-accent/25" : "bg-accent/15"
-                  }`}
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.8, ease: [0.68, -0.55, 0.265, 1.55] }}
-              />
-
-              <div className="relative z-10 w-full">
-                {/* Project Name */}
-                {project && (
-                  <p className="text-xs text-text-muted mb-1">
-                    📂 {project.title}
-                  </p>
-                )}
-
-                {/* Task Title */}
-                <h4
-                  className={`font-semibold ${
-                    task.completed ? "line-through text-text-muted" : "text-text"
-                  }`}
+            <div key={groupKey}>
+              {/* Project Header (groupByProject 일 때만) */}
+              {groupByProject && (
+                <button
+                  onClick={() => toggleGroupCollapse(groupKey)}
+                  className="w-full flex items-center gap-3 mb-3 group"
                 >
-                  {task.title}
-                </h4>
-
-                {task.description && (
-                  <p className="text-sm text-text-muted mt-1">{task.description}</p>
-                )}
-
-                {/* Type Badge */}
-                <div className="flex flex-wrap gap-2 mt-2">
-                  <span
-                    className={`
-                      text-xs px-2 py-1 rounded-full font-medium text-white
-                      ${task.type === 'habit' ? 'bg-primary' : 'bg-accent'}
-                    `}
-                  >
-                    {t(`tasks.types.${task.type}`)}
-                  </span>
-                </div>
-
-                {/* Habit-specific Info */}
-                {task.type === "habit" && (
-                  <div className="mt-2 space-y-1">
-                    {period && (
-                      <div className="flex items-center gap-1 text-xs text-text-muted">
-                        <FiCalendar size={12} />
-                        <span>{period}</span>
-                      </div>
-                    )}
-                    {frequency && (
-                      <div className="flex items-center gap-1 text-xs text-text-muted">
-                        <FiRepeat size={12} />
-                        <span>{frequency}</span>
-                      </div>
-                    )}
-                    {task.streak && task.streak > 0 && (
-                      <div className="flex items-center gap-1 text-xs">
-                        <span className="text-text-muted font-semibold">
-                          🔥 {task.streak}일 연속
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Todo-specific Info */}
-                {task.type === "todo" && task.dueDate && (
-                  <div className="mt-2 space-y-1">
-                    <div className="flex items-center gap-1 text-xs text-text-muted">
-                      <FiCalendar size={12} />
-                      <span>
-                        {new Date(task.dueDate).toLocaleDateString("ko-KR", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </span>
-                    </div>
-                    {daysRemaining !== null && (
-                      <div
-                        className={`flex items-center gap-1 text-xs font-semibold ${
-                          daysRemaining < 0 ? "text-red-500" : "text-text-muted"
-                        }`}
-                      >
-                        <FiClock size={12} />
-                        <span>
-                          {daysRemaining < 0
-                            ? `D+${Math.abs(daysRemaining)}`
-                            : `D-${daysRemaining}`}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Progress Label */}
-                {progressLabel && (
-                  <div className="flex justify-end mt-1">
-                    <span className="text-xs text-text-muted font-medium">
-                      {progressLabel}
+                  {/* 프로젝트 아이콘 & 이름 */}
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <span className="flex items-center text-text-muted">
+                      <FiBriefcase size={16} />
+                    </span>
+                    <span className="text-sm font-bold text-text truncate">
+                      {group.project?.title ?? t("quest.noProject")}
+                    </span>
+                    {/* 완료/전체 뱃지 */}
+                    <span className="flex-shrink-0 text-xs font-medium text-text-muted bg-track px-2 py-0.5 rounded-full">
+                      {completedCount}/{group.tasks.length}
                     </span>
                   </div>
+                  {/* 접기/펼치기 아이콘 */}
+                  <span className="text-text-muted group-hover:text-text transition-colors">
+                    {isCollapsed ? <FiChevronDown size={16} /> : <FiChevronUp size={16} />}
+                  </span>
+                </button>
+              )}
+
+              {/* Task Cards */}
+              <AnimatePresence initial={false}>
+                {!isCollapsed && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="space-y-3 overflow-hidden"
+                  >
+                    {group.tasks.map((task, index) => (
+                      <QuestTaskCard
+                        key={task.id}
+                        task={task}
+                        index={index}
+                        celebrating={celebratingTask === task.id}
+                        onClick={handleTaskClick}
+                      />
+                    ))}
+                  </motion.div>
                 )}
-              </div>
-            </motion.div>
+              </AnimatePresence>
+            </div>
           );
         })}
       </div>

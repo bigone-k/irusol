@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiX, FiSave, FiTrash2 } from "react-icons/fi";
+import { FiX, FiSave, FiTrash2, FiBriefcase } from "react-icons/fi";
 import { useTaskStore } from "@/store/useTaskStore";
 import { useProjectStore } from "@/store/useProjectStore";
 import type { Task } from "@/types";
@@ -168,7 +168,8 @@ export default function QuestDetailSheet({
               <div className="mb-4">
                 {project && (
                   <div className="flex items-center gap-2 text-sm text-text-muted">
-                    <span>📂 {project.title}</span>
+                    <FiBriefcase size={14} />
+                    <span>{project.title}</span>
                   </div>
                 )}
               </div>

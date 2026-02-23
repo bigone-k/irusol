@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, usePathname } from "@/i18n/routing";
-import { FiTarget, FiBriefcase, FiCheckCircle, FiList, FiCalendar } from "react-icons/fi";
+import { FiTarget, FiBriefcase, FiCalendar } from "react-icons/fi";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 
@@ -13,7 +13,6 @@ export default function BottomNavigation() {
     { id: "goals", label: t("nav.goals"), icon: FiTarget, href: "/goals" },
     { id: "projects", label: t("nav.projects"), icon: FiBriefcase, href: "/projects" },
     { id: "calendar", label: t("calendar.title"), icon: FiCalendar, href: "/calendar" },
-    { id: "quest", label: t("nav.quest"), icon: FiList, href: "/quest" },
   ];
 
   return (

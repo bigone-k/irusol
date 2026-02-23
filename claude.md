@@ -27,9 +27,16 @@
 ### Styling & UI
 - **Tailwind CSS 3.4.1** - 유틸리티 기반 CSS 프레임워크
 - **React Icons 5.4.0** - 아이콘 라이브러리
+- **react-calendar 6.0.0** - 달력 컴포넌트
 
 ### Internationalization
 - **next-intl 4.8.2** - Next.js 다국어 지원 라이브러리
+
+### Date Utilities
+- **date-fns 4.x** - 날짜 처리 유틸리티
+
+### Testing
+- **Playwright 1.x** - E2E 테스트 프레임워크
 
 ### Build & Development Tools
 - **Node.js >=22.0.0** - 런타임 요구사항
@@ -47,44 +54,77 @@ irusol/
 ├── src/
 │   ├── app/                          # Next.js App Router
 │   │   ├── layout.tsx                # Root layout
+│   │   ├── page.tsx                  # Root redirect
+│   │   ├── globals.css               # 전역 스타일 (Playful Gummy 테마 포함)
 │   │   └── [locale]/                 # Locale-based routing
 │   │       ├── layout.tsx            # Locale layout
 │   │       ├── page.tsx              # Dashboard (main)
+│   │       ├── calendar/page.tsx     # Calendar view
 │   │       ├── character/page.tsx    # Character page
 │   │       ├── goals/page.tsx        # Goals management
 │   │       ├── projects/page.tsx     # Projects management
+│   │       ├── projects/[id]/page.tsx # Project detail
+│   │       ├── quest/page.tsx        # Quest management
 │   │       ├── settings/             # Settings pages
-│   │       ├── stats/page.tsx        # Statistics
-│   │       ├── today/page.tsx        # Today's tasks
-│   │       └── todos/page.tsx        # To-do list
+│   │       │   └── language/page.tsx # Language settings
+│   │       └── stats/page.tsx        # Statistics
 │   │
 │   ├── components/                   # React components
 │   │   ├── AddTaskButton.tsx         # Task creation button
 │   │   ├── BottomNavigation.tsx      # Bottom nav bar
+│   │   ├── BottomSheetModal.tsx      # 하단 시트 모달 베이스
 │   │   ├── CharacterCard.tsx         # Character display
+│   │   ├── EmptyState.tsx            # 빈 상태 표시
 │   │   ├── FloatingAddButton.tsx     # Floating action button
+│   │   ├── FormInput.tsx             # 폼 입력 필드
+│   │   ├── FormTextarea.tsx          # 폼 텍스트영역
+│   │   ├── GoalCard.tsx              # 목표 카드
+│   │   ├── GoalDetailSheet.tsx       # 목표 상세 시트
 │   │   ├── GoalForm.tsx              # Goal creation form
 │   │   ├── LanguageSwitcher.tsx      # Language selector
 │   │   ├── ObjectiveCard.tsx         # Objective display
 │   │   ├── Onboarding.tsx            # Onboarding flow
 │   │   ├── PlayerDashboard.tsx       # Player stats dashboard
+│   │   ├── ProgressBar.tsx           # 진행바 컴포넌트
+│   │   ├── ProjectCard.tsx           # 프로젝트 카드
 │   │   ├── ProjectForm.tsx           # Project creation form
+│   │   ├── QuestDetailSheet.tsx      # 퀘스트 상세 시트
 │   │   ├── Sidebar.tsx               # Desktop sidebar
 │   │   ├── StatsBars.tsx             # HP/XP/Mana bars
+│   │   ├── StatusBadge.tsx           # 상태 배지
 │   │   ├── TabNavigation.tsx         # Tab navigation
+│   │   ├── TaskFormBottomSheet.tsx   # 태스크 생성/수정 하단 시트
 │   │   ├── TaskList.tsx              # Task list component
-│   │   └── TopAppBar.tsx             # Top app bar
+│   │   ├── ToastContainer.tsx        # 토스트 알림 컨테이너
+│   │   ├── TopAppBar.tsx             # Top app bar
+│   │   ├── ViewToggle.tsx            # 뷰 전환 토글
+│   │   ├── VisionCard.tsx            # 비전 카드
+│   │   ├── VisionFormBottomSheet.tsx # 비전 생성/수정 하단 시트
+│   │   └── calendar/                 # 달력 관련 컴포넌트
+│   │       ├── DateTaskSheet.tsx     # 날짜별 태스크 시트
+│   │       ├── DaySection.tsx        # 일별 섹션
+│   │       ├── MonthlyView.tsx       # 월간 뷰
+│   │       ├── TaskCard.tsx          # 달력용 태스크 카드
+│   │       └── WeeklyView.tsx        # 주간 뷰
 │   │
 │   ├── store/                        # Zustand stores
 │   │   ├── usePlayerStore.ts         # Player stats & level
-│   │   ├── useTaskStore.ts           # Tasks (habits/dailies/todos)
+│   │   ├── useTaskStore.ts           # Tasks (habits/todos)
 │   │   ├── useGoalStore.ts           # Goals management
 │   │   ├── useProjectStore.ts        # Projects management
-│   │   └── useOnboardingStore.ts     # Onboarding state
+│   │   ├── useOnboardingStore.ts     # Onboarding state
+│   │   ├── useCalendarStore.ts       # Calendar view state
+│   │   ├── useToastStore.ts          # Toast notifications
+│   │   └── useVisionStore.ts         # Vision board state
 │   │
 │   ├── lib/                          # Utility libraries
 │   │   ├── evolution.ts              # Level-up logic
-│   │   └── rewards.ts                # Reward calculation
+│   │   ├── rewards.ts                # Reward calculation
+│   │   ├── calendar-utils.ts         # 달력 유틸리티
+│   │   └── migrations.ts             # localStorage 마이그레이션
+│   │
+│   ├── styles/                       # 추가 스타일
+│   │   └── react-calendar.css        # react-calendar 커스텀 스타일
 │   │
 │   ├── i18n/                         # Internationalization
 │   │   ├── request.ts                # i18n request handler
@@ -97,6 +137,19 @@ irusol/
 │   ├── en.json                       # English translations
 │   └── ko.json                       # Korean translations
 │
+├── e2e/                              # E2E 테스트
+│   └── language-settings.spec.ts    # 언어 설정 테스트
+│
+├── ref/                              # 디자인 레퍼런스 이미지
+│
+├── agents/                           # Claude Code 에이전트
+│   ├── color-system/                 # 색상 시스템 에이전트
+│   └── i18n-generator/              # 번역 생성 에이전트
+│
+├── docs/                             # 프로젝트 문서
+│
+├── middleware.ts                     # Next.js 미들웨어 (i18n 라우팅)
+├── playwright.config.ts              # Playwright 설정
 └── public/                           # Static assets
 ```
 
@@ -119,11 +172,14 @@ React Re-render (subscribed components)
 ### State Management Strategy
 
 #### Store Separation
-- **usePlayerStore**: Player-related state (level, HP, XP, mana, gold, gems)
-- **useTaskStore**: Task management (habits, dailies, todos)
+- **usePlayerStore**: Player-related state (level, XP, coins, evolution stage)
+- **useTaskStore**: Task management (habits, todos)
 - **useGoalStore**: Goal tracking and progress
 - **useProjectStore**: Project organization
 - **useOnboardingStore**: First-time user experience
+- **useCalendarStore**: Calendar view and date selection state
+- **useToastStore**: Toast notification queue management
+- **useVisionStore**: Vision board items
 
 #### Persistence
 - All stores use `persist` middleware
@@ -134,33 +190,35 @@ React Re-render (subscribed components)
 
 ## Core Features & Business Logic
 
-### 1. Leveling System (`lib/evolution.ts`)
+### 1. Leveling & Evolution System (`lib/evolution.ts`)
 - **Base XP**: 25 (레벨 1)
 - **XP Growth**: 각 레벨마다 `+5 XP` 증가
-  - Level 2: 30 XP
-  - Level 3: 35 XP
-  - Level 10: 70 XP
-- **Level Up Rewards**:
-  - Health +5
-  - Max Health +5
-  - Experience resets to 0
+  - Level 2: 30 XP, Level 3: 35 XP, Level 10: 70 XP
+- **Evolution Stages** (StageName): `egg` → `sproutling` → `blooming` → `fullyGrown`
+- **PlayerStats**: `level`, `experience`, `maxExperience`, `coins`, `stage`
 
 ### 2. Reward System (`lib/rewards.ts`)
-- **Task Completion**: +10 XP, +1 Gold
-- **Goal Completion**: Variable rewards based on goal type
-- **Level Up**: Health restoration, stat increases
+- **Task Completion**: XP + Coins (난이도에 따라 변동)
+- **Goal Completion**: Variable rewards (`rewardAmount` 필드)
+- **Level Up**: Stage evolution trigger
 
-### 3. Task Types
-- **Habits**: Repeatable tasks, multiple completions per day
-- **Dailies**: Daily recurring tasks with reset logic
-- **To Do's**: One-time completion tasks
-- **Goals**: Long-term objectives with progress tracking
-- **Projects**: Grouped task collections
+### 3. Task Types (`type: "habit" | "todo"`)
+- **Habits**: 반복 가능한 태스크, `frequency[]`, `startDate`, `endDate`
+- **Todos**: 일회성 완료 태스크, `dueDate`
+- **공통 필드**: `streak`, `completedDates[]`, `rewardClaimed`, `difficulty`
 
-### 4. Mana System
-- **Unlock Level**: Level 10
-- **Usage**: Currently decorative (future feature)
-- **Max Mana**: Increases with level
+### 4. Goal & Project Types
+- **Goal**: `status: GoalStatus`, `currentValue/targetValue/unit` (수치 추적), `visionId`
+- **Project**: `goalId`로 목표에 연결, `status: ProjectStatus`
+- **Vision**: 장기 비전 보드 (`useVisionStore`)
+
+### 5. Calendar System (`lib/calendar-utils.ts`)
+- 주간/월간 뷰 지원
+- 날짜별 태스크 필터링
+- react-calendar 기반 커스텀 스타일 적용
+
+### 6. Data Migration (`lib/migrations.ts`)
+- localStorage 스키마 변경 시 자동 마이그레이션 처리
 
 ---
 
@@ -398,13 +456,16 @@ agents/color-system/
 └── migration-checklist.md # 색상 마이그레이션 가이드
 ```
 
-#### Duto Mint Clean Color Palette
+#### Duto Mint Clean Color Palette (tailwind.config.ts)
 
 **브랜드 색상**:
-- `primary` (#7DE6C3) - 메인 브랜드 색상, 강조, 링크
+- `primary` / `primary-DEFAULT` (#7DE6C3) - 메인 브랜드 색상, 강조, 링크
 - `primary-dark` (#4FD4A8) - 호버 상태
-- `secondary` (#FFF6BF) - 보조 강조, 경고, 진행중
-- `accent` (#F19ED2) - 성공, 완료, CTA
+- `primary-light` (#A8F0D9) - 연한 강조
+- `secondary` / `secondary-DEFAULT` (#FFF6BF) - 보조 강조, 경고, 진행중
+- `secondary-dark` (#FFE88A) - 진한 보조
+- `accent` / `accent-DEFAULT` (#F19ED2) - 성공, 완료, CTA
+- `accent-dark` (#E77FBF) - 진한 강조
 
 **중립 색상**:
 - `background` (#F7F9F2) - 페이지 배경
@@ -413,6 +474,23 @@ agents/color-system/
 - `text` (#0F172A) - 본문 텍스트
 - `text-muted` (#64748B) - 보조 텍스트
 - `track` (#E5E7EB) - 진행바 배경, 비활성
+
+**커스텀 z-index**:
+- `z-app-bar` (30) - 상단 앱바
+- `z-nav` (20) - 하단 네비게이션
+- `z-fab` (40) - 플로팅 버튼
+- `z-modal` (50) - 모달/시트
+
+**Playful Gummy 애니메이션**:
+- `animate-bounce-soft` - 부드러운 바운스 (2s 반복)
+- `animate-pop-in` - 팝인 효과 (0.4s)
+- `animate-jelly` - 젤리 효과 (0.6s)
+- `animate-pulse-glow` - 펄스 글로우 (2s 반복)
+
+**CSS 컴포넌트 클래스** (`globals.css`):
+- `.gummy-card` - 3D depth 카드 스타일
+- `.gummy-progress-track` - 글로시 진행바 트랙
+- `.gummy-progress-bar` - 글로시 진행바
 
 #### Automatic Application Rules
 
@@ -503,14 +581,27 @@ className="text-red-600"
 
 ## Testing Strategy
 
+### E2E Tests (Playwright)
+```bash
+npm run test:e2e          # 전체 E2E 테스트
+npm run test:e2e:ui       # UI 모드
+npm run test:e2e:headed   # 브라우저 표시 모드
+npm run test:e2e:report   # 테스트 리포트
+```
+
+- `e2e/language-settings.spec.ts` - 언어 설정 테스트
+
 ### Manual Testing Checklist
-- [ ] Task creation and completion
-- [ ] XP gain and level up
-- [ ] HP/Mana bar display
-- [ ] Goal progress tracking
+- [ ] Task creation and completion (habit/todo)
+- [ ] XP gain and level up / evolution stage
+- [ ] Quest progress bar display
+- [ ] Goal progress tracking (currentValue/targetValue)
 - [ ] Project organization
+- [ ] Calendar view (weekly/monthly)
+- [ ] Vision board
 - [ ] Language switching
-- [ ] localStorage persistence
+- [ ] Toast notifications
+- [ ] localStorage persistence & migration
 - [ ] Responsive layout (mobile/desktop)
 
 ### Browser Support
@@ -668,4 +759,4 @@ Currently no environment variables required (local-first app).
 
 ---
 
-*Last Updated: 2026-02-15*
+*Last Updated: 2026-02-23*

@@ -5,7 +5,7 @@ import { useTaskStore } from "@/store/useTaskStore";
 import { useGoalStore } from "@/store/useGoalStore";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { FiCalendar, FiClock, FiTrendingUp } from "react-icons/fi";
+import { FiCalendar, FiClock, FiTrendingUp, FiTarget } from "react-icons/fi";
 import { GiTwoCoins } from "react-icons/gi";
 import StatusBadge from "@/components/StatusBadge";
 import ProgressBar from "@/components/ProgressBar";
@@ -14,9 +14,10 @@ import type { Project } from "@/types";
 interface ProjectCardProps {
   project: Project;
   locale: string;
+  showGoal?: boolean;
 }
 
-export default function ProjectCard({ project, locale }: ProjectCardProps) {
+export default function ProjectCard({ project, locale, showGoal = false }: ProjectCardProps) {
   const t = useTranslations("project");
   const tasks = useTaskStore((state) => state.tasks);
   const goals = useGoalStore((state) => state.goals);
@@ -71,9 +72,10 @@ export default function ProjectCard({ project, locale }: ProjectCardProps) {
         {/* Header: Title */}
         <div className="mb-3">
           {/* Goal Name */}
-          {goal && (
-            <p className="text-xs text-text-muted mb-1">
-              📂 {goal.title}
+          {showGoal && goal && (
+            <p className="text-xs text-text-muted mb-1 flex items-center gap-1">
+              <FiTarget size={12} />
+              {goal.title}
             </p>
           )}
 

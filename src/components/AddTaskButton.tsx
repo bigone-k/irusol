@@ -11,12 +11,14 @@ type AddTaskButtonProps = {
   hideButton?: boolean;
   externalIsOpen?: boolean;
   onExternalClose?: () => void;
+  defaultProjectId?: string;
 };
 
 export default function AddTaskButton({
   hideButton = false,
   externalIsOpen,
   onExternalClose,
+  defaultProjectId,
 }: AddTaskButtonProps = {}) {
   const t = useTranslations();
   const [internalIsOpen, setInternalIsOpen] = useState(false);
@@ -36,7 +38,7 @@ export default function AddTaskButton({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<"habit" | "todo">("habit");
-  const [projectId, setProjectId] = useState("");
+  const [projectId, setProjectId] = useState(defaultProjectId ?? "");
 
   // Period fields
   const [startDate, setStartDate] = useState("");
@@ -84,7 +86,7 @@ export default function AddTaskButton({
     setTitle("");
     setDescription("");
     setType("habit");
-    setProjectId("");
+    setProjectId(defaultProjectId ?? "");
     setStartDate("");
     setEndDate("");
     setDueDate("");
@@ -151,19 +153,25 @@ export default function AddTaskButton({
                   <label className="block text-sm font-semibold text-text mb-1">
                     {t("project.title")} *
                   </label>
-                  <select
-                    value={projectId}
-                    onChange={(e) => setProjectId(e.target.value)}
-                    className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
-                    required
-                  >
-                    <option value="">{t("common.selectPlaceholder")}</option>
-                    {projects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.title}
-                      </option>
-                    ))}
-                  </select>
+                  {defaultProjectId ? (
+                    <p className="px-4 py-2 border border rounded-lg bg-track text-text font-medium">
+                      {projects.find((p) => p.id === defaultProjectId)?.title ?? defaultProjectId}
+                    </p>
+                  ) : (
+                    <select
+                      value={projectId}
+                      onChange={(e) => setProjectId(e.target.value)}
+                      className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
+                      required
+                    >
+                      <option value="">{t("common.selectPlaceholder")}</option>
+                      {projects.map((project) => (
+                        <option key={project.id} value={project.id}>
+                          {project.title}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 {/* 제목 (필수) */}

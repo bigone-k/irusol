@@ -11,6 +11,7 @@ import GoalDetailSheet from "@/components/GoalDetailSheet";
 import VisionFormBottomSheet from "@/components/VisionFormBottomSheet";
 import FloatingAddButton from "@/components/FloatingAddButton";
 import EmptyState from "@/components/EmptyState";
+import { FiTarget } from "react-icons/fi";
 
 export default function GoalsPage() {
   const t = useTranslations();
@@ -45,7 +46,7 @@ export default function GoalsPage() {
           <EmptyState
             title={t("goal.empty")}
             description={t("goal.emptyDescription")}
-            icon="🎯"
+            icon={<FiTarget size={40} />}
           />
         ) : (
           goals.map((goal) => (

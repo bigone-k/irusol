@@ -119,7 +119,8 @@
     "create": "Create Quest",
     "details": "Quest Details",
     "empty": "No quests yet",
-    "emptyDescription": "Tap + to create a new quest"
+    "emptyDescription": "Tap + to create a new quest",
+    "noProject": "Ungrouped"
   },
   "goal": {
     "title": "Goals",

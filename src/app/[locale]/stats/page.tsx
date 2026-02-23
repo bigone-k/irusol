@@ -1,6 +1,6 @@
 "use client";
 
-import { FiBarChart2, FiTrendingUp, FiAward } from "react-icons/fi";
+import { FiBarChart2, FiTrendingUp, FiAward, FiTarget } from "react-icons/fi";
 import { motion } from "framer-motion";
 
 export default function StatsPage() {
@@ -66,7 +66,7 @@ export default function StatsPage() {
             <span>일일/주간/월간 통계 차트</span>
           </p>
           <p className="flex items-start gap-2">
-            <span className="text-primary-dark">🎯</span>
+            <FiTarget size={16} className="text-primary-dark mt-0.5 flex-shrink-0" />
             <span>목표 달성률 분석</span>
           </p>
           <p className="flex items-start gap-2">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { FiTarget } from "react-icons/fi";
 
 export default function ObjectiveCard() {
   const [objectives] = useState([
@@ -21,8 +22,9 @@ export default function ObjectiveCard() {
       transition={{ duration: 0.3 }}
       className="bg-secondary/80 backdrop-blur-sm rounded-2xl p-5 border-2 border-secondary-dark/20 jelly-bounce"
     >
-      <h3 className="text-xl font-black text-text mb-4 ">
-        🎯 초보자 목표
+      <h3 className="text-xl font-black text-text mb-4 flex items-center gap-2">
+        <FiTarget size={20} className="text-text-muted" />
+        초보자 목표
       </h3>
       {objectives.map((obj) => (
         <motion.div
