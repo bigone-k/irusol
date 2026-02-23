@@ -13,7 +13,7 @@
     "test:e2e:report": "playwright show-report"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": "22.x"
   },
   "dependencies": {
     "date-fns": "^4.1.0",

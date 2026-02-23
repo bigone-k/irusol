@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FiMenu, FiSearch, FiPlus, FiChevronLeft } from "react-icons/fi";
 import Sidebar from "./Sidebar";
 import { motion } from "framer-motion";
+import { useOnboardingStore } from "@/store/useOnboardingStore";
 
 interface TopAppBarProps {
   title: string;
@@ -25,6 +26,7 @@ export default function TopAppBar({
   onAdd,
 }: TopAppBarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const nickname = useOnboardingStore((state) => state.nickname);
 
   return (
     <>
@@ -63,6 +65,18 @@ export default function TopAppBar({
 
         {/* Right Section */}
         <div className="flex items-center gap-2">
+          {nickname && (
+            <div className="flex items-center gap-1.5">
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                <span className="text-sm font-bold text-white">
+                  {nickname.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <span className="text-sm font-semibold text-text hidden sm:block max-w-20 truncate">
+                {nickname}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </header>
