@@ -6,6 +6,7 @@ import { routing } from '@/i18n/routing';
 import TopAppBar from '@/components/TopAppBar';
 import BottomNavigation from '@/components/BottomNavigation';
 import ToastContainer from '@/components/ToastContainer';
+import AbsencePenaltyChecker from '@/components/AbsencePenaltyChecker';
 
 export const metadata: Metadata = {
   title: "DuTo - Goal Mate",
@@ -36,6 +37,7 @@ export default async function LocaleLayout({
     <html lang={locale} suppressHydrationWarning>
       <body className="antialiased">
         <NextIntlClientProvider messages={messages}>
+          <AbsencePenaltyChecker />
           <div className="flex flex-col min-h-screen">
             {/* Top App Bar - sticky */}
             <TopAppBar

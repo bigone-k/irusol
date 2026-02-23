@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Task, DailyStats } from "@/types";
 import { calculateExp, calculateCoins } from "@/lib/rewards";
+import { getProgress } from "@/lib/taskProgress";
 import { migrateTaskStore } from "@/lib/migrations";
 
 interface TaskStore {
@@ -103,22 +104,20 @@ export const useTaskStore = create<TaskStore>()(
 
       getDailyStats: (): DailyStats => {
         const { tasks } = get();
-        const today = new Date().toDateString();
 
-        const todayTasks = tasks.filter(
-          (task) => new Date(task.createdAt).toDateString() === today
-        );
+        // 전체 퀘스트 수
+        const totalTasks = tasks.length;
 
-        const completedTasks = todayTasks.filter((task) => task.completed);
-
-        const totalExp = completedTasks.length * calculateExp();
-        const totalCoins = completedTasks.length * calculateCoins();
+        // 완료된 퀘스트 수 (progress 100% 달성한 것)
+        const completedCount = tasks.filter(
+          (task) => getProgress(task) >= 100
+        ).length;
 
         return {
-          totalTasks: todayTasks.length,
-          completedTasks: completedTasks.length,
-          totalExp,
-          totalCoins,
+          totalTasks,
+          completedTasks: completedCount,
+          totalExp: completedCount * calculateExp(),
+          totalCoins: completedCount * calculateCoins(),
         };
       },
     }),

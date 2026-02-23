@@ -13,6 +13,8 @@ export interface PlayerStats {
   maxExperience: number;
   coins: number;
   stage: StageName;
+  hp: number;
+  maxHp: number;
 }
 
 export interface RewardResult {

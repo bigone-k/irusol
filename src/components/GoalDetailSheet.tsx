@@ -56,9 +56,17 @@ export default function GoalDetailSheet({
 
   const projects = getProjectsByGoal(goal.id);
 
+  // 목표 진척도 (currentValue / targetValue * 100)
+  const goalProgress = targetValue > 0 ? Math.round((currentValue / targetValue) * 100) : 0;
+  const canComplete = goalProgress >= 80;
+
   const handleSave = () => {
     if (!title.trim()) {
       error(t("title") + " " + t("titlePlaceholder"));
+      return;
+    }
+    if (status === "completed" && !canComplete) {
+      error(`목표 달성도가 ${goalProgress}%입니다. 80% 이상이어야 완료할 수 있습니다.`);
       return;
     }
     updateGoal(goal.id, {
@@ -82,6 +90,10 @@ export default function GoalDetailSheet({
   };
 
   const handleStatusChange = (newStatus: GoalStatus) => {
+    if (newStatus === "completed" && !canComplete) {
+      error(`목표 달성도가 ${goalProgress}%입니다. 80% 이상이어야 완료할 수 있습니다.`);
+      return;
+    }
     setStatus(newStatus);
     updateStatus(goal.id, newStatus);
   };
@@ -189,12 +201,17 @@ export default function GoalDetailSheet({
                       return "";
                     };
 
+                    const isDisabled = s === "completed" && !canComplete;
+
                     return (
                       <button
                         key={s}
                         onClick={() => handleStatusChange(s)}
+                        disabled={isDisabled}
                         className={`flex-1 px-3 py-1.5 rounded-lg border font-bold text-xs transition-all ${
-                          status === s
+                          isDisabled
+                            ? "opacity-40 cursor-not-allowed bg-background-surface text-text-muted border"
+                            : status === s
                             ? getStatusStyle(s)
                             : "bg-background-surface text-text-muted border hover:bg-gray-50"
                         }`}
@@ -204,27 +221,11 @@ export default function GoalDetailSheet({
                     );
                   })}
                 </div>
-                {/* Reward Section */}
-                {status === "completed" && (
-                  <div className="mt-2">
-                    {goal.rewardClaimed ? (
-                      <div className="px-3 py-2 bg-accent/10 border border-accent rounded-lg">
-                        <p className="text-sm text-accent font-medium">
-                          {t("reward.claimed")} ({goal.rewardAmount} 코인)
-                        </p>
-                      </div>
-                    ) : (
-                      <motion.button
-                        onClick={handleClaimReward}
-                        className="w-full bg-accent text-white font-bold py-2 px-4 rounded-lg hover:brightness-110 flex items-center justify-center gap-2 transition-all"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <FiAward size={20} />
-                        보상 받기 (+{GOAL_REWARD} 코인)
-                      </motion.button>
-                    )}
-                  </div>
+                {/* 80% 미달 안내 */}
+                {!canComplete && (
+                  <p className="mt-1.5 text-xs text-text-muted">
+                    현재 달성도 <span className="font-semibold text-primary-dark">{goalProgress}%</span> / 완료하려면 80% 이상 필요
+                  </p>
                 )}
               </div>
 
@@ -338,6 +339,29 @@ export default function GoalDetailSheet({
                 </div>
               )}
             </div>
+
+            {/* Reward Section - 완료 상태일 때만 표시 */}
+            {goal.status === "completed" && (
+              <div className="px-6 pb-4">
+                {goal.rewardClaimed ? (
+                  <div className="px-4 py-3 bg-accent/10 border border-accent rounded-xl">
+                    <p className="text-sm text-accent font-medium text-center">
+                      {t("reward.claimed")} ({goal.rewardAmount} 코인)
+                    </p>
+                  </div>
+                ) : (
+                  <motion.button
+                    onClick={handleClaimReward}
+                    className="w-full bg-accent text-white font-bold py-3 px-4 rounded-xl hover:brightness-110 flex items-center justify-center gap-2 transition-all"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <FiAward size={20} />
+                    보상 받기 (+{GOAL_REWARD} 코인)
+                  </motion.button>
+                )}
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="sticky bottom-0 bg-background-surface border-t border px-6 py-4 flex gap-3">

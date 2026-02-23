@@ -311,32 +311,9 @@ export default function ProjectDetailsPage() {
             </div>
           )}
 
-          {/* Reward Section */}
-          {status === "completed" && (
-            <div className="pt-4 border-t border">
-              {project.rewardClaimed ? (
-                <div className="px-4 py-3 bg-accent/10 border border-accent rounded-lg">
-                  <p className="text-sm text-accent font-medium text-center">
-                    보상 받음 ({PROJECT_REWARD} 코인)
-                  </p>
-                </div>
-              ) : (
-                <motion.button
-                  onClick={handleClaimReward}
-                  className="w-full bg-accent text-white font-bold py-3 px-4 rounded-lg hover:brightness-110 flex items-center justify-center gap-2 transition-all"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <FiAward size={20} />
-                  보상 받기 (+{PROJECT_REWARD} 코인)
-                </motion.button>
-              )}
-            </div>
-          )}
-
           {/* Action Buttons (Edit Mode) */}
           {isEditing && (
-            <div className={`flex gap-3 ${(getPeriodDays() !== null || project.reward || status === "completed") ? "pt-4 border-t border" : "pt-2"}`}>
+            <div className={`flex gap-3 ${(getPeriodDays() !== null || project.reward) ? "pt-4 border-t border" : "pt-2"}`}>
               <button
                 onClick={handleDelete}
                 className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"
@@ -354,6 +331,33 @@ export default function ProjectDetailsPage() {
             </div>
           )}
         </motion.div>
+
+        {/* Reward Card - 완료 상태일 때만 표시 */}
+        {project.status === "completed" && (
+          <motion.div
+            className="bg-background-surface rounded-2xl p-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            {project.rewardClaimed ? (
+              <div className="px-4 py-3 bg-accent/10 border border-accent rounded-lg">
+                <p className="text-sm text-accent font-medium text-center">
+                  보상 받음 ({PROJECT_REWARD} 코인)
+                </p>
+              </div>
+            ) : (
+              <motion.button
+                onClick={handleClaimReward}
+                className="w-full bg-accent text-white font-bold py-3 px-4 rounded-lg hover:brightness-110 flex items-center justify-center gap-2 transition-all"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <FiAward size={20} />
+                보상 받기 (+{PROJECT_REWARD} 코인)
+              </motion.button>
+            )}
+          </motion.div>
+        )}
 
         {/* Quest Tabs */}
         <div className="flex gap-2">
