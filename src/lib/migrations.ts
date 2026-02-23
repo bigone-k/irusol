@@ -57,7 +57,6 @@ export function migrateTaskData(oldTask: Partial<Task>): Task {
     title: oldTask.title || "",
     description: oldTask.description || "",
     completed: oldTask.completed || false,
-    difficulty: oldTask.difficulty || "normal",
     createdAt: oldTask.createdAt || new Date(),
 
     // 신규 필드 기본값

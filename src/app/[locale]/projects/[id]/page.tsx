@@ -278,19 +278,8 @@ export default function ProjectDetailsPage() {
           </div>
 
           {/* Metadata Grid */}
-          {(project.difficulty || getPeriodDays() !== null || project.reward) && (
+          {(getPeriodDays() !== null || project.reward) && (
             <div className="grid grid-cols-3 gap-3">
-              {/* Difficulty */}
-              {project.difficulty && (
-                <div className="bg-gray-50 rounded-lg p-3 text-center">
-                  <FiTarget className="mx-auto mb-1 text-text-muted" size={20} />
-                  <p className="text-xs text-text-muted mb-1">
-                    {t("project.difficulty")}
-                  </p>
-                  <p className="font-semibold text-sm">{project.difficulty}</p>
-                </div>
-              )}
-
               {/* Period */}
               {getPeriodDays() !== null && (
                 <div className="bg-gray-50 rounded-lg p-3 text-center">
@@ -347,7 +336,7 @@ export default function ProjectDetailsPage() {
 
           {/* Action Buttons (Edit Mode) */}
           {isEditing && (
-            <div className={`flex gap-3 ${(project.difficulty || getPeriodDays() !== null || project.reward || status === "completed") ? "pt-4 border-t border" : "pt-2"}`}>
+            <div className={`flex gap-3 ${(getPeriodDays() !== null || project.reward || status === "completed") ? "pt-4 border-t border" : "pt-2"}`}>
               <button
                 onClick={handleDelete}
                 className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"

@@ -31,19 +31,8 @@ export default function CharacterPage() {
 
   // Calculate statistics
   const completedTasks = displayTasks.filter((task) => task.completed).length;
-  const totalExp = displayTasks
-    .filter((task) => task.completed)
-    .reduce((sum, task) => {
-      const expMap = { easy: 10, normal: 15, hard: 20 };
-      return sum + expMap[task.difficulty];
-    }, 0);
-
-  const totalCoins = displayTasks
-    .filter((task) => task.completed)
-    .reduce((sum, task) => {
-      const coinMap = { easy: 3, normal: 5, hard: 6 };
-      return sum + coinMap[task.difficulty];
-    }, 0);
+  const totalExp = completedTasks * 10;
+  const totalCoins = completedTasks * 3;
 
   // Get current stage info
   const currentStageInfo = EVOLUTION_STAGES.find((s) => s.stage === displayStage);

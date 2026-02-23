@@ -9,7 +9,6 @@ import { useTaskStore } from "@/store/useTaskStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiChevronRight, FiCheck } from "react-icons/fi";
 import Image from "next/image";
-import type { Difficulty } from "@/types";
 
 export default function Onboarding() {
   const t = useTranslations();
@@ -18,7 +17,6 @@ export default function Onboarding() {
   const [goalTitle, setGoalTitle] = useState("");
   const [projectTitle, setProjectTitle] = useState("");
   const [habitTitle, setHabitTitle] = useState("");
-  const [habitDifficulty, setHabitDifficulty] = useState<Difficulty>("normal");
 
   const { setNickname: saveNickname, completeOnboarding } =
     useOnboardingStore();
@@ -63,7 +61,6 @@ export default function Onboarding() {
         title: habitTitle.trim(),
         description: "",
         type: "habit",
-        difficulty: habitDifficulty,
         goalId,
         projectId,
       });
@@ -167,26 +164,6 @@ export default function Onboarding() {
             placeholder="예: 물 8잔 마시기"
             className="w-full px-4 py-3 border-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent mb-3"
           />
-          <div>
-            <label className="block text-sm font-semibold text-text mb-2">
-              난이도
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {(["easy", "normal", "hard"] as const).map((diff) => (
-                <button
-                  key={diff}
-                  onClick={() => setHabitDifficulty(diff)}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                    habitDifficulty === diff
-                      ? "bg-primary text-white"
-                      : "bg-track text-text-muted hover:bg-track"
-                  }`}
-                >
-                  {t(`task.difficulty.${diff}`)}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       ),
       canNext: true,

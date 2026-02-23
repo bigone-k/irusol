@@ -1,28 +1,25 @@
-import type { Difficulty } from "@/types";
+/**
+ * Fixed experience reward per task completion
+ */
+export const TASK_EXP = 10;
 
 /**
- * Difficulty weights for reward calculation
+ * Fixed coin reward per task completion
  */
-export const DIFFICULTY_WEIGHTS: Record<Difficulty, number> = {
-  easy: 1.0,
-  normal: 1.5,
-  hard: 2.0,
-};
+export const TASK_COINS = 3;
 
 /**
- * Calculate experience reward based on difficulty
- * Formula: 10 × difficulty_weight
+ * Calculate experience reward (fixed)
  */
-export function calculateExp(difficulty: Difficulty): number {
-  return 10 * DIFFICULTY_WEIGHTS[difficulty];
+export function calculateExp(): number {
+  return TASK_EXP;
 }
 
 /**
- * Calculate coin reward based on difficulty
- * Formula: 3 × difficulty_weight
+ * Calculate coin reward (fixed)
  */
-export function calculateCoins(difficulty: Difficulty): number {
-  return 3 * DIFFICULTY_WEIGHTS[difficulty];
+export function calculateCoins(): number {
+  return TASK_COINS;
 }
 
 /**

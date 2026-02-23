@@ -17,7 +17,6 @@ export interface TaskFormData {
   title: string;
   description?: string;
   projectId?: string;
-  difficulty: "easy" | "normal" | "hard";
   recurrence?: TaskRecurrence;
   targetDays?: number;
   startDate?: Date;
@@ -34,7 +33,6 @@ export default function TaskFormBottomSheet({
 
   const [formData, setFormData] = useState<TaskFormData>({
     title: "",
-    difficulty: "normal",
     recurrence: {
       type: "daily",
     },
@@ -51,7 +49,6 @@ export default function TaskFormBottomSheet({
     // Reset form
     setFormData({
       title: "",
-      difficulty: "normal",
       recurrence: { type: "daily" },
       reminder: { enabled: false },
     });

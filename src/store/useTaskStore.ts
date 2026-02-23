@@ -111,15 +111,8 @@ export const useTaskStore = create<TaskStore>()(
 
         const completedTasks = todayTasks.filter((task) => task.completed);
 
-        const totalExp = completedTasks.reduce(
-          (sum, task) => sum + calculateExp(task.difficulty),
-          0
-        );
-
-        const totalCoins = completedTasks.reduce(
-          (sum, task) => sum + calculateCoins(task.difficulty),
-          0
-        );
+        const totalExp = completedTasks.length * calculateExp();
+        const totalCoins = completedTasks.length * calculateCoins();
 
         return {
           totalTasks: todayTasks.length,

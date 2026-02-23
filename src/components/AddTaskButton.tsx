@@ -69,7 +69,6 @@ export default function AddTaskButton({
       title: title.trim(),
       description: description.trim(),
       type,
-      difficulty: "normal", // Default value
       goalId,
       projectId,
       ...(type === "habit" && {

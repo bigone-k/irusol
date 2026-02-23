@@ -40,7 +40,7 @@ export default function TaskList({
 
   const handleToggle = (task: Task) => {
     if (!task.completed) {
-      const result = completeTask(task.difficulty);
+      const result = completeTask();
       toggleTask(task.id);
 
       setCelebratingTask(task.id);

@@ -15,9 +15,6 @@ export interface PlayerStats {
   stage: StageName;
 }
 
-// Difficulty & Reward Types
-export type Difficulty = "easy" | "normal" | "hard";
-
 export interface RewardResult {
   exp: number;
   coins: number;
@@ -45,7 +42,6 @@ export interface Task {
   title: string;
   description: string;
   completed: boolean;
-  difficulty: Difficulty;
   streak?: number;
   createdAt: Date;
   goalId?: string;
@@ -122,7 +118,6 @@ export interface Project {
   reward?: number;
   startDate?: Date;
   endDate?: Date;
-  difficulty?: "Easy" | "Normal" | "Hard";
 
   // 신규 필드
   status: ProjectStatus;

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { PlayerStats, Difficulty, RewardResult } from "@/types";
+import type { PlayerStats, RewardResult } from "@/types";
 import { calculateExp, calculateCoins, getRequiredExp } from "@/lib/rewards";
 import { getStageForLevel, checkEvolution } from "@/lib/evolution";
 
@@ -13,8 +13,9 @@ const initialStats: PlayerStats = {
 };
 
 interface PlayerStore extends PlayerStats {
-  completeTask: (difficulty: Difficulty) => RewardResult;
-  completeTaskXPOnly: (difficulty: Difficulty) => RewardResult;
+  completeTask: () => RewardResult;
+  completeTaskXPOnly: () => RewardResult;
+  loseExperience: (amount: number) => { leveledDown: boolean; newLevel?: number };
   addExperience: (amount: number) => void;
   addCoins: (amount: number) => void;
   reset: () => void;
@@ -25,30 +26,26 @@ export const usePlayerStore = create<PlayerStore>()(
     (set, get) => ({
       ...initialStats,
 
-      completeTask: (difficulty: Difficulty): RewardResult => {
-        const { level, experience, maxExperience } = get();
+      completeTask: (): RewardResult => {
+        const { level, experience } = get();
 
-        // Calculate rewards
-        const exp = calculateExp(difficulty);
-        const coins = calculateCoins(difficulty);
+        const exp = calculateExp();
+        const coins = calculateCoins();
 
         const newExp = experience + exp;
         let newLevel = level;
         let remainingExp = newExp;
         let leveledUp = false;
 
-        // Handle level-ups (potentially multiple)
         while (remainingExp >= getRequiredExp(newLevel)) {
           remainingExp -= getRequiredExp(newLevel);
           newLevel += 1;
           leveledUp = true;
         }
 
-        // Check for evolution
         const evolved = checkEvolution(level, newLevel);
         const newStage = getStageForLevel(newLevel);
 
-        // Update state
         set({
           level: newLevel,
           experience: remainingExp,
@@ -67,29 +64,25 @@ export const usePlayerStore = create<PlayerStore>()(
         };
       },
 
-      completeTaskXPOnly: (difficulty: Difficulty): RewardResult => {
+      completeTaskXPOnly: (): RewardResult => {
         const { level, experience } = get();
 
-        // Calculate XP only
-        const exp = calculateExp(difficulty);
+        const exp = calculateExp();
 
         const newExp = experience + exp;
         let newLevel = level;
         let remainingExp = newExp;
         let leveledUp = false;
 
-        // Handle level-ups
         while (remainingExp >= getRequiredExp(newLevel)) {
           remainingExp -= getRequiredExp(newLevel);
           newLevel += 1;
           leveledUp = true;
         }
 
-        // Check for evolution
         const evolved = checkEvolution(level, newLevel);
         const newStage = getStageForLevel(newLevel);
 
-        // Update state (no coins)
         set({
           level: newLevel,
           experience: remainingExp,
@@ -104,6 +97,38 @@ export const usePlayerStore = create<PlayerStore>()(
           evolved,
           newLevel: leveledUp ? newLevel : undefined,
           newStage: evolved ? newStage : undefined,
+        };
+      },
+
+      loseExperience: (amount: number) => {
+        const { level, experience } = get();
+
+        let newLevel = level;
+        let remainingExp = experience - amount;
+        let leveledDown = false;
+
+        // 경험치가 부족하면 레벨다운
+        while (remainingExp < 0 && newLevel > 1) {
+          newLevel -= 1;
+          remainingExp += getRequiredExp(newLevel);
+          leveledDown = true;
+        }
+
+        // 레벨 1에서는 0 이하로 내려가지 않음
+        if (remainingExp < 0) remainingExp = 0;
+
+        const newStage = getStageForLevel(newLevel);
+
+        set({
+          level: newLevel,
+          experience: remainingExp,
+          maxExperience: getRequiredExp(newLevel),
+          stage: newStage,
+        });
+
+        return {
+          leveledDown,
+          newLevel: leveledDown ? newLevel : undefined,
         };
       },
 

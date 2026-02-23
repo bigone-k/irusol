@@ -1,12 +1,14 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useState, useRef } from 'react'
 import { FiCheck } from 'react-icons/fi'
 import { useLocale } from 'next-intl'
 import { useTaskStore } from '@/store/useTaskStore'
 import { usePlayerStore } from '@/store/usePlayerStore'
 import type { Task } from '@/types'
 import { format } from 'date-fns'
+import { motion, AnimatePresence } from 'framer-motion'
+import { TASK_EXP } from '@/lib/rewards'
 
 interface TaskCardProps {
   task: Task
@@ -18,40 +20,74 @@ function TaskCard({ task, date }: TaskCardProps) {
   const completeTask = useTaskStore(state => state.completeTask)
   const uncompleteTask = useTaskStore(state => state.uncompleteTask)
   const completeTaskXPOnly = usePlayerStore(state => state.completeTaskXPOnly)
+  const loseExperience = usePlayerStore(state => state.loseExperience)
+
+  const [xpNote, setXpNote] = useState<{ type: 'gain' | 'lose'; id: number } | null>(null)
+  const noteId = useRef(0)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const dateKey = format(date, 'yyyy-MM-dd')
   const isCompleted = task.completedDates?.includes(dateKey) || false
 
+  const showXpNote = (type: 'gain' | 'lose') => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    noteId.current += 1
+    setXpNote({ type, id: noteId.current })
+    timerRef.current = setTimeout(() => setXpNote(null), 2000)
+  }
+
   const handleToggle = () => {
     if (isCompleted) {
-      // 완료 해제
       uncompleteTask(task.id, dateKey)
+      loseExperience(TASK_EXP)
+      showXpNote('lose')
     } else {
-      // 작업 완료 처리 - 선택된 날짜 기준으로 기록
       completeTask(task.id, dateKey)
-      // XP만 획득 (코인 없음, 기본 난이도 'normal' 사용)
-      completeTaskXPOnly(task.difficulty || 'normal')
+      completeTaskXPOnly()
+      showXpNote('gain')
     }
   }
 
   return (
     <div className="px-4 py-3 hover:bg-background transition-colors">
       <div className="flex items-center gap-3">
-        {/* Checkbox */}
-        <button
-          onClick={handleToggle}
-          className={`
-            flex-shrink-0 w-6 h-6 rounded-md border-2 flex items-center justify-center
-            transition-colors
-            ${isCompleted
-              ? 'bg-accent border-accent hover:bg-accent/80 hover:border-accent/80'
-              : 'border-border hover:border-primary'
-            }
-          `}
-          aria-label={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
-        >
-          {isCompleted && <FiCheck className="text-white text-sm" />}
-        </button>
+        {/* Checkbox with XP badge */}
+        <div className="relative flex-shrink-0">
+          <button
+            onClick={handleToggle}
+            className={`
+              w-6 h-6 rounded-md border-2 flex items-center justify-center
+              transition-colors
+              ${isCompleted
+                ? 'bg-accent border-accent hover:bg-accent/80 hover:border-accent/80'
+                : 'border-border hover:border-primary'
+              }
+            `}
+            aria-label={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
+          >
+            {isCompleted && <FiCheck className="text-white text-sm" />}
+          </button>
+
+          {/* XP 획득/손실 알림 배지 */}
+          <AnimatePresence>
+            {xpNote && (
+              <motion.span
+                key={xpNote.id}
+                initial={{ opacity: 1, y: 0, x: '-50%' }}
+                animate={{ opacity: 0, y: -32, x: '-50%' }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.8, ease: 'easeOut' }}
+                className={`
+                  absolute -top-1 left-1/2 text-xs font-bold whitespace-nowrap
+                  pointer-events-none z-20 drop-shadow-sm
+                  ${xpNote.type === 'gain' ? 'text-primary-dark' : 'text-red-400'}
+                `}
+              >
+                {xpNote.type === 'gain' ? `+${TASK_EXP} XP` : `-${TASK_EXP} XP`}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Task Info */}
         <div className="flex-1 min-w-0">
