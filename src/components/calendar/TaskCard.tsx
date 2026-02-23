@@ -16,19 +16,22 @@ interface TaskCardProps {
 function TaskCard({ task, date }: TaskCardProps) {
   const locale = useLocale()
   const completeTask = useTaskStore(state => state.completeTask)
+  const uncompleteTask = useTaskStore(state => state.uncompleteTask)
   const completeTaskXPOnly = usePlayerStore(state => state.completeTaskXPOnly)
 
   const dateKey = format(date, 'yyyy-MM-dd')
   const isCompleted = task.completedDates?.includes(dateKey) || false
 
   const handleToggle = () => {
-    if (isCompleted) return // 이미 완료된 작업은 토글 안 함
-
-    // 작업 완료 처리 - 선택된 날짜 기준으로 기록
-    completeTask(task.id, dateKey)
-
-    // XP만 획득 (코인 없음, 기본 난이도 'normal' 사용)
-    completeTaskXPOnly(task.difficulty || 'normal')
+    if (isCompleted) {
+      // 완료 해제
+      uncompleteTask(task.id, dateKey)
+    } else {
+      // 작업 완료 처리 - 선택된 날짜 기준으로 기록
+      completeTask(task.id, dateKey)
+      // XP만 획득 (코인 없음, 기본 난이도 'normal' 사용)
+      completeTaskXPOnly(task.difficulty || 'normal')
+    }
   }
 
   return (
@@ -37,16 +40,15 @@ function TaskCard({ task, date }: TaskCardProps) {
         {/* Checkbox */}
         <button
           onClick={handleToggle}
-          disabled={isCompleted}
           className={`
             flex-shrink-0 w-6 h-6 rounded-md border-2 flex items-center justify-center
             transition-colors
             ${isCompleted
-              ? 'bg-accent border-accent cursor-default'
+              ? 'bg-accent border-accent hover:bg-accent/80 hover:border-accent/80'
               : 'border-border hover:border-primary'
             }
           `}
-          aria-label={isCompleted ? 'Completed' : 'Mark as complete'}
+          aria-label={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
         >
           {isCompleted && <FiCheck className="text-white text-sm" />}
         </button>

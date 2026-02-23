@@ -7,7 +7,7 @@ import type { TabType, Task } from "@/types";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { FiCalendar, FiClock, FiRepeat, FiTarget } from "react-icons/fi";
+import { FiCalendar, FiClock, FiRepeat } from "react-icons/fi";
 import QuestDetailSheet from "@/components/QuestDetailSheet";
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 
@@ -55,12 +55,40 @@ export default function TaskList({ activeTab }: TaskListProps) {
     return task.frequency.map(d => dayLabels[d]).join(", ");
   };
 
+  // Calculate total scheduled days for a habit (startDate ~ endDate, filtered by frequency)
+  const getTotalScheduledDays = (task: Task): number => {
+    if (!task.startDate || !task.endDate || !task.frequency || task.frequency.length === 0) return 0;
+    const start = new Date(task.startDate);
+    const end = new Date(task.endDate);
+    let count = 0;
+    const cursor = new Date(start);
+    while (cursor <= end) {
+      if (task.frequency.includes(cursor.getDay())) count++;
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return count;
+  };
+
+  const isTodoCompleted = (task: Task): boolean =>
+    task.completed || ((task.completedDates?.length ?? 0) > 0);
+
   // Calculate task progress (0-100)
   const getProgress = (task: Task): number => {
     if (task.type === "todo") {
-      return task.completed ? 100 : 0;
+      return isTodoCompleted(task) ? 100 : 0;
     }
-    // Habit
+    // Habit: startDate + endDate + frequency 기반
+    if (task.startDate && task.endDate && task.frequency && task.frequency.length > 0) {
+      const totalDays = getTotalScheduledDays(task);
+      if (totalDays === 0) return 0;
+      const startStr = format(new Date(task.startDate), "yyyy-MM-dd");
+      const endStr = format(new Date(task.endDate), "yyyy-MM-dd");
+      const completedInRange = (task.completedDates || []).filter(
+        (d) => d >= startStr && d <= endStr
+      ).length;
+      return Math.min(100, (completedInRange / totalDays) * 100);
+    }
+    // Habit: targetDays 기반
     if (task.targetDays) {
       return Math.min(100, ((task.completionCount || 0) / task.targetDays) * 100);
     }
@@ -75,7 +103,6 @@ export default function TaskList({ activeTab }: TaskListProps) {
         periodStart = startOfMonth(today);
         periodEnd = endOfMonth(today);
       } else {
-        // daily
         const todayStr = format(today, "yyyy-MM-dd");
         return task.completedDates.includes(todayStr) ? 100 : 0;
       }
@@ -86,22 +113,29 @@ export default function TaskList({ activeTab }: TaskListProps) {
       ).length;
       return Math.min(100, (periodCompletions / task.frequencyTarget) * 100);
     }
-    // Fallback: today completed?
     const todayStr = format(new Date(), "yyyy-MM-dd");
     return task.completedDates?.includes(todayStr) ? 100 : 0;
   };
 
+  // Get progress label (% with floor) - delegates to getProgress to avoid duplication
+  const getProgressLabel = (task: Task): string | null => {
+    if (task.type === "todo") {
+      return isTodoCompleted(task) ? "100%" : "0%";
+    }
+    if ((task.startDate && task.endDate && task.frequency?.length) || task.targetDays) {
+      return `${Math.floor(getProgress(task))}%`;
+    }
+    return null;
+  };
+
   const handleToggle = (task: Task) => {
     if (!task.completed) {
-      // Task being completed - add rewards
       const result = completeTask(task.difficulty);
       toggleTask(task.id);
 
-      // Show celebration animation
       setCelebratingTask(task.id);
       setTimeout(() => setCelebratingTask(null), 1000);
 
-      // Show level-up/evolution notification if needed
       if (result.evolved) {
         // TODO: Show evolution animation
         console.log(`Evolved to ${result.newStage}!`);
@@ -110,12 +144,10 @@ export default function TaskList({ activeTab }: TaskListProps) {
         console.log(`Level up! Now level ${result.newLevel}`);
       }
     } else {
-      // Uncompleting task - just toggle
       toggleTask(task.id);
     }
   };
 
-  // If no activeTab is provided, show all tasks
   const filteredTasks = activeTab
     ? tasks.filter((task) => {
         if (activeTab === "habits") return task.type === "habit";
@@ -142,37 +174,38 @@ export default function TaskList({ activeTab }: TaskListProps) {
     <>
       <div className="space-y-3">
         {filteredTasks.map((task, index) => {
-        const project = task.projectId ? projects.find((p) => p.id === task.projectId) : null;
-        const daysRemaining = task.type === "todo" ? getDaysRemaining(task.dueDate) : null;
-        const frequency = task.type === "habit" ? getFrequencyText(task) : null;
-        const period = task.type === "habit" ? formatPeriod(task.startDate, task.endDate) : null;
+          const project = task.projectId ? projects.find((p) => p.id === task.projectId) : null;
+          const daysRemaining = task.type === "todo" ? getDaysRemaining(task.dueDate) : null;
+          const frequency = task.type === "habit" ? getFrequencyText(task) : null;
+          const period = task.type === "habit" ? formatPeriod(task.startDate, task.endDate) : null;
+          const progress = getProgress(task);
+          const progressLabel = getProgressLabel(task);
 
-        const progress = getProgress(task);
-
-        return (
-          <motion.div
-            key={task.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.05 }}
-            className={`relative overflow-hidden bg-background-surface rounded-lg p-4 border-2 ${
-              task.completed ? "border-accent" : "border"
-            } cursor-pointer ${
-              celebratingTask === task.id ? "scale-105 border-accent" : ""
-            }`}
-            onClick={() => handleTaskClick(task)}
-          >
-            {/* Background fill progress */}
+          return (
             <motion.div
-              className={`absolute inset-y-0 left-0 rounded-lg pointer-events-none
-                ${task.type === "habit"
-                  ? progress >= 100 ? "bg-primary/25" : "bg-primary/15"
-                  : progress >= 100 ? "bg-accent/25" : "bg-accent/15"
-                }`}
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.8, ease: [0.68, -0.55, 0.265, 1.55] }}
-            />
+              key={task.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className={`relative overflow-hidden bg-background-surface rounded-lg p-4 border-2 ${
+                task.completed ? "border-accent" : "border"
+              } cursor-pointer ${
+                celebratingTask === task.id ? "scale-105 border-accent" : ""
+              }`}
+              onClick={() => handleTaskClick(task)}
+            >
+              {/* Background fill progress */}
+              <motion.div
+                className={`absolute inset-y-0 left-0 rounded-lg pointer-events-none
+                  ${task.type === "habit"
+                    ? progress >= 100 ? "bg-primary/25" : "bg-primary/15"
+                    : progress >= 100 ? "bg-accent/25" : "bg-accent/15"
+                  }`}
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.8, ease: [0.68, -0.55, 0.265, 1.55] }}
+              />
+
               <div className="relative z-10 w-full">
                 {/* Project Name */}
                 {project && (
@@ -247,11 +280,7 @@ export default function TaskList({ activeTab }: TaskListProps) {
                     {daysRemaining !== null && (
                       <div
                         className={`flex items-center gap-1 text-xs font-semibold ${
-                          daysRemaining < 0
-                            ? "text-red-500"
-                            : daysRemaining <= 3
-                            ? "text-text-muted"
-                            : "text-text-muted"
+                          daysRemaining < 0 ? "text-red-500" : "text-text-muted"
                         }`}
                       >
                         <FiClock size={12} />
@@ -265,20 +294,18 @@ export default function TaskList({ activeTab }: TaskListProps) {
                   </div>
                 )}
 
-                {/* Progress Text */}
-                <div className="flex justify-end mt-1">
-                  {task.type === "habit" && task.targetDays ? (
+                {/* Progress Label */}
+                {progressLabel && (
+                  <div className="flex justify-end mt-1">
                     <span className="text-xs text-text-muted font-medium">
-                      {task.completionCount || 0}/{task.targetDays}
+                      {progressLabel}
                     </span>
-                  ) : task.type === "todo" && task.completed ? (
-                    <span className="text-xs font-medium text-accent">완료</span>
-                  ) : null}
-                </div>
+                  </div>
+                )}
               </div>
-          </motion.div>
-        );
-      })}
+            </motion.div>
+          );
+        })}
       </div>
 
       <QuestDetailSheet
