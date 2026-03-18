@@ -4,6 +4,7 @@ import type { Task, DailyStats } from "@/types";
 import { calculateExp, calculateCoins } from "@/lib/rewards";
 import { getProgress } from "@/lib/taskProgress";
 import { migrateTaskStore } from "@/lib/migrations";
+import { syncTaskInsert, syncTaskUpdate, syncTaskDelete } from "@/lib/supabase/sync";
 
 interface TaskStore {
   tasks: Task[];
@@ -13,6 +14,7 @@ interface TaskStore {
   uncompleteTask: (id: string, date?: string) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
+  hydrate: (tasks: Task[]) => void;
   reset: () => void;
   getDailyStats: () => DailyStats;
 }
@@ -32,15 +34,14 @@ export const useTaskStore = create<TaskStore>()(
           completionCount: 0,
         };
         set((state) => ({ tasks: [...state.tasks, newTask] }));
+        syncTaskInsert(newTask).catch(() => {});
       },
 
       toggleTask: (id: string) => {
         set((state) => ({
           tasks: state.tasks.map((task) => {
             if (task.id !== id) return task;
-
             const newCompleted = !task.completed;
-            // 완료 시 rewardClaimed 설정
             return {
               ...task,
               completed: newCompleted,
@@ -48,17 +49,22 @@ export const useTaskStore = create<TaskStore>()(
             };
           }),
         }));
+        const task = get().tasks.find((t) => t.id === id);
+        if (task) {
+          syncTaskUpdate(id, {
+            completed: task.completed,
+            rewardClaimed: task.rewardClaimed,
+          }).catch(() => {});
+        }
       },
 
       completeTask: (id: string, date?: string) => {
-        const today = date || new Date().toISOString().split('T')[0];
+        const today = date || new Date().toISOString().split("T")[0];
         set((state) => ({
           tasks: state.tasks.map((task) => {
             if (task.id !== id) return task;
-
             const completedDates = task.completedDates || [];
-            if (completedDates.includes(today)) return task; // 이미 완료됨
-
+            if (completedDates.includes(today)) return task;
             return {
               ...task,
               completedDates: [...completedDates, today],
@@ -66,17 +72,22 @@ export const useTaskStore = create<TaskStore>()(
             };
           }),
         }));
+        const task = get().tasks.find((t) => t.id === id);
+        if (task) {
+          syncTaskUpdate(id, {
+            completedDates: task.completedDates,
+            completionCount: task.completionCount,
+          }).catch(() => {});
+        }
       },
 
       uncompleteTask: (id: string, date?: string) => {
-        const today = date || new Date().toISOString().split('T')[0];
+        const today = date || new Date().toISOString().split("T")[0];
         set((state) => ({
           tasks: state.tasks.map((task) => {
             if (task.id !== id) return task;
-
             const completedDates = task.completedDates || [];
-            if (!completedDates.includes(today)) return task; // 완료되지 않음
-
+            if (!completedDates.includes(today)) return task;
             return {
               ...task,
               completedDates: completedDates.filter((d) => d !== today),
@@ -84,6 +95,13 @@ export const useTaskStore = create<TaskStore>()(
             };
           }),
         }));
+        const task = get().tasks.find((t) => t.id === id);
+        if (task) {
+          syncTaskUpdate(id, {
+            completedDates: task.completedDates,
+            completionCount: task.completionCount,
+          }).catch(() => {});
+        }
       },
 
       updateTask: (id: string, updates: Partial<Task>) => {
@@ -92,23 +110,22 @@ export const useTaskStore = create<TaskStore>()(
             task.id === id ? { ...task, ...updates } : task
           ),
         }));
+        syncTaskUpdate(id, updates).catch(() => {});
       },
 
       deleteTask: (id: string) => {
         set((state) => ({
           tasks: state.tasks.filter((task) => task.id !== id),
         }));
+        syncTaskDelete(id).catch(() => {});
       },
 
+      hydrate: (tasks) => set({ tasks }),
       reset: () => set({ tasks: [] }),
 
       getDailyStats: (): DailyStats => {
         const { tasks } = get();
-
-        // 전체 퀘스트 수
         const totalTasks = tasks.length;
-
-        // 완료된 퀘스트 수 (progress 100% 달성한 것)
         const completedCount = tasks.filter(
           (task) => getProgress(task) >= 100
         ).length;

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Project } from "@/types";
 import { migrateProjectStore } from "@/lib/migrations";
+import { syncProjectInsert, syncProjectUpdate, syncProjectDelete } from "@/lib/supabase/sync";
 
 interface ProjectStore {
   projects: Project[];
@@ -12,6 +13,7 @@ interface ProjectStore {
   getProjectsByGoal: (goalId: string) => Project[];
   updateStatus: (id: string, status: Project["status"]) => void;
   claimReward: (id: string) => boolean;
+  hydrate: (projects: Project[]) => void;
   reset: () => void;
 }
 
@@ -31,6 +33,7 @@ export const useProjectStore = create<ProjectStore>()(
           rewardAmount: 300,
         };
         set((state) => ({ projects: [...state.projects, newProject] }));
+        syncProjectInsert(newProject).catch(() => {});
       },
 
       toggleProject: (id: string) => {
@@ -41,6 +44,8 @@ export const useProjectStore = create<ProjectStore>()(
               : project
           ),
         }));
+        const project = get().projects.find((p) => p.id === id);
+        if (project) syncProjectUpdate(id, { completed: project.completed }).catch(() => {});
       },
 
       updateProject: (id: string, updates: Partial<Project>) => {
@@ -49,12 +54,14 @@ export const useProjectStore = create<ProjectStore>()(
             project.id === id ? { ...project, ...updates } : project
           ),
         }));
+        syncProjectUpdate(id, updates).catch(() => {});
       },
 
       deleteProject: (id: string) => {
         set((state) => ({
           projects: state.projects.filter((project) => project.id !== id),
         }));
+        syncProjectDelete(id).catch(() => {});
       },
 
       getProjectsByGoal: (goalId: string) => {
@@ -67,6 +74,7 @@ export const useProjectStore = create<ProjectStore>()(
             project.id === id ? { ...project, status } : project
           ),
         }));
+        syncProjectUpdate(id, { status }).catch(() => {});
       },
 
       claimReward: (id: string): boolean => {
@@ -74,16 +82,16 @@ export const useProjectStore = create<ProjectStore>()(
         if (!project || project.rewardClaimed || project.status !== "completed") {
           return false;
         }
-
         set((state) => ({
           projects: state.projects.map((p) =>
             p.id === id ? { ...p, rewardClaimed: true } : p
           ),
         }));
-
+        syncProjectUpdate(id, { rewardClaimed: true }).catch(() => {});
         return true;
       },
 
+      hydrate: (projects) => set({ projects }),
       reset: () => set({ projects: [] }),
     }),
     {

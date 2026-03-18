@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Goal, ValueChange } from "@/types";
 import { migrateGoalStore } from "@/lib/migrations";
+import { syncGoalInsert, syncGoalUpdate, syncGoalDelete } from "@/lib/supabase/sync";
 
 interface GoalStore {
   goals: Goal[];
@@ -18,6 +19,7 @@ interface GoalStore {
   decrementValue: (id: string, amount: number) => void;
   updateStatus: (id: string, status: Goal["status"]) => void;
   claimReward: (id: string) => boolean;
+  hydrate: (goals: Goal[]) => void;
   reset: () => void;
 }
 
@@ -34,7 +36,6 @@ export const useGoalStore = create<GoalStore>()(
           valueHistory: [],
           rewardClaimed: false,
           rewardAmount: 500,
-          // 사용자 입력값 사용, 없으면 기본값
           status: goalData.status || "notStarted",
           currentValue: goalData.currentValue ?? 0,
           targetValue: goalData.targetValue ?? 100,
@@ -42,6 +43,7 @@ export const useGoalStore = create<GoalStore>()(
           ...goalData,
         };
         set((state) => ({ goals: [...state.goals, newGoal] }));
+        syncGoalInsert(newGoal).catch(() => {});
       },
 
       toggleGoal: (id: string) => {
@@ -50,6 +52,8 @@ export const useGoalStore = create<GoalStore>()(
             goal.id === id ? { ...goal, completed: !goal.completed } : goal
           ),
         }));
+        const goal = get().goals.find((g) => g.id === id);
+        if (goal) syncGoalUpdate(id, { completed: goal.completed }).catch(() => {});
       },
 
       updateGoal: (id: string, updates: Partial<Goal>) => {
@@ -58,19 +62,21 @@ export const useGoalStore = create<GoalStore>()(
             goal.id === id ? { ...goal, ...updates } : goal
           ),
         }));
+        syncGoalUpdate(id, updates).catch(() => {});
       },
 
       deleteGoal: (id: string) => {
         set((state) => ({
           goals: state.goals.filter((goal) => goal.id !== id),
         }));
+        syncGoalDelete(id).catch(() => {});
       },
 
       incrementValue: (id: string, amount: number = 1) => {
+        let updatedGoal: Goal | undefined;
         set((state) => ({
           goals: state.goals.map((goal) => {
             if (goal.id !== id) return goal;
-
             const newValue = Math.min(goal.currentValue + amount, goal.targetValue);
             const change: ValueChange = {
               id: crypto.randomUUID(),
@@ -79,23 +85,24 @@ export const useGoalStore = create<GoalStore>()(
               newValue,
               change: amount,
             };
-
             const updatedHistory = [change, ...(goal.valueHistory || [])].slice(0, 100);
-
-            return {
-              ...goal,
-              currentValue: newValue,
-              valueHistory: updatedHistory,
-            };
+            updatedGoal = { ...goal, currentValue: newValue, valueHistory: updatedHistory };
+            return updatedGoal;
           }),
         }));
+        if (updatedGoal) {
+          syncGoalUpdate(id, {
+            currentValue: updatedGoal.currentValue,
+            valueHistory: updatedGoal.valueHistory,
+          }).catch(() => {});
+        }
       },
 
       decrementValue: (id: string, amount: number = 1) => {
+        let updatedGoal: Goal | undefined;
         set((state) => ({
           goals: state.goals.map((goal) => {
             if (goal.id !== id) return goal;
-
             const newValue = Math.max(goal.currentValue - amount, 0);
             const change: ValueChange = {
               id: crypto.randomUUID(),
@@ -104,16 +111,17 @@ export const useGoalStore = create<GoalStore>()(
               newValue,
               change: -amount,
             };
-
             const updatedHistory = [change, ...(goal.valueHistory || [])].slice(0, 100);
-
-            return {
-              ...goal,
-              currentValue: newValue,
-              valueHistory: updatedHistory,
-            };
+            updatedGoal = { ...goal, currentValue: newValue, valueHistory: updatedHistory };
+            return updatedGoal;
           }),
         }));
+        if (updatedGoal) {
+          syncGoalUpdate(id, {
+            currentValue: updatedGoal.currentValue,
+            valueHistory: updatedGoal.valueHistory,
+          }).catch(() => {});
+        }
       },
 
       updateStatus: (id: string, status: Goal["status"]) => {
@@ -122,6 +130,7 @@ export const useGoalStore = create<GoalStore>()(
             goal.id === id ? { ...goal, status } : goal
           ),
         }));
+        syncGoalUpdate(id, { status }).catch(() => {});
       },
 
       claimReward: (id: string): boolean => {
@@ -129,16 +138,16 @@ export const useGoalStore = create<GoalStore>()(
         if (!goal || goal.rewardClaimed || goal.status !== "completed") {
           return false;
         }
-
         set((state) => ({
           goals: state.goals.map((g) =>
             g.id === id ? { ...g, rewardClaimed: true } : g
           ),
         }));
-
+        syncGoalUpdate(id, { rewardClaimed: true }).catch(() => {});
         return true;
       },
 
+      hydrate: (goals) => set({ goals }),
       reset: () => set({ goals: [] }),
     }),
     {

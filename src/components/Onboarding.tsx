@@ -21,10 +21,12 @@ import {
   FiCheckSquare,
 } from "react-icons/fi";
 import Image from "next/image";
+import LoadingModal from "./LoadingModal";
 import {
   ONBOARDING_TEMPLATES,
   type OnboardingTemplate,
 } from "@/lib/onboardingTemplates";
+import { syncAllStoresInOrder } from "@/lib/supabase/sync";
 
 // Steps: 0=Welcome, 1=Structure, 2=Vision, 3=TemplateSelection, 4=Goal, 5=Project, 6=Quest, 7=Complete
 const TOTAL_STEPS = 8;
@@ -50,6 +52,8 @@ export default function Onboarding() {
   const [projectTitle, setProjectTitle] = useState("");
   const [questTitle, setQuestTitle] = useState("");
   const [questType, setQuestType] = useState<"habit" | "todo">("habit");
+
+  const [isCompleting, setIsCompleting] = useState(false);
 
   // New state for template flow
   const [selectedTemplate, setSelectedTemplate] = useState<
@@ -134,50 +138,64 @@ export default function Onboarding() {
   };
 
   const handleComplete = async () => {
-    // 기존 데이터 초기화 (이전 테스트/세션 데이터 제거)
-    resetVision();
-    resetGoals();
-    resetProjects();
-    resetTasks();
+    setIsCompleting(true);
 
-    // Vision — both paths
-    if (visionTitle.trim()) {
-      setVision({ title: visionTitle.trim() });
+    try {
+      // 기존 데이터 초기화 (이전 테스트/세션 데이터 제거)
+      resetVision();
+      resetGoals();
+      resetProjects();
+      resetTasks();
+
+      // Vision — both paths
+      if (visionTitle.trim()) {
+        setVision({ title: visionTitle.trim() });
+      }
+
+      if (path === "template" && selectedTemplate) {
+        applyTemplate(selectedTemplate);
+      } else {
+        // Manual path — existing logic
+        let goalId: string | undefined;
+        if (goalTitle.trim()) {
+          addGoal({ title: goalTitle.trim(), description: "" });
+          goalId = useGoalStore.getState().goals.slice(-1)[0]?.id;
+        }
+
+        let projectId: string | undefined;
+        if (projectTitle.trim()) {
+          addProject({
+            goalId: goalId ?? "",
+            title: projectTitle.trim(),
+            description: "",
+          });
+          projectId = useProjectStore.getState().projects.slice(-1)[0]?.id;
+        }
+
+        if (questTitle.trim()) {
+          addTask({
+            title: questTitle.trim(),
+            description: "",
+            type: questType,
+            goalId,
+            projectId,
+          });
+        }
+      }
+
+      // FK 순서 보장: Vision → Goals → Projects → Tasks 순차 sync
+      await syncAllStoresInOrder({
+        vision: useVisionStore.getState().vision,
+        goals: useGoalStore.getState().goals,
+        projects: useProjectStore.getState().projects,
+        tasks: useTaskStore.getState().tasks,
+      });
+
+      await completeOnboarding();
+      router.push(`/${locale}/goals`);
+    } finally {
+      setIsCompleting(false);
     }
-
-    if (path === "template" && selectedTemplate) {
-      applyTemplate(selectedTemplate);
-    } else {
-      // Manual path — existing logic
-      let goalId: string | undefined;
-      if (goalTitle.trim()) {
-        addGoal({ title: goalTitle.trim(), description: "" });
-        goalId = useGoalStore.getState().goals.slice(-1)[0]?.id;
-      }
-
-      let projectId: string | undefined;
-      if (projectTitle.trim()) {
-        addProject({
-          goalId: goalId ?? "",
-          title: projectTitle.trim(),
-          description: "",
-        });
-        projectId = useProjectStore.getState().projects.slice(-1)[0]?.id;
-      }
-
-      if (questTitle.trim()) {
-        addTask({
-          title: questTitle.trim(),
-          description: "",
-          type: questType,
-          goalId,
-          projectId,
-        });
-      }
-    }
-
-    await completeOnboarding();
-    router.push(`/${locale}/goals`);
   };
 
   // Per-step canNext
@@ -274,6 +292,7 @@ export default function Onboarding() {
 
   return (
     <div className="fixed inset-0 bg-background z-50 overflow-y-auto">
+      <LoadingModal isOpen={isCompleting} />
       <div className="max-w-md mx-auto min-h-full flex flex-col p-6">
         {/* Progress dots */}
         <div className="mb-8 mt-8">
