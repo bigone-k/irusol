@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useVisionStore } from "@/store/useVisionStore";
 import { useGoalStore } from "@/store/useGoalStore";
@@ -10,6 +11,7 @@ import { useTaskStore } from "@/store/useTaskStore";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiChevronRight,
+  FiChevronLeft,
   FiCheck,
   FiEye,
   FiTarget,
@@ -19,98 +21,196 @@ import {
   FiCheckSquare,
 } from "react-icons/fi";
 import Image from "next/image";
+import {
+  ONBOARDING_TEMPLATES,
+  type OnboardingTemplate,
+} from "@/lib/onboardingTemplates";
 
-// Steps: 0=Welcome, 1=Structure, 2=Nickname, 3=Vision, 4=Goal, 5=Project, 6=Quest, 7=Complete
+// Steps: 0=Welcome, 1=Structure, 2=Vision, 3=TemplateSelection, 4=Goal, 5=Project, 6=Quest, 7=Complete
 const TOTAL_STEPS = 8;
+const BREADCRUMB_STEP_OFFSET = 4; // steps 4-6: Goal, Project, Quest
 
-// Breadcrumb items for steps 3–6 (active index 0–3)
-const BREADCRUMB_STEP_OFFSET = 3;
+const DAY_NAMES_KEYS = [
+  "habitDaySun",
+  "habitDayMon",
+  "habitDayTue",
+  "habitDayWed",
+  "habitDayThu",
+  "habitDayFri",
+  "habitDaySat",
+] as const;
 
 export default function Onboarding() {
   const t = useTranslations("onboarding");
   const tc = useTranslations("common");
 
   const [step, setStep] = useState(0);
-  const [nickname, setNickname] = useState("");
   const [visionTitle, setVisionTitle] = useState("");
   const [goalTitle, setGoalTitle] = useState("");
   const [projectTitle, setProjectTitle] = useState("");
   const [questTitle, setQuestTitle] = useState("");
   const [questType, setQuestType] = useState<"habit" | "todo">("habit");
 
-  const { setNickname: saveNickname, completeOnboarding } = useOnboardingStore();
-  const setVision = useVisionStore((state) => state.setVision);
-  const addGoal = useGoalStore((state) => state.addGoal);
-  const addProject = useProjectStore((state) => state.addProject);
-  const addTask = useTaskStore((state) => state.addTask);
+  // New state for template flow
+  const [selectedTemplate, setSelectedTemplate] = useState<
+    "A" | "B" | "C" | "D" | null
+  >(null);
+  const [path, setPath] = useState<"template" | "manual" | null>(null);
 
-  const handleComplete = () => {
-    // 1. Nickname
-    if (nickname.trim()) {
-      saveNickname(nickname.trim());
+  const router = useRouter();
+  const locale = useLocale();
+
+  const { completeOnboarding } = useOnboardingStore();
+  const setVision = useVisionStore((state) => state.setVision);
+  const resetVision = useVisionStore((state) => state.reset);
+  const addGoal = useGoalStore((state) => state.addGoal);
+  const resetGoals = useGoalStore((state) => state.reset);
+  const addProject = useProjectStore((state) => state.addProject);
+  const resetProjects = useProjectStore((state) => state.reset);
+  const addTask = useTaskStore((state) => state.addTask);
+  const resetTasks = useTaskStore((state) => state.reset);
+
+  const applyTemplate = (templateKey: "A" | "B" | "C" | "D") => {
+    const tmpl = ONBOARDING_TEMPLATES.find((t) => t.key === templateKey);
+    if (!tmpl) return;
+
+    const now = new Date();
+    const threeMonthsLater = new Date(now);
+    threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+    const oneMonthLater = new Date(now);
+    oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+
+    // Create Goal
+    addGoal({
+      title: t(tmpl.goal.titleKey),
+      description: t(tmpl.goal.descKey),
+      targetValue: tmpl.goal.target,
+      unit: tmpl.goal.unit,
+      currentValue: 0,
+      seasonStart: now,
+      seasonEnd: threeMonthsLater,
+    });
+    const goalId = useGoalStore.getState().goals.slice(-1)[0]?.id;
+
+    // Create Project
+    addProject({
+      goalId: goalId ?? "",
+      title: t(tmpl.project.titleKey),
+      description: t(tmpl.project.descKey),
+      startDate: now,
+      endDate: oneMonthLater,
+    });
+    const projectId = useProjectStore.getState().projects.slice(-1)[0]?.id;
+
+    // Create Todos
+    for (const todo of tmpl.todos) {
+      const dueDate = new Date(now);
+      dueDate.setDate(dueDate.getDate() + todo.dayOffset);
+      addTask({
+        title: t(todo.titleKey),
+        description: "",
+        type: "todo",
+        goalId,
+        projectId,
+        dueDate,
+      });
     }
 
-    // 2. Vision
+    // Create Habits
+    for (const habit of tmpl.habits) {
+      addTask({
+        title: t(habit.titleKey),
+        description: "",
+        type: "habit",
+        goalId,
+        projectId,
+        frequency: habit.frequency,
+        frequencyTarget: habit.frequencyTarget,
+        frequencyPeriod: habit.frequencyPeriod,
+        startDate: now,
+        endDate: threeMonthsLater,
+      });
+    }
+  };
+
+  const handleComplete = async () => {
+    // 기존 데이터 초기화 (이전 테스트/세션 데이터 제거)
+    resetVision();
+    resetGoals();
+    resetProjects();
+    resetTasks();
+
+    // Vision — both paths
     if (visionTitle.trim()) {
       setVision({ title: visionTitle.trim() });
     }
 
-    // 3. Goal
-    let goalId: string | undefined;
-    if (goalTitle.trim()) {
-      addGoal({ title: goalTitle.trim(), description: "" });
-      goalId = useGoalStore.getState().goals.slice(-1)[0]?.id;
+    if (path === "template" && selectedTemplate) {
+      applyTemplate(selectedTemplate);
+    } else {
+      // Manual path — existing logic
+      let goalId: string | undefined;
+      if (goalTitle.trim()) {
+        addGoal({ title: goalTitle.trim(), description: "" });
+        goalId = useGoalStore.getState().goals.slice(-1)[0]?.id;
+      }
+
+      let projectId: string | undefined;
+      if (projectTitle.trim()) {
+        addProject({
+          goalId: goalId ?? "",
+          title: projectTitle.trim(),
+          description: "",
+        });
+        projectId = useProjectStore.getState().projects.slice(-1)[0]?.id;
+      }
+
+      if (questTitle.trim()) {
+        addTask({
+          title: questTitle.trim(),
+          description: "",
+          type: questType,
+          goalId,
+          projectId,
+        });
+      }
     }
 
-    // 4. Project (linked to goal if available)
-    let projectId: string | undefined;
-    if (projectTitle.trim()) {
-      addProject({
-        goalId: goalId ?? "",
-        title: projectTitle.trim(),
-        description: "",
-      });
-      projectId = useProjectStore.getState().projects.slice(-1)[0]?.id;
-    }
-
-    // 5. Quest (linked to goal and project if available)
-    if (questTitle.trim()) {
-      addTask({
-        title: questTitle.trim(),
-        description: "",
-        type: questType,
-        goalId,
-        projectId,
-      });
-    }
-
-    completeOnboarding();
+    await completeOnboarding();
+    router.push(`/${locale}/goals`);
   };
 
   // Per-step canNext
   const canNext = [
-    true,                         // 0: Welcome
-    true,                         // 1: Structure
-    nickname.trim().length > 0,   // 2: Nickname (required)
-    true,                         // 3: Vision (optional)
-    true,                         // 4: Goal (optional)
-    true,                         // 5: Project (optional)
-    true,                         // 6: Quest (optional)
-    true,                         // 7: Complete
+    true, // 0: Welcome
+    true, // 1: Structure
+    true, // 2: Vision (optional)
+    selectedTemplate !== null, // 3: Template selection (must select)
+    true, // 4: Goal (optional)
+    true, // 5: Project (optional)
+    true, // 6: Quest (optional)
+    true, // 7: Complete
   ][step];
 
-  const canSkip = [false, false, false, true, true, true, true, false][step];
+  const canSkip = [false, false, true, false, true, true, true, false][step];
   const isLastStep = step === TOTAL_STEPS - 1;
 
-  // Breadcrumb active index: steps 3–6 → indices 0–3
+  // Breadcrumb: steps 4-6 → indices 0-2 (Goal, Project, Quest)
   const breadcrumbActive =
-    step >= BREADCRUMB_STEP_OFFSET && step <= BREADCRUMB_STEP_OFFSET + 3
+    path === "manual" &&
+    step >= BREADCRUMB_STEP_OFFSET &&
+    step <= BREADCRUMB_STEP_OFFSET + 2
       ? step - BREADCRUMB_STEP_OFFSET
       : null;
 
   const handleNext = () => {
-    if (isLastStep) handleComplete();
-    else setStep((s) => s + 1);
+    if (isLastStep) {
+      handleComplete();
+    } else if (step === 3 && path === "template" && selectedTemplate) {
+      setStep(7); // Jump to Complete
+    } else {
+      setStep((s) => s + 1);
+    }
   };
 
   const handleSkip = () => {
@@ -118,12 +218,59 @@ export default function Onboarding() {
     else setStep((s) => s + 1);
   };
 
+  const handleBack = () => {
+    if (step === 0) return;
+    // From Complete back to Template Selection (template path)
+    if (step === 7 && path === "template") {
+      setStep(3);
+      return;
+    }
+    setStep((s) => s - 1);
+  };
+
+  const handleSelectTemplate = (key: "A" | "B" | "C" | "D") => {
+    setSelectedTemplate(key);
+    setPath("template");
+  };
+
+  const handleManualInput = () => {
+    setSelectedTemplate(null);
+    setPath("manual");
+    setStep(4);
+  };
+
   const breadcrumbItems = [
-    { label: t("breadcrumbVision"), Icon: FiEye },
     { label: t("breadcrumbGoal"), Icon: FiTarget },
     { label: t("breadcrumbProject"), Icon: FiFolder },
     { label: t("breadcrumbQuest"), Icon: FiZap },
   ];
+
+  // Helper: get frequency description for habit
+  const getHabitFrequencyLabel = (habit: OnboardingTemplate["habits"][0]) => {
+    if (habit.frequency) {
+      const dayNames = habit.frequency.map((d) => t(DAY_NAMES_KEYS[d]));
+      return `${t("habitFrequencyWeekly", { count: habit.frequency.length })} (${dayNames.join("/")})`;
+    }
+    if (habit.frequencyTarget && habit.frequencyPeriod === "weekly") {
+      return t("habitFrequencyWeekly", { count: habit.frequencyTarget });
+    }
+    return "";
+  };
+
+  // Helper: get quest count summary for template card
+  const getQuestCountLabel = (tmpl: OnboardingTemplate) => {
+    const todoCount = tmpl.todos.length;
+    const habitCount = tmpl.habits.length;
+    if (habitCount > 0) {
+      return t("templateQuestCount", { todoCount, habitCount });
+    }
+    return t("templateQuestCountTodoOnly", { todoCount });
+  };
+
+  // Selected template data (for Complete summary)
+  const selectedTmpl = selectedTemplate
+    ? ONBOARDING_TEMPLATES.find((t) => t.key === selectedTemplate)
+    : null;
 
   return (
     <div className="fixed inset-0 bg-background z-50 overflow-y-auto">
@@ -159,7 +306,7 @@ export default function Onboarding() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.25 }}
             >
-              {/* Breadcrumb — steps 3–6 */}
+              {/* Breadcrumb — manual path steps 4-6 */}
               {breadcrumbActive !== null && (
                 <div className="flex items-center justify-center gap-1 mb-6 flex-wrap">
                   {breadcrumbItems.map(({ label, Icon }, i) => (
@@ -275,7 +422,12 @@ export default function Onboarding() {
                     ))}
                   </div>
                   <div className="mt-4 flex items-center justify-center gap-1.5 flex-wrap">
-                    {breadcrumbItems.map(({ label }, i) => (
+                    {[
+                      t("breadcrumbVision"),
+                      t("breadcrumbGoal"),
+                      t("breadcrumbProject"),
+                      t("breadcrumbQuest"),
+                    ].map((label, i) => (
                       <span key={i} className="flex items-center gap-1.5">
                         {i > 0 && (
                           <FiChevronRight size={12} className="text-text-muted" />
@@ -289,28 +441,8 @@ export default function Onboarding() {
                 </div>
               )}
 
-              {/* STEP 2: Nickname */}
+              {/* STEP 2: Vision */}
               {step === 2 && (
-                <div className="space-y-4">
-                  <div>
-                    <h2 className="text-2xl font-bold text-text mb-1">
-                      {t("nickname")}
-                    </h2>
-                    <p className="text-text-muted text-sm">{t("nicknameDesc")}</p>
-                  </div>
-                  <input
-                    type="text"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
-                    placeholder={t("enterNickname")}
-                    className="w-full px-4 py-3 border-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg text-text"
-                    autoFocus
-                  />
-                </div>
-              )}
-
-              {/* STEP 3: Vision */}
-              {step === 3 && (
                 <div className="space-y-4">
                   <div>
                     <h2 className="text-2xl font-bold text-text mb-1">
@@ -326,6 +458,65 @@ export default function Onboarding() {
                     className="w-full px-4 py-3 border-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
                     autoFocus
                   />
+                </div>
+              )}
+
+              {/* STEP 3: Template Selection (NEW) */}
+              {step === 3 && (
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-text mb-1">
+                      {t("templateSelection")}
+                    </h2>
+                    <p className="text-text-muted text-sm">
+                      {t("templateSelectionDesc")}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {ONBOARDING_TEMPLATES.map((tmpl) => (
+                      <button
+                        key={tmpl.key}
+                        type="button"
+                        onClick={() => handleSelectTemplate(tmpl.key)}
+                        className={`flex flex-col items-start gap-2 p-4 rounded-xl border-2 transition-all text-left ${
+                          selectedTemplate === tmpl.key
+                            ? "border-primary bg-primary/10"
+                            : "border-border bg-background-surface"
+                        }`}
+                      >
+                        <span className="text-2xl">{tmpl.icon}</span>
+                        <div>
+                          <p
+                            className={`text-sm font-bold ${
+                              selectedTemplate === tmpl.key
+                                ? "text-primary-dark"
+                                : "text-text"
+                            }`}
+                          >
+                            {t(tmpl.categoryKey)}
+                          </p>
+                          <p className="text-xs text-text-muted mt-1 line-clamp-2">
+                            {t(tmpl.goal.titleKey)}
+                          </p>
+                          <p className="text-xs text-text-muted mt-0.5">
+                            {tmpl.goal.target}
+                            {tmpl.goal.unit}
+                          </p>
+                          <p className="text-[10px] text-text-muted/70 mt-1">
+                            {getQuestCountLabel(tmpl)}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  {/* Manual input button */}
+                  <button
+                    type="button"
+                    onClick={handleManualInput}
+                    className="w-full py-3 text-text-muted hover:text-text font-semibold transition-colors text-sm"
+                  >
+                    {t("manualInput")}
+                  </button>
                 </div>
               )}
 
@@ -510,20 +701,20 @@ export default function Onboarding() {
                   </motion.div>
                   <div>
                     <h2 className="text-2xl font-bold text-text mb-2">
-                      {nickname ? `${nickname}, ` : ""}
                       {t("complete")}
                     </h2>
                     <p className="text-text-muted">{t("completeDesc")}</p>
                   </div>
 
-                  {/* Summary: shows created items as hierarchy */}
-                  {(visionTitle.trim() || goalTitle.trim() || projectTitle.trim() || questTitle.trim()) && (
+                  {/* Template path summary */}
+                  {path === "template" && selectedTmpl && (
                     <div className="w-full space-y-2 text-left">
+                      {/* Vision */}
                       {visionTitle.trim() && (
                         <motion.div
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.15 }}
+                          transition={{ delay: 0.1 }}
                           className="flex items-center gap-2 px-4 py-2.5 bg-accent/10 rounded-xl"
                         >
                           <FiEye size={13} className="text-accent flex-shrink-0" />
@@ -532,47 +723,131 @@ export default function Onboarding() {
                           </span>
                         </motion.div>
                       )}
-                      {goalTitle.trim() && (
+                      {/* Goal */}
+                      <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.15 }}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 rounded-xl ml-4"
+                      >
+                        <FiTarget size={13} className="text-primary-dark flex-shrink-0" />
+                        <span className="text-sm text-primary-dark font-semibold truncate">
+                          {t(selectedTmpl.goal.titleKey)}
+                        </span>
+                      </motion.div>
+                      {/* Project */}
+                      <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.25 }}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-secondary/60 rounded-xl ml-8"
+                      >
+                        <FiFolder size={13} className="text-text-muted flex-shrink-0" />
+                        <span className="text-sm text-text-muted font-semibold truncate">
+                          {t(selectedTmpl.project.titleKey)}
+                        </span>
+                      </motion.div>
+                      {/* Quests (todos + habits with period info) */}
+                      {selectedTmpl.todos.map((todo, i) => (
                         <motion.div
+                          key={`todo-${i}`}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.25 }}
-                          className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 rounded-xl ml-4"
+                          transition={{ delay: 0.35 + i * 0.05 }}
+                          className="flex items-center gap-2 px-4 py-2 bg-track rounded-xl ml-12"
                         >
-                          <FiTarget size={13} className="text-primary-dark flex-shrink-0" />
-                          <span className="text-sm text-primary-dark font-semibold truncate">
-                            {goalTitle}
+                          <FiCheckSquare size={12} className="text-text-muted flex-shrink-0" />
+                          <span className="text-xs text-text-muted font-medium truncate flex-1">
+                            {t(todo.titleKey)}
+                          </span>
+                          <span className="text-[10px] text-text-muted/60 bg-background px-1.5 py-0.5 rounded flex-shrink-0">
+                            {t("todoDueDay", { days: todo.dayOffset })}
                           </span>
                         </motion.div>
-                      )}
-                      {projectTitle.trim() && (
+                      ))}
+                      {selectedTmpl.habits.map((habit, i) => (
                         <motion.div
+                          key={`habit-${i}`}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.35 }}
-                          className="flex items-center gap-2 px-4 py-2.5 bg-secondary/60 rounded-xl ml-8"
+                          transition={{
+                            delay: 0.35 + selectedTmpl.todos.length * 0.05 + i * 0.05,
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 bg-track rounded-xl ml-12"
                         >
-                          <FiFolder size={13} className="text-text-muted flex-shrink-0" />
-                          <span className="text-sm text-text-muted font-semibold truncate">
-                            {projectTitle}
+                          <FiRepeat size={12} className="text-text-muted flex-shrink-0" />
+                          <span className="text-xs text-text-muted font-medium truncate flex-1">
+                            {t(habit.titleKey)}
+                          </span>
+                          <span className="text-[10px] text-text-muted/60 bg-background px-1.5 py-0.5 rounded flex-shrink-0">
+                            {getHabitFrequencyLabel(habit)}
                           </span>
                         </motion.div>
-                      )}
-                      {questTitle.trim() && (
-                        <motion.div
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.45 }}
-                          className="flex items-center gap-2 px-4 py-2.5 bg-track rounded-xl ml-12"
-                        >
-                          <FiZap size={13} className="text-text-muted flex-shrink-0" />
-                          <span className="text-sm text-text-muted font-semibold truncate">
-                            {questTitle}
-                          </span>
-                        </motion.div>
-                      )}
+                      ))}
                     </div>
                   )}
+
+                  {/* Manual path summary */}
+                  {path !== "template" &&
+                    (visionTitle.trim() ||
+                      goalTitle.trim() ||
+                      projectTitle.trim() ||
+                      questTitle.trim()) && (
+                      <div className="w-full space-y-2 text-left">
+                        {visionTitle.trim() && (
+                          <motion.div
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.15 }}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-accent/10 rounded-xl"
+                          >
+                            <FiEye size={13} className="text-accent flex-shrink-0" />
+                            <span className="text-sm text-accent font-semibold truncate">
+                              {visionTitle}
+                            </span>
+                          </motion.div>
+                        )}
+                        {goalTitle.trim() && (
+                          <motion.div
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.25 }}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 rounded-xl ml-4"
+                          >
+                            <FiTarget size={13} className="text-primary-dark flex-shrink-0" />
+                            <span className="text-sm text-primary-dark font-semibold truncate">
+                              {goalTitle}
+                            </span>
+                          </motion.div>
+                        )}
+                        {projectTitle.trim() && (
+                          <motion.div
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.35 }}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-secondary/60 rounded-xl ml-8"
+                          >
+                            <FiFolder size={13} className="text-text-muted flex-shrink-0" />
+                            <span className="text-sm text-text-muted font-semibold truncate">
+                              {projectTitle}
+                            </span>
+                          </motion.div>
+                        )}
+                        {questTitle.trim() && (
+                          <motion.div
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.45 }}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-track rounded-xl ml-12"
+                          >
+                            <FiZap size={13} className="text-text-muted flex-shrink-0" />
+                            <span className="text-sm text-text-muted font-semibold truncate">
+                              {questTitle}
+                            </span>
+                          </motion.div>
+                        )}
+                      </div>
+                    )}
                 </div>
               )}
             </motion.div>
@@ -609,6 +884,16 @@ export default function Onboarding() {
               className="w-full py-3 text-text-muted hover:text-text font-semibold transition-colors"
             >
               {tc("skip")}
+            </button>
+          )}
+
+          {step > 0 && (
+            <button
+              onClick={handleBack}
+              className="w-full py-2 text-text-muted hover:text-text font-medium transition-colors flex items-center justify-center gap-1 text-sm"
+            >
+              <FiChevronLeft size={16} />
+              {tc("back")}
             </button>
           )}
         </div>

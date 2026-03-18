@@ -1,9 +1,10 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { FiX, FiGlobe, FiBarChart2, FiUser, FiSettings } from "react-icons/fi";
+import { FiX, FiGlobe, FiBarChart2, FiUser, FiLogOut } from "react-icons/fi";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const t = useTranslations();
+  const { signOut, isAuthenticated } = useAuthStore();
 
   const menuItems = [
     { icon: FiGlobe, label: t("sidebar.language"), href: "/settings/language" },
@@ -80,6 +82,18 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
               {/* Footer */}
               <div className="p-4 border-t border">
+                {isAuthenticated && (
+                  <button
+                    onClick={() => {
+                      onClose();
+                      signOut();
+                    }}
+                    className="flex items-center gap-3 w-full px-4 py-3 mb-2 text-accent hover:bg-accent/10 rounded-lg transition-colors font-medium"
+                  >
+                    <FiLogOut size={20} />
+                    <span>{t('sidebar.logout')}</span>
+                  </button>
+                )}
                 <p className="text-xs text-text-muted text-center">
                   DuTo v1.0.0
                 </p>

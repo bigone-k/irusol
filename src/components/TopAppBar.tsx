@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { FiMenu, FiSearch, FiPlus, FiChevronLeft } from "react-icons/fi";
+import { useState, useRef, useEffect } from "react";
+import { FiMenu, FiSearch, FiPlus, FiChevronLeft, FiLogOut } from "react-icons/fi";
 import Sidebar from "./Sidebar";
-import { motion } from "framer-motion";
-import { useOnboardingStore } from "@/store/useOnboardingStore";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useTranslations } from "next-intl";
 
 interface TopAppBarProps {
   title: string;
@@ -26,7 +27,25 @@ export default function TopAppBar({
   onAdd,
 }: TopAppBarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const nickname = useOnboardingStore((state) => state.nickname);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations();
+
+  const { nickname: authNickname, isAuthenticated, signOut } = useAuthStore();
+  const displayName = authNickname;
+
+  // Close profile menu on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    }
+    if (isProfileMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isProfileMenuOpen]);
 
   return (
     <>
@@ -65,16 +84,49 @@ export default function TopAppBar({
 
         {/* Right Section */}
         <div className="flex items-center gap-2">
-          {nickname && (
-            <div className="flex items-center gap-1.5">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-bold text-white">
-                  {nickname.charAt(0).toUpperCase()}
+          {displayName && (
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                aria-label="Profile menu"
+              >
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-bold text-white">
+                    {displayName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <span className="text-sm font-semibold text-text hidden sm:block max-w-20 truncate">
+                  {displayName}
                 </span>
-              </div>
-              <span className="text-sm font-semibold text-text hidden sm:block max-w-20 truncate">
-                {nickname}
-              </span>
+              </button>
+
+              {/* Profile dropdown */}
+              <AnimatePresence>
+                {isProfileMenuOpen && isAuthenticated && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-40 bg-background-surface border border-border rounded-xl shadow-lg overflow-hidden z-modal"
+                  >
+                    <div className="px-3 py-2 border-b border-border">
+                      <p className="text-sm font-semibold text-text truncate">{displayName}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        signOut();
+                      }}
+                      className="flex items-center gap-2 w-full px-3 py-2.5 text-sm text-accent hover:bg-accent/10 transition-colors"
+                    >
+                      <FiLogOut size={16} />
+                      {t('sidebar.logout')}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
         </div>

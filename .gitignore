@@ -39,6 +39,9 @@ secrets/
 *.key
 *.secret
 
+# claude code local settings
+.claude/settings.local.json
+
 # vercel
 .vercel
 

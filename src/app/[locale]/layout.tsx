@@ -3,10 +3,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
-import TopAppBar from '@/components/TopAppBar';
-import BottomNavigation from '@/components/BottomNavigation';
-import ToastContainer from '@/components/ToastContainer';
-import AbsencePenaltyChecker from '@/components/AbsencePenaltyChecker';
+import AuthProvider from '@/components/AuthProvider';
+import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
   title: "DuTo - Goal Mate",
@@ -37,29 +35,9 @@ export default async function LocaleLayout({
     <html lang={locale} suppressHydrationWarning>
       <body className="antialiased">
         <NextIntlClientProvider messages={messages}>
-          <AbsencePenaltyChecker />
-          <div className="flex flex-col min-h-screen">
-            {/* Top App Bar - sticky */}
-            <TopAppBar
-              title="DuTo"
-              showMenu={true}
-              showSearch={true}
-              showAdd={false}
-            />
-
-            {/* Main Content - scrollable */}
-            <main className="flex-1 overflow-y-auto bg-background">
-              <div className="max-w-md mx-auto pb-20">
-                {children}
-              </div>
-            </main>
-
-            {/* Bottom Navigation - fixed */}
-            <BottomNavigation />
-
-            {/* Toast Notifications */}
-            <ToastContainer />
-          </div>
+          <AuthProvider>
+            <AppShell>{children}</AppShell>
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>
