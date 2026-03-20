@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
+import { FiUser } from 'react-icons/fi'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const locale = useLocale()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
+  const [isGuestLoading, setIsGuestLoading] = useState(false)
 
   const hasError = searchParams.get('error') === 'auth'
 
@@ -23,6 +25,18 @@ export default function LoginPage() {
         redirectTo: `${window.location.origin}/auth/callback?locale=${locale}`,
       },
     })
+  }
+
+  const handleGuestLogin = async () => {
+    setIsGuestLoading(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInAnonymously()
+      if (error) throw error
+      window.location.href = `/${locale}/onboarding`
+    } catch {
+      setIsGuestLoading(false)
+    }
   }
 
   return (
@@ -101,6 +115,35 @@ export default function LoginPage() {
                 />
               </svg>
               {t('googleButton')}
+            </>
+          )}
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 w-full my-4">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs text-text-muted">{t('or')}</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+
+        {/* Guest Login Button */}
+        <button
+          onClick={handleGuestLogin}
+          disabled={isGuestLoading || isLoading}
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-primary/10 border border-primary/30 rounded-xl hover:bg-primary/20 transition-colors text-primary-dark font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {isGuestLoading ? (
+            <>
+              <svg className="w-5 h-5 animate-spin text-primary-dark" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              {t('guestLoading')}
+            </>
+          ) : (
+            <>
+              <FiUser size={20} />
+              {t('guestButton')}
             </>
           )}
         </button>

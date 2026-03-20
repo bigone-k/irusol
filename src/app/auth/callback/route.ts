@@ -6,6 +6,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const locale = searchParams.get('locale') ?? 'ko'
+  const linking = searchParams.get('linking') === 'true'
   const next = searchParams.get('next') ?? `/${locale}/goals`
 
   if (code) {
@@ -33,6 +34,11 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+      // Linking flow — skip onboarding check, go straight to app
+      if (linking) {
+        return NextResponse.redirect(`${origin}/${locale}/goals`)
+      }
+
       // Check onboarding status for redirect
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {

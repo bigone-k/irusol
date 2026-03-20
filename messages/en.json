@@ -288,7 +288,10 @@
   },
   "sidebar": {
     "language": "Language Settings",
-    "logout": "Log Out"
+    "logout": "Log Out",
+    "guest": "Guest",
+    "guestHint": "Link an account to keep your data safe",
+    "linkGoogle": "Link Google Account"
   },
   "vision": {
     "vision": "Vision",
@@ -338,7 +341,10 @@
     "googleButton": "Continue with Google",
     "terms": "By signing in, you agree to our Terms of Service",
     "error": "Login failed. Please try again.",
-    "loading": "Signing in..."
+    "loading": "Signing in...",
+    "or": "or",
+    "guestButton": "Start as Guest",
+    "guestLoading": "Entering..."
   },
   "datepicker": {
     "selectDate": "Select a date",

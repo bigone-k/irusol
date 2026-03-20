@@ -12,6 +12,7 @@ interface AuthState {
   nickname: string | null
   isLoading: boolean
   isAuthenticated: boolean
+  isAnonymous: boolean
   init: () => () => void
   signOut: () => Promise<void>
 }
@@ -49,6 +50,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   nickname: null,
   isLoading: true,
   isAuthenticated: false,
+  isAnonymous: false,
 
   init: () => {
     if (!hasSupabaseConfig) {
@@ -60,14 +62,17 @@ export const useAuthStore = create<AuthState>()((set) => ({
 
     const handleUser = (user: User | null) => {
       if (user) {
-        // Immediately set nickname from auth metadata
-        const metadataName = getNameFromUser(user)
-        set({ user, nickname: metadataName, isLoading: false, isAuthenticated: true })
-
-        // Then try to upgrade from profiles table (non-blocking)
-        tryFetchProfileNickname(supabase, user, set)
+        if (user.is_anonymous) {
+          // Anonymous user — no nickname, skip profile fetch
+          set({ user, nickname: null, isLoading: false, isAuthenticated: true, isAnonymous: true })
+        } else {
+          // Regular user — set nickname from metadata, then try profile
+          const metadataName = getNameFromUser(user)
+          set({ user, nickname: metadataName, isLoading: false, isAuthenticated: true, isAnonymous: false })
+          tryFetchProfileNickname(supabase, user, set)
+        }
       } else {
-        set({ user: null, nickname: null, isLoading: false, isAuthenticated: false })
+        set({ user: null, nickname: null, isLoading: false, isAuthenticated: false, isAnonymous: false })
       }
     }
 
@@ -105,7 +110,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
     usePlayerStore.getState().reset()
     clearSyncCache()
 
-    set({ user: null, nickname: null, isAuthenticated: false })
+    set({ user: null, nickname: null, isAuthenticated: false, isAnonymous: false })
     const locale = window.location.pathname.match(/^\/(ko|en)/)?.[1] || 'ko'
     window.location.href = `/${locale}/login`
   },

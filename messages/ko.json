@@ -288,7 +288,10 @@
   },
   "sidebar": {
     "language": "말 바꾸기",
-    "logout": "나가기"
+    "logout": "나가기",
+    "guest": "게스트",
+    "guestHint": "계정을 연동하면 데이터가 안전해요",
+    "linkGoogle": "Google 계정 연동하기"
   },
   "vision": {
     "vision": "비전",
@@ -338,7 +341,10 @@
     "googleButton": "Google로 시작하기",
     "terms": "로그인하면 서비스 이용약관에 동의하게 됩니다",
     "error": "로그인에 실패했어요. 다시 시도해 주세요.",
-    "loading": "접속 중..."
+    "loading": "접속 중...",
+    "or": "또는",
+    "guestButton": "둘러보기로 시작하기",
+    "guestLoading": "입장 중..."
   },
   "datepicker": {
     "selectDate": "날짜를 골라주세요",
