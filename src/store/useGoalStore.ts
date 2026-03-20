@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Goal, ValueChange } from "@/types";
 import { migrateGoalStore } from "@/lib/migrations";
-import { syncGoalInsert, syncGoalUpdate, syncGoalDelete } from "@/lib/supabase/sync";
+import { syncGoalInsert, syncGoalUpdate, syncGoalDelete, syncProjectDelete, syncTaskDelete } from "@/lib/supabase/sync";
 
 interface GoalStore {
   goals: Goal[];
@@ -43,7 +43,11 @@ export const useGoalStore = create<GoalStore>()(
           ...goalData,
         };
         set((state) => ({ goals: [...state.goals, newGoal] }));
-        syncGoalInsert(newGoal).catch(() => {});
+
+        // FK 보장: visionId가 있으면 vision store에서 parent 조회 후 전달
+        const { useVisionStore } = require("@/store/useVisionStore");
+        const vision = newGoal.visionId ? useVisionStore.getState().vision : null;
+        syncGoalInsert(newGoal, vision).catch((e) => console.error("[sync]", e));
       },
 
       toggleGoal: (id: string) => {
@@ -53,7 +57,7 @@ export const useGoalStore = create<GoalStore>()(
           ),
         }));
         const goal = get().goals.find((g) => g.id === id);
-        if (goal) syncGoalUpdate(id, { completed: goal.completed }).catch(() => {});
+        if (goal) syncGoalUpdate(id, { completed: goal.completed }).catch((e) => console.error("[sync]", e));
       },
 
       updateGoal: (id: string, updates: Partial<Goal>) => {
@@ -62,14 +66,38 @@ export const useGoalStore = create<GoalStore>()(
             goal.id === id ? { ...goal, ...updates } : goal
           ),
         }));
-        syncGoalUpdate(id, updates).catch(() => {});
+        syncGoalUpdate(id, updates).catch((e) => console.error("[sync]", e));
       },
 
       deleteGoal: (id: string) => {
+        // 하위 데이터를 먼저 수집 (삭제 전)
+        const { useProjectStore } = require("@/store/useProjectStore");
+        const { useTaskStore } = require("@/store/useTaskStore");
+        const childProjectIds = useProjectStore.getState().projects
+          .filter((p: any) => p.goalId === id)
+          .map((p: any) => p.id);
+
+        // Task 로컬 삭제 + DB soft delete (goal 직속 + project 경유)
+        const taskStore = useTaskStore.getState();
+        const childTaskIds = taskStore.tasks
+          .filter((t: any) => t.goalId === id || childProjectIds.includes(t.projectId))
+          .map((t: any) => t.id);
+        useTaskStore.setState({
+          tasks: taskStore.tasks.filter((t: any) => !childTaskIds.includes(t.id)),
+        });
+        for (const taskId of childTaskIds) syncTaskDelete(taskId).catch((e) => console.error("[sync]", e));
+
+        // Project 로컬 삭제 + DB soft delete
+        useProjectStore.setState({
+          projects: useProjectStore.getState().projects.filter((p: any) => p.goalId !== id),
+        });
+        for (const projectId of childProjectIds) syncProjectDelete(projectId).catch((e) => console.error("[sync]", e));
+
+        // Goal 로컬 삭제 + DB soft delete
         set((state) => ({
           goals: state.goals.filter((goal) => goal.id !== id),
         }));
-        syncGoalDelete(id).catch(() => {});
+        syncGoalDelete(id).catch((e) => console.error("[sync]", e));
       },
 
       incrementValue: (id: string, amount: number = 1) => {
@@ -94,7 +122,7 @@ export const useGoalStore = create<GoalStore>()(
           syncGoalUpdate(id, {
             currentValue: updatedGoal.currentValue,
             valueHistory: updatedGoal.valueHistory,
-          }).catch(() => {});
+          }).catch((e) => console.error("[sync]", e));
         }
       },
 
@@ -120,7 +148,7 @@ export const useGoalStore = create<GoalStore>()(
           syncGoalUpdate(id, {
             currentValue: updatedGoal.currentValue,
             valueHistory: updatedGoal.valueHistory,
-          }).catch(() => {});
+          }).catch((e) => console.error("[sync]", e));
         }
       },
 
@@ -130,7 +158,7 @@ export const useGoalStore = create<GoalStore>()(
             goal.id === id ? { ...goal, status } : goal
           ),
         }));
-        syncGoalUpdate(id, { status }).catch(() => {});
+        syncGoalUpdate(id, { status }).catch((e) => console.error("[sync]", e));
       },
 
       claimReward: (id: string): boolean => {
@@ -143,7 +171,7 @@ export const useGoalStore = create<GoalStore>()(
             g.id === id ? { ...g, rewardClaimed: true } : g
           ),
         }));
-        syncGoalUpdate(id, { rewardClaimed: true }).catch(() => {});
+        syncGoalUpdate(id, { rewardClaimed: true }).catch((e) => console.error("[sync]", e));
         return true;
       },
 

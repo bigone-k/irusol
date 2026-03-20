@@ -95,7 +95,7 @@ export const ONBOARDING_TEMPLATES: OnboardingTemplate[] = [
       { titleKey: "templateCTodo4", dayOffset: 27 },
     ],
     habits: [
-      { titleKey: "templateCHabit1", frequencyTarget: 4, frequencyPeriod: "weekly" },
+      { titleKey: "templateCHabit1", frequency: [1, 2, 3, 4], frequencyTarget: 4, frequencyPeriod: "weekly" },
     ],
   },
   // D — 생활 (집밥 레시피)
@@ -119,7 +119,7 @@ export const ONBOARDING_TEMPLATES: OnboardingTemplate[] = [
       { titleKey: "templateDTodo3", dayOffset: 7 },
     ],
     habits: [
-      { titleKey: "templateDHabit1", frequencyTarget: 2, frequencyPeriod: "weekly" },
+      { titleKey: "templateDHabit1", frequency: [1, 5], frequencyTarget: 2, frequencyPeriod: "weekly" },
     ],
   },
 ];

@@ -6,7 +6,8 @@ import { useVisionStore } from '@/store/useVisionStore'
 import { useGoalStore } from '@/store/useGoalStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useTaskStore } from '@/store/useTaskStore'
-import { fetchAllData, syncAllStoresInOrder } from '@/lib/supabase/sync'
+import { usePlayerStore } from '@/store/usePlayerStore'
+import { fetchAllData, syncAllStoresInOrder, fetchPlayerStats, syncPlayerStatsFull, clearSyncCache } from '@/lib/supabase/sync'
 import LoadingModal from './LoadingModal'
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -21,6 +22,14 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     return unsubscribe
   }, [init])
 
+  // 로그아웃 시 캐시 초기화
+  useEffect(() => {
+    if (!isAuthenticated && hasSynced) {
+      clearSyncCache()
+      setHasSynced(false)
+    }
+  }, [isAuthenticated, hasSynced])
+
   // Supabase ↔ 로컬 양방향 동기화
   useEffect(() => {
     if (!isAuthenticated || hasSynced) return
@@ -30,65 +39,75 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     const syncData = async () => {
       setIsSyncing(true)
       try {
-        // 1. DB에서 현재 데이터 fetch
-        const remote = await fetchAllData()
+        // 엔티티 데이터 + player_stats 병렬 fetch
+        const [remote, remotePlayer] = await Promise.all([
+          fetchAllData(),
+          fetchPlayerStats(),
+        ])
         if (cancelled) return
 
-        // 2. 로컬 store 현재 상태
-        const localVision = useVisionStore.getState().vision
-        const localGoals = useGoalStore.getState().goals
-        const localProjects = useProjectStore.getState().projects
-        const localTasks = useTaskStore.getState().tasks
+        const local = {
+          vision: useVisionStore.getState().vision,
+          goals: useGoalStore.getState().goals,
+          projects: useProjectStore.getState().projects,
+          tasks: useTaskStore.getState().tasks,
+        }
 
-        // 3. DB → 로컬: DB에 있는 데이터로 로컬 hydrate
-        const dbHasData =
+        // --- player_stats 동기화 ---
+        const localPlayer = usePlayerStore.getState()
+        if (remotePlayer) {
+          // DB 레벨이 더 높으면 DB 기준, 아니면 로컬 기준 → DB push
+          if (remotePlayer.level > localPlayer.level ||
+            (remotePlayer.level === localPlayer.level && remotePlayer.experience > localPlayer.experience)) {
+            usePlayerStore.getState().hydrate(remotePlayer)
+          } else if (localPlayer.level > remotePlayer.level ||
+            (localPlayer.level === remotePlayer.level && localPlayer.experience > remotePlayer.experience)) {
+            syncPlayerStatsFull(localPlayer).catch((e) => console.error("[sync]", e))
+          }
+        } else {
+          // DB에 row 없음 (비정상) → 로컬 push
+          syncPlayerStatsFull(localPlayer).catch((e) => console.error("[sync]", e))
+        }
+
+        // --- 엔티티 데이터 동기화 ---
+        const remoteHasData =
           remote.vision || remote.goals.length > 0 ||
           remote.projects.length > 0 || remote.tasks.length > 0
 
-        if (dbHasData) {
-          // DB 데이터를 기준으로 로컬에 merge
-          const remoteGoalIds = new Set(remote.goals.map((g) => g.id))
-          const remoteProjectIds = new Set(remote.projects.map((p) => p.id))
-          const remoteTaskIds = new Set(remote.tasks.map((t) => t.id))
+        const localHasData =
+          local.vision || local.goals.length > 0 ||
+          local.projects.length > 0 || local.tasks.length > 0
 
-          // 로컬에만 있는 항목 추출 (이전 sync 실패분)
-          const missingGoals = localGoals.filter((g) => !remoteGoalIds.has(g.id))
-          const missingProjects = localProjects.filter((p) => !remoteProjectIds.has(p.id))
-          const missingTasks = localTasks.filter((t) => !remoteTaskIds.has(t.id))
-          const missingVision = localVision && !remote.vision ? localVision : null
-
-          // DB 데이터 + 로컬 누락분 합쳐서 hydrate
-          useVisionStore.getState().hydrate(remote.vision || localVision)
-          useGoalStore.getState().hydrate([...remote.goals, ...missingGoals])
-          useProjectStore.getState().hydrate([...remote.projects, ...missingProjects])
-          useTaskStore.getState().hydrate([...remote.tasks, ...missingTasks])
-
-          // 4. 로컬 → DB: 누락분을 백그라운드로 push (FK 순서 보장)
-          if (missingVision || missingGoals.length > 0 || missingProjects.length > 0 || missingTasks.length > 0) {
-            syncAllStoresInOrder({
-              vision: missingVision,
-              goals: missingGoals,
-              projects: missingProjects,
-              tasks: missingTasks,
-            }).catch(() => {})
+        if (remoteHasData) {
+          const remoteIds = {
+            goals: new Set(remote.goals.map((g) => g.id)),
+            projects: new Set(remote.projects.map((p) => p.id)),
+            tasks: new Set(remote.tasks.map((t) => t.id)),
           }
-        } else {
-          // DB가 비어있고 로컬에 데이터가 있으면 → DB로 push
-          const localHasData =
-            localVision || localGoals.length > 0 ||
-            localProjects.length > 0 || localTasks.length > 0
 
-          if (localHasData) {
-            syncAllStoresInOrder({
-              vision: localVision,
-              goals: localGoals,
-              projects: localProjects,
-              tasks: localTasks,
-            }).catch(() => {})
+          const missing = {
+            vision: local.vision && !remote.vision ? local.vision : null,
+            goals: local.goals.filter((g) => !remoteIds.goals.has(g.id)),
+            projects: local.projects.filter((p) => !remoteIds.projects.has(p.id)),
+            tasks: local.tasks.filter((t) => !remoteIds.tasks.has(t.id)),
           }
+
+          useVisionStore.getState().hydrate(remote.vision || local.vision)
+          useGoalStore.getState().hydrate([...remote.goals, ...missing.goals])
+          useProjectStore.getState().hydrate([...remote.projects, ...missing.projects])
+          useTaskStore.getState().hydrate([...remote.tasks, ...missing.tasks])
+
+          const hasMissing =
+            missing.vision || missing.goals.length > 0 ||
+            missing.projects.length > 0 || missing.tasks.length > 0
+          if (hasMissing) {
+            syncAllStoresInOrder(missing).catch((e) => console.error("[sync]", e))
+          }
+        } else if (localHasData) {
+          syncAllStoresInOrder(local).catch((e) => console.error("[sync]", e))
         }
       } catch {
-        // Supabase fetch 실패 → localStorage 데이터 유지
+        // fetch 실패 → localStorage 유지
       } finally {
         if (!cancelled) {
           setIsSyncing(false)

@@ -339,5 +339,10 @@
     "terms": "By signing in, you agree to our Terms of Service",
     "error": "Login failed. Please try again.",
     "loading": "Signing in..."
+  },
+  "datepicker": {
+    "selectDate": "Select a date",
+    "today": "Today",
+    "clear": "Clear"
   }
 }

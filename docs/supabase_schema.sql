@@ -62,8 +62,6 @@ CREATE TABLE public.goals (
   current_value NUMERIC DEFAULT 0,
   target_value NUMERIC DEFAULT 0,
   unit TEXT DEFAULT '',
-  season_start TEXT,
-  season_end TEXT,
   value_history JSONB DEFAULT '[]',
   reward_claimed BOOLEAN DEFAULT false,
   reward_amount INTEGER DEFAULT 0,
@@ -82,8 +80,6 @@ CREATE TABLE public.projects (
   status TEXT DEFAULT 'notStarted',
   completed BOOLEAN DEFAULT false,
   reward INTEGER,
-  start_date TEXT,
-  end_date TEXT,
   reward_claimed BOOLEAN DEFAULT false,
   reward_amount INTEGER DEFAULT 0,
   deleted_at TIMESTAMPTZ DEFAULT NULL,
@@ -197,10 +193,11 @@ CREATE POLICY "profiles_update_own" ON public.profiles
 -- 5. RLS 정책 — player_stats
 -- ============================================================
 
+-- deleted_at 필터는 애플리케이션 레벨(.is("deleted_at", null))에서 처리
+-- RLS SELECT에 deleted_at IS NULL을 넣으면 soft delete UPDATE 시
+-- "new row violates row-level security policy" 에러 발생
 CREATE POLICY "player_stats_select" ON public.player_stats
-  FOR SELECT USING (
-    user_id = auth.uid() AND deleted_at IS NULL
-  );
+  FOR SELECT USING (user_id = auth.uid());
 
 CREATE POLICY "player_stats_insert" ON public.player_stats
   FOR INSERT WITH CHECK (user_id = auth.uid());
@@ -214,9 +211,7 @@ CREATE POLICY "player_stats_update" ON public.player_stats
 -- ============================================================
 
 CREATE POLICY "visions_select" ON public.visions
-  FOR SELECT USING (
-    user_id = auth.uid() AND deleted_at IS NULL
-  );
+  FOR SELECT USING (user_id = auth.uid());
 
 CREATE POLICY "visions_insert" ON public.visions
   FOR INSERT WITH CHECK (user_id = auth.uid());
@@ -230,9 +225,7 @@ CREATE POLICY "visions_update" ON public.visions
 -- ============================================================
 
 CREATE POLICY "goals_select" ON public.goals
-  FOR SELECT USING (
-    user_id = auth.uid() AND deleted_at IS NULL
-  );
+  FOR SELECT USING (user_id = auth.uid());
 
 CREATE POLICY "goals_insert" ON public.goals
   FOR INSERT WITH CHECK (user_id = auth.uid());
@@ -246,9 +239,7 @@ CREATE POLICY "goals_update" ON public.goals
 -- ============================================================
 
 CREATE POLICY "projects_select" ON public.projects
-  FOR SELECT USING (
-    user_id = auth.uid() AND deleted_at IS NULL
-  );
+  FOR SELECT USING (user_id = auth.uid());
 
 CREATE POLICY "projects_insert" ON public.projects
   FOR INSERT WITH CHECK (user_id = auth.uid());
@@ -262,9 +253,7 @@ CREATE POLICY "projects_update" ON public.projects
 -- ============================================================
 
 CREATE POLICY "tasks_select" ON public.tasks
-  FOR SELECT USING (
-    user_id = auth.uid() AND deleted_at IS NULL
-  );
+  FOR SELECT USING (user_id = auth.uid());
 
 CREATE POLICY "tasks_insert" ON public.tasks
   FOR INSERT WITH CHECK (user_id = auth.uid());

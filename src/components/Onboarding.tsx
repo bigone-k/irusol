@@ -81,8 +81,6 @@ export default function Onboarding() {
     const now = new Date();
     const threeMonthsLater = new Date(now);
     threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
-    const oneMonthLater = new Date(now);
-    oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
 
     // Create Goal
     addGoal({
@@ -91,8 +89,6 @@ export default function Onboarding() {
       targetValue: tmpl.goal.target,
       unit: tmpl.goal.unit,
       currentValue: 0,
-      seasonStart: now,
-      seasonEnd: threeMonthsLater,
     });
     const goalId = useGoalStore.getState().goals.slice(-1)[0]?.id;
 
@@ -101,8 +97,6 @@ export default function Onboarding() {
       goalId: goalId ?? "",
       title: t(tmpl.project.titleKey),
       description: t(tmpl.project.descKey),
-      startDate: now,
-      endDate: oneMonthLater,
     });
     const projectId = useProjectStore.getState().projects.slice(-1)[0]?.id;
 

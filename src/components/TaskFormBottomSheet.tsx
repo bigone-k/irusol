@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX } from "react-icons/fi";
+import DatePickerInput from "@/components/DatePickerInput";
 import type { TaskRecurrence, TaskReminder } from "@/types";
 
 interface TaskFormBottomSheetProps {
@@ -189,22 +190,18 @@ export default function TaskFormBottomSheet({
                 <label className="block text-sm font-medium text-text mb-2">
                   {t("task.startDate")}
                 </label>
-                <input
-                  type="date"
+                <DatePickerInput
                   value={
                     formData.startDate
                       ? formData.startDate.toISOString().split("T")[0]
                       : ""
                   }
-                  onChange={(e) =>
+                  onChange={(val) =>
                     setFormData({
                       ...formData,
-                      startDate: e.target.value
-                        ? new Date(e.target.value)
-                        : undefined,
+                      startDate: val ? new Date(val) : undefined,
                     })
                   }
-                  className="w-full px-4 py-3 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
 

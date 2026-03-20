@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiX, FiSave, FiTrash2, FiBriefcase } from "react-icons/fi";
 import { useTaskStore } from "@/store/useTaskStore";
 import { useProjectStore } from "@/store/useProjectStore";
+import DatePickerInput from "@/components/DatePickerInput";
 import type { Task } from "@/types";
 
 interface QuestDetailSheetProps {
@@ -213,11 +214,9 @@ export default function QuestDetailSheet({
                         <label className="block text-sm font-semibold text-text mb-1">
                           {t("task.startDate")} *
                         </label>
-                        <input
-                          type="date"
+                        <DatePickerInput
                           value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                          className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
+                          onChange={setStartDate}
                           required
                         />
                       </div>
@@ -225,11 +224,9 @@ export default function QuestDetailSheet({
                         <label className="block text-sm font-semibold text-text mb-1">
                           {t("task.endDate")} *
                         </label>
-                        <input
-                          type="date"
+                        <DatePickerInput
                           value={endDate}
-                          onChange={(e) => setEndDate(e.target.value)}
-                          className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
+                          onChange={setEndDate}
                           required
                         />
                       </div>
@@ -279,11 +276,9 @@ export default function QuestDetailSheet({
                     <label className="block text-sm font-semibold text-text mb-1">
                       {t("task.dueDate")} *
                     </label>
-                    <input
-                      type="date"
+                    <DatePickerInput
                       value={dueDate}
-                      onChange={(e) => setDueDate(e.target.value)}
-                      className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
+                      onChange={setDueDate}
                       required
                     />
                   </div>

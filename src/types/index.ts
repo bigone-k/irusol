@@ -97,8 +97,6 @@ export interface Goal {
   completed: boolean;
   createdAt: Date;
   visionId?: string;
-  seasonStart?: Date;
-  seasonEnd?: Date;
 
   // 신규 필드
   status: GoalStatus;
@@ -118,8 +116,6 @@ export interface Project {
   completed: boolean;
   createdAt: Date;
   reward?: number;
-  startDate?: Date;
-  endDate?: Date;
 
   // 신규 필드
   status: ProjectStatus;

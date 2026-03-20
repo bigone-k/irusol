@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import type { PlayerStats, RewardResult } from "@/types";
 import { calculateExp, calculateCoins, getRequiredExp } from "@/lib/rewards";
 import { getStageForLevel, checkEvolution } from "@/lib/evolution";
+import { syncPlayerStatsUpdate } from "@/lib/supabase/sync";
 
 const getTodayStr = () => new Date().toISOString().split("T")[0];
 
@@ -32,6 +33,7 @@ interface PlayerStore extends PlayerStats {
   addCoins: (amount: number) => void;
   /** 접속 시 미접속 패널티 확인 및 HP 차감. 패널티 발생 시 { hpLost, daysSinceVisit } 반환, 없으면 null */
   checkAbsencePenalty: () => { hpLost: number; daysSinceVisit: number } | null;
+  hydrate: (stats: Partial<PlayerStore>) => void;
   reset: () => void;
 }
 
@@ -80,15 +82,29 @@ export const usePlayerStore = create<PlayerStore>()(
         const evolved = checkEvolution(level, newLevel);
         const newStage = getStageForLevel(newLevel);
 
+        const newCoins = get().coins + coins;
+        const newEarnedXP = todayEarnedXP + exp;
+        const newEarnedCoins = todayEarnedCoins + coins;
+
         set({
           level: newLevel,
           experience: remainingExp,
           maxExperience: getRequiredExp(newLevel),
-          coins: get().coins + coins,
+          coins: newCoins,
           stage: newStage,
-          todayEarnedXP: todayEarnedXP + exp,
-          todayEarnedCoins: todayEarnedCoins + coins,
+          todayEarnedXP: newEarnedXP,
+          todayEarnedCoins: newEarnedCoins,
         });
+
+        syncPlayerStatsUpdate({
+          level: newLevel,
+          experience: remainingExp,
+          max_experience: getRequiredExp(newLevel),
+          coins: newCoins,
+          stage: newStage,
+          today_earned_xp: newEarnedXP,
+          today_earned_coins: newEarnedCoins,
+        }).catch((e) => console.error("[sync]", e));
 
         return {
           exp,
@@ -119,14 +135,23 @@ export const usePlayerStore = create<PlayerStore>()(
 
         const evolved = checkEvolution(level, newLevel);
         const newStage = getStageForLevel(newLevel);
+        const newEarnedXP = todayEarnedXP + exp;
 
         set({
           level: newLevel,
           experience: remainingExp,
           maxExperience: getRequiredExp(newLevel),
           stage: newStage,
-          todayEarnedXP: todayEarnedXP + exp,
+          todayEarnedXP: newEarnedXP,
         });
+
+        syncPlayerStatsUpdate({
+          level: newLevel,
+          experience: remainingExp,
+          max_experience: getRequiredExp(newLevel),
+          stage: newStage,
+          today_earned_xp: newEarnedXP,
+        }).catch((e) => console.error("[sync]", e));
 
         return {
           exp,
@@ -146,25 +171,32 @@ export const usePlayerStore = create<PlayerStore>()(
         let remainingExp = experience - amount;
         let leveledDown = false;
 
-        // 경험치가 부족하면 레벨다운
         while (remainingExp < 0 && newLevel > 1) {
           newLevel -= 1;
           remainingExp += getRequiredExp(newLevel);
           leveledDown = true;
         }
 
-        // 레벨 1에서는 0 이하로 내려가지 않음
         if (remainingExp < 0) remainingExp = 0;
 
         const newStage = getStageForLevel(newLevel);
+        const newEarnedXP = Math.max(0, todayEarnedXP - amount);
 
         set({
           level: newLevel,
           experience: remainingExp,
           maxExperience: getRequiredExp(newLevel),
           stage: newStage,
-          todayEarnedXP: Math.max(0, todayEarnedXP - amount),
+          todayEarnedXP: newEarnedXP,
         });
+
+        syncPlayerStatsUpdate({
+          level: newLevel,
+          experience: remainingExp,
+          max_experience: getRequiredExp(newLevel),
+          stage: newStage,
+          today_earned_xp: newEarnedXP,
+        }).catch((e) => console.error("[sync]", e));
 
         return {
           leveledDown,
@@ -191,15 +223,29 @@ export const usePlayerStore = create<PlayerStore>()(
           maxExperience: getRequiredExp(newLevel),
           stage: newStage,
         });
+
+        syncPlayerStatsUpdate({
+          level: newLevel,
+          experience: remainingExp,
+          max_experience: getRequiredExp(newLevel),
+          stage: newStage,
+        }).catch((e) => console.error("[sync]", e));
       },
 
       addCoins: (amount: number) => {
         resetDailyIfNeeded(set, get);
         const { todayEarnedCoins } = get();
+        const newCoins = get().coins + amount;
+        const newEarnedCoins = todayEarnedCoins + amount;
         set({
-          coins: get().coins + amount,
-          todayEarnedCoins: todayEarnedCoins + amount,
+          coins: newCoins,
+          todayEarnedCoins: newEarnedCoins,
         });
+
+        syncPlayerStatsUpdate({
+          coins: newCoins,
+          today_earned_coins: newEarnedCoins,
+        }).catch((e) => console.error("[sync]", e));
       },
 
       checkAbsencePenalty: () => {
@@ -208,8 +254,8 @@ export const usePlayerStore = create<PlayerStore>()(
         const nowStr = now.toISOString();
 
         if (!lastVisitAt) {
-          // 첫 접속 - 시각만 기록
           set({ lastVisitAt: nowStr });
+          syncPlayerStatsUpdate({ last_visit_at: nowStr }).catch((e) => console.error("[sync]", e));
           return null;
         }
 
@@ -217,27 +263,36 @@ export const usePlayerStore = create<PlayerStore>()(
         const hoursDiff = (now.getTime() - lastVisit.getTime()) / (1000 * 60 * 60);
         const daysSinceVisit = Math.floor(hoursDiff / 24);
 
-        // 마지막 접속 시각을 현재로 갱신
         set({ lastVisitAt: nowStr });
 
-        if (daysSinceVisit < 1) return null;
+        if (daysSinceVisit < 1) {
+          syncPlayerStatsUpdate({ last_visit_at: nowStr }).catch((e) => console.error("[sync]", e));
+          return null;
+        }
 
-        // 패널티: 2^(daysSinceVisit - 1) HP 차감
         const hpLost = Math.pow(2, daysSinceVisit - 1);
         const newHp = Math.max(0, hp - hpLost);
         set({ hp: newHp });
 
+        syncPlayerStatsUpdate({
+          hp: newHp,
+          last_visit_at: nowStr,
+        }).catch((e) => console.error("[sync]", e));
+
         return { hpLost, daysSinceVisit };
       },
 
-      reset: () =>
+      hydrate: (stats) => set(stats),
+
+      reset: () => {
         set({
           ...initialStats,
           todayEarnedXP: 0,
           todayEarnedCoins: 0,
           todayDate: getTodayStr(),
           lastVisitAt: "",
-        }),
+        });
+      },
     }),
     {
       name: "player-storage",

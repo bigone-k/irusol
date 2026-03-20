@@ -9,7 +9,7 @@ import { usePlayerStore } from "@/store/usePlayerStore";
 import { useTaskStore } from "@/store/useTaskStore";
 import { useToastStore } from "@/store/useToastStore";
 import { motion } from "framer-motion";
-import { FiArrowLeft, FiCalendar, FiTarget, FiEdit2, FiSave, FiTrash2, FiAward } from "react-icons/fi";
+import { FiArrowLeft, FiTarget, FiEdit2, FiSave, FiTrash2, FiAward } from "react-icons/fi";
 import { GiTwoCoins } from "react-icons/gi";
 import { PROJECT_REWARD } from "@/lib/rewards";
 import type { ProjectStatus, TabType } from "@/types";
@@ -79,14 +79,6 @@ export default function ProjectDetailsPage() {
       </div>
     );
   }
-
-  // Calculate period duration
-  const getPeriodDays = () => {
-    if (!project.startDate || !project.endDate) return null;
-    const start = new Date(project.startDate);
-    const end = new Date(project.endDate);
-    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-  };
 
   const handleSave = () => {
     if (!project) return;
@@ -277,43 +269,27 @@ export default function ProjectDetailsPage() {
             )}
           </div>
 
-          {/* Metadata Grid */}
-          {(getPeriodDays() !== null || project.reward) && (
+          {/* Reward */}
+          {project.reward && (
             <div className="grid grid-cols-3 gap-3">
-              {/* Period */}
-              {getPeriodDays() !== null && (
-                <div className="bg-gray-50 rounded-lg p-3 text-center">
-                  <FiCalendar className="mx-auto mb-1 text-text-muted" size={20} />
-                  <p className="text-xs text-text-muted mb-1">
-                    {t("project.period")}
-                  </p>
-                  <p className="font-semibold text-sm">
-                    {getPeriodDays()} {t("common.days")}
-                  </p>
-                </div>
-              )}
-
-              {/* Reward */}
-              {project.reward && (
-                <div className="bg-amber-50 rounded-lg p-3 text-center">
-                  <GiTwoCoins
-                    className="mx-auto mb-1 text-amber-600"
-                    size={20}
-                  />
-                  <p className="text-xs text-text-muted mb-1">
-                    {t("project.reward")}
-                  </p>
-                  <p className="font-semibold text-sm text-amber-600">
-                    +{project.reward}
-                  </p>
-                </div>
-              )}
+              <div className="bg-amber-50 rounded-lg p-3 text-center">
+                <GiTwoCoins
+                  className="mx-auto mb-1 text-amber-600"
+                  size={20}
+                />
+                <p className="text-xs text-text-muted mb-1">
+                  {t("project.reward")}
+                </p>
+                <p className="font-semibold text-sm text-amber-600">
+                  +{project.reward}
+                </p>
+              </div>
             </div>
           )}
 
           {/* Action Buttons (Edit Mode) */}
           {isEditing && (
-            <div className={`flex gap-3 ${(getPeriodDays() !== null || project.reward) ? "pt-4 border-t border" : "pt-2"}`}>
+            <div className={`flex gap-3 ${project.reward ? "pt-4 border-t border" : "pt-2"}`}>
               <button
                 onClick={handleDelete}
                 className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"

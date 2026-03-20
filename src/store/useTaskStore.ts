@@ -34,7 +34,17 @@ export const useTaskStore = create<TaskStore>()(
           completionCount: 0,
         };
         set((state) => ({ tasks: [...state.tasks, newTask] }));
-        syncTaskInsert(newTask).catch(() => {});
+
+        // FK 보장: goalId, projectId가 있으면 parent store에서 조회 후 전달
+        const { useGoalStore } = require("@/store/useGoalStore");
+        const { useProjectStore } = require("@/store/useProjectStore");
+        const goal = newTask.goalId
+          ? useGoalStore.getState().goals.find((g: any) => g.id === newTask.goalId)
+          : null;
+        const project = newTask.projectId
+          ? useProjectStore.getState().projects.find((p: any) => p.id === newTask.projectId)
+          : null;
+        syncTaskInsert(newTask, { goal, project }).catch((e) => console.error("[sync]", e));
       },
 
       toggleTask: (id: string) => {
@@ -54,7 +64,7 @@ export const useTaskStore = create<TaskStore>()(
           syncTaskUpdate(id, {
             completed: task.completed,
             rewardClaimed: task.rewardClaimed,
-          }).catch(() => {});
+          }).catch((e) => console.error("[sync]", e));
         }
       },
 
@@ -77,7 +87,7 @@ export const useTaskStore = create<TaskStore>()(
           syncTaskUpdate(id, {
             completedDates: task.completedDates,
             completionCount: task.completionCount,
-          }).catch(() => {});
+          }).catch((e) => console.error("[sync]", e));
         }
       },
 
@@ -100,7 +110,7 @@ export const useTaskStore = create<TaskStore>()(
           syncTaskUpdate(id, {
             completedDates: task.completedDates,
             completionCount: task.completionCount,
-          }).catch(() => {});
+          }).catch((e) => console.error("[sync]", e));
         }
       },
 
@@ -110,14 +120,14 @@ export const useTaskStore = create<TaskStore>()(
             task.id === id ? { ...task, ...updates } : task
           ),
         }));
-        syncTaskUpdate(id, updates).catch(() => {});
+        syncTaskUpdate(id, updates).catch((e) => console.error("[sync]", e));
       },
 
       deleteTask: (id: string) => {
         set((state) => ({
           tasks: state.tasks.filter((task) => task.id !== id),
         }));
-        syncTaskDelete(id).catch(() => {});
+        syncTaskDelete(id).catch((e) => console.error("[sync]", e));
       },
 
       hydrate: (tasks) => set({ tasks }),

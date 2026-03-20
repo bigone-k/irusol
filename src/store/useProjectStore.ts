@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Project } from "@/types";
 import { migrateProjectStore } from "@/lib/migrations";
-import { syncProjectInsert, syncProjectUpdate, syncProjectDelete } from "@/lib/supabase/sync";
+import { syncProjectInsert, syncProjectUpdate, syncProjectDelete, syncTaskDelete } from "@/lib/supabase/sync";
 
 interface ProjectStore {
   projects: Project[];
@@ -33,7 +33,13 @@ export const useProjectStore = create<ProjectStore>()(
           rewardAmount: 300,
         };
         set((state) => ({ projects: [...state.projects, newProject] }));
-        syncProjectInsert(newProject).catch(() => {});
+
+        // FK 보장: goalId가 있으면 goal store에서 parent 조회 후 전달
+        const { useGoalStore } = require("@/store/useGoalStore");
+        const goal = newProject.goalId
+          ? useGoalStore.getState().goals.find((g: any) => g.id === newProject.goalId)
+          : null;
+        syncProjectInsert(newProject, goal).catch((e) => console.error("[sync]", e));
       },
 
       toggleProject: (id: string) => {
@@ -45,7 +51,7 @@ export const useProjectStore = create<ProjectStore>()(
           ),
         }));
         const project = get().projects.find((p) => p.id === id);
-        if (project) syncProjectUpdate(id, { completed: project.completed }).catch(() => {});
+        if (project) syncProjectUpdate(id, { completed: project.completed }).catch((e) => console.error("[sync]", e));
       },
 
       updateProject: (id: string, updates: Partial<Project>) => {
@@ -54,14 +60,26 @@ export const useProjectStore = create<ProjectStore>()(
             project.id === id ? { ...project, ...updates } : project
           ),
         }));
-        syncProjectUpdate(id, updates).catch(() => {});
+        syncProjectUpdate(id, updates).catch((e) => console.error("[sync]", e));
       },
 
       deleteProject: (id: string) => {
+        // Task 로컬 삭제 + DB soft delete
+        const { useTaskStore } = require("@/store/useTaskStore");
+        const taskStore = useTaskStore.getState();
+        const childTaskIds = taskStore.tasks
+          .filter((t: any) => t.projectId === id)
+          .map((t: any) => t.id);
+        useTaskStore.setState({
+          tasks: taskStore.tasks.filter((t: any) => !childTaskIds.includes(t.id)),
+        });
+        for (const taskId of childTaskIds) syncTaskDelete(taskId).catch((e) => console.error("[sync]", e));
+
+        // Project 로컬 삭제 + DB soft delete
         set((state) => ({
           projects: state.projects.filter((project) => project.id !== id),
         }));
-        syncProjectDelete(id).catch(() => {});
+        syncProjectDelete(id).catch((e) => console.error("[sync]", e));
       },
 
       getProjectsByGoal: (goalId: string) => {
@@ -74,7 +92,7 @@ export const useProjectStore = create<ProjectStore>()(
             project.id === id ? { ...project, status } : project
           ),
         }));
-        syncProjectUpdate(id, { status }).catch(() => {});
+        syncProjectUpdate(id, { status }).catch((e) => console.error("[sync]", e));
       },
 
       claimReward: (id: string): boolean => {
@@ -87,7 +105,7 @@ export const useProjectStore = create<ProjectStore>()(
             p.id === id ? { ...p, rewardClaimed: true } : p
           ),
         }));
-        syncProjectUpdate(id, { rewardClaimed: true }).catch(() => {});
+        syncProjectUpdate(id, { rewardClaimed: true }).catch((e) => console.error("[sync]", e));
         return true;
       },
 

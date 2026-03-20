@@ -5,10 +5,9 @@ import { usePlayerStore } from "@/store/usePlayerStore";
 import { useTaskStore } from "@/store/useTaskStore";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { getStageImagePath } from "@/lib/evolution";
 import { GiCrownCoin } from "react-icons/gi";
 import { FiShield, FiAward, FiCheckCircle } from "react-icons/fi";
-import Image from "next/image";
+import CharacterAvatar from "@/components/CharacterAvatar";
 
 export default function PlayerDashboard() {
   const [mounted, setMounted] = useState(false);
@@ -101,30 +100,17 @@ export default function PlayerDashboard() {
 
         {/* ── 캐릭터 초상화 (중앙) ── */}
         <div className="flex flex-col items-center px-5 pb-4">
-          <motion.div
-            className="relative"
-            whileHover={{ scale: 1.04 }}
-            transition={{ type: "spring", stiffness: 260 }}
+          <div
+            className="relative w-40 h-40 rounded-2xl overflow-hidden bg-background border-2 border-primary/30 flex items-center justify-center"
+            style={{ boxShadow: "0 4px 20px rgba(125,230,195,0.2)" }}
           >
-            <div
-              className="relative w-40 h-40 rounded-2xl overflow-hidden bg-background border-2 border-primary/30"
-              style={{ boxShadow: "0 4px 20px rgba(125,230,195,0.2)" }}
-            >
-              <Image
-                src={getStageImagePath(displayStage)}
-                alt={t(`character.stage.${displayStage}`)}
-                width={160}
-                height={160}
-                className="object-contain w-full h-full"
-                priority
-              />
-              {/* 코너 장식 */}
-              <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-primary/50 rounded-tl" />
-              <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-primary/50 rounded-tr" />
-              <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-primary/50 rounded-bl" />
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-primary/50 rounded-br" />
-            </div>
-          </motion.div>
+            <CharacterAvatar size={140} />
+            {/* 코너 장식 */}
+            <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-primary/50 rounded-tl" />
+            <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-primary/50 rounded-tr" />
+            <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-primary/50 rounded-bl" />
+            <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-primary/50 rounded-br" />
+          </div>
 
           {/* 스테이지 뱃지 */}
           <div className="mt-2.5 px-4 py-1 rounded-full text-xs font-bold tracking-widest bg-accent/10 border border-accent/30 text-accent">

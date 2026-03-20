@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { createClient } from '@/lib/supabase/client'
+import { clearSyncCache } from '@/lib/supabase/sync'
 import type { User, SupabaseClient } from '@supabase/supabase-js'
 
 const hasSupabaseConfig = !!(
@@ -87,6 +88,23 @@ export const useAuthStore = create<AuthState>()((set) => ({
     if (!hasSupabaseConfig) return
     const supabase = createClient()
     await supabase.auth.signOut()
+
+    // 모든 store 초기화 (다른 계정 로그인 시 데이터 혼선 방지)
+    const { useVisionStore } = require('@/store/useVisionStore')
+    const { useGoalStore } = require('@/store/useGoalStore')
+    const { useProjectStore } = require('@/store/useProjectStore')
+    const { useTaskStore } = require('@/store/useTaskStore')
+    const { useOnboardingStore } = require('@/store/useOnboardingStore')
+    const { usePlayerStore } = require('@/store/usePlayerStore')
+
+    useVisionStore.getState().reset()
+    useGoalStore.getState().reset()
+    useProjectStore.getState().reset()
+    useTaskStore.getState().reset()
+    useOnboardingStore.getState().reset()
+    usePlayerStore.getState().reset()
+    clearSyncCache()
+
     set({ user: null, nickname: null, isAuthenticated: false })
     const locale = window.location.pathname.match(/^\/(ko|en)/)?.[1] || 'ko'
     window.location.href = `/${locale}/login`

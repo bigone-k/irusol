@@ -3,8 +3,7 @@
 import { usePlayerStore } from "@/store/usePlayerStore";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { getStageImagePath } from "@/lib/evolution";
-import Image from "next/image";
+import CharacterAvatar from "@/components/CharacterAvatar";
 
 export default function CharacterCard() {
   const { level, experience, maxExperience, coins, stage } = usePlayerStore();
@@ -27,19 +26,9 @@ export default function CharacterCard() {
         {/* Left: Avatar + Stage Badge */}
         <div className="flex flex-col items-center gap-3 flex-shrink-0">
           {/* Avatar with Glossy Effect */}
-          <motion.div
-            className="w-32 h-32 bg-background-surface rounded-2xl flex items-center justify-center overflow-hidden border-2 border glossy float-gentle"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <Image
-              src={getStageImagePath(stage)}
-              alt={t(`character.stage.${stage}`)}
-              width={100}
-              height={100}
-              className="object-contain"
-            />
-          </motion.div>
+          <div className="w-32 h-32 bg-background-surface rounded-2xl flex items-center justify-center overflow-hidden border-2 border glossy float-gentle">
+            <CharacterAvatar size={100} />
+          </div>
 
           {/* Stage Badge - Gummy Style */}
           <motion.div

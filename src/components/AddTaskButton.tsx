@@ -6,6 +6,7 @@ import { useProjectStore } from "@/store/useProjectStore";
 import { FaPlus, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
+import DatePickerInput from "@/components/DatePickerInput";
 
 type AddTaskButtonProps = {
   hideButton?: boolean;
@@ -241,11 +242,9 @@ export default function AddTaskButton({
                         <label className="block text-sm font-semibold text-text mb-1">
                           {t("task.startDate")} *
                         </label>
-                        <input
-                          type="date"
+                        <DatePickerInput
                           value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                          className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
+                          onChange={setStartDate}
                           required
                         />
                       </div>
@@ -253,11 +252,9 @@ export default function AddTaskButton({
                         <label className="block text-sm font-semibold text-text mb-1">
                           {t("task.endDate")} *
                         </label>
-                        <input
-                          type="date"
+                        <DatePickerInput
                           value={endDate}
-                          onChange={(e) => setEndDate(e.target.value)}
-                          className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
+                          onChange={setEndDate}
                           required
                         />
                       </div>
@@ -307,11 +304,9 @@ export default function AddTaskButton({
                     <label className="block text-sm font-semibold text-text mb-1">
                       {t("task.dueDate")} *
                     </label>
-                    <input
-                      type="date"
+                    <DatePickerInput
                       value={dueDate}
-                      onChange={(e) => setDueDate(e.target.value)}
-                      className="w-full px-4 py-2 border border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-text"
+                      onChange={setDueDate}
                       required
                     />
                   </div>

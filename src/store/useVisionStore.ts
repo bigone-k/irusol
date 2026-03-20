@@ -24,14 +24,14 @@ export const useVisionStore = create<VisionStore>()(
           updatedAt: new Date(),
         };
         set({ vision: newVision });
-        syncVisionUpsert(newVision).catch(() => {});
+        syncVisionUpsert(newVision).catch((e) => console.error("[sync]", e));
       },
 
       updateVision: (updates) => {
         set((state) => {
           if (!state.vision) return state;
           const updated = { ...state.vision, ...updates, updatedAt: new Date() };
-          syncVisionUpsert(updated).catch(() => {});
+          syncVisionUpsert(updated).catch((e) => console.error("[sync]", e));
           return { vision: updated };
         });
       },

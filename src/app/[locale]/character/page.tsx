@@ -10,6 +10,7 @@ import { FiTrendingUp, FiAward } from "react-icons/fi";
 import { GiCrownCoin } from "react-icons/gi";
 import Image from "next/image";
 import ProgressBar from "@/components/ProgressBar";
+import CharacterAvatar from "@/components/CharacterAvatar";
 
 export default function CharacterPage() {
   const [mounted, setMounted] = useState(false);
@@ -37,7 +38,6 @@ export default function CharacterPage() {
   // Get current stage info
   const currentStageInfo = EVOLUTION_STAGES.find((s) => s.stage === displayStage);
   const currentStageIndex = EVOLUTION_STAGES.findIndex((s) => s.stage === displayStage);
-  const nextStage = EVOLUTION_STAGES[currentStageIndex + 1];
 
   return (
     <div className="p-4 space-y-6">
@@ -50,18 +50,9 @@ export default function CharacterPage() {
         >
           <div className="flex flex-col items-center">
             {/* Character Image */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="relative w-48 h-48 mb-4"
-            >
-              <Image
-                src={getStageImagePath(displayStage)}
-                alt={t(`character.stage.${displayStage}`)}
-                fill
-                className="object-contain"
-                priority
-              />
-            </motion.div>
+            <div className="mb-4">
+              <CharacterAvatar size={192} />
+            </div>
 
             {/* Character Name & Level */}
             <h2 className="text-2xl font-bold text-text mb-2">
@@ -162,29 +153,19 @@ export default function CharacterPage() {
             {t("character.currentStage")}
           </h3>
           <div className="space-y-3">
-            <div>
-              <p className="text-xl font-bold text-primary-dark mb-1">
-                {t(`character.stage.${displayStage}`)}
-              </p>
-              <p className="text-sm text-text-muted">
-                {t(`character.stageDescription.${displayStage}`)}
-              </p>
-            </div>
-            {nextStage && (
-              <div className="pt-3 border-t border">
-                <p className="text-sm font-semibold text-text mb-1">
-                  {t("character.nextEvolution")}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-text-muted">
-                    {t(`character.stage.${nextStage.stage}`)}
-                  </span>
-                  <span className="text-sm text-primary-dark font-semibold">
-                    {t("character.requiredLevel")} {nextStage.requiredLevel}
-                  </span>
-                </div>
+            <div className="flex items-center gap-4">
+              <div className="shrink-0">
+                <CharacterAvatar size={56} />
               </div>
-            )}
+              <div>
+                <p className="text-xl font-bold text-primary-dark mb-0.5">
+                  {t(`character.stage.${displayStage}`)}
+                </p>
+                <p className="text-sm text-text-muted">
+                  {t(`character.stageDescription.${displayStage}`)}
+                </p>
+              </div>
+            </div>
           </div>
         </motion.div>
 

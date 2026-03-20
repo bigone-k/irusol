@@ -5,10 +5,10 @@ import { useTaskStore } from "@/store/useTaskStore";
 import { useGoalStore } from "@/store/useGoalStore";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { FiCalendar, FiClock, FiTarget } from "react-icons/fi";
+import { FiTarget } from "react-icons/fi";
 import { GiTwoCoins } from "react-icons/gi";
 import StatusBadge from "@/components/StatusBadge";
-import { getProgress, getDaysRemaining } from "@/lib/taskProgress";
+import { getProgress } from "@/lib/taskProgress";
 import type { Project } from "@/types";
 
 interface ProjectCardProps {
@@ -34,14 +34,6 @@ export default function ProjectCard({ project, locale, showGoal = false }: Proje
 
   // 완료된 퀘스트 수 (getProgress >= 100)
   const completedCount = projectTasks.filter((task) => getProgress(task) >= 100).length;
-
-  const daysRemaining = getDaysRemaining(project.endDate);
-
-  const loc = locale === "ko" ? "ko-KR" : "en-US";
-  const period =
-    project.startDate && project.endDate
-      ? `${new Date(project.startDate).toLocaleDateString(loc, { month: "short", day: "numeric" })} - ${new Date(project.endDate).toLocaleDateString(loc, { month: "short", day: "numeric" })}`
-      : null;
 
   return (
     <Link href={`/${locale}/projects/${project.id}`}>
@@ -88,31 +80,10 @@ export default function ProjectCard({ project, locale, showGoal = false }: Proje
             </span>
           </div>
 
-          {/* Row 2: 기간 */}
-          {period && (
-            <div className="flex items-center gap-1 text-xs text-text-muted mb-2">
-              <FiCalendar size={11} />
-              <span>{period}</span>
-            </div>
-          )}
-
-          {/* Row 3: 상태 + D-day + 코인 | 퀘스트 완료 수 */}
+          {/* Row 2: 상태 + 코인 | 퀘스트 완료 수 */}
           <div className="flex items-center justify-between mt-1">
             <div className="flex items-center gap-2">
               <StatusBadge status={project.status} translationKey="project" />
-
-              {daysRemaining !== null && (
-                <span
-                  className={`flex items-center gap-0.5 text-xs font-semibold ${
-                    daysRemaining < 0 ? "text-red-500" : "text-text-muted"
-                  }`}
-                >
-                  <FiClock size={11} />
-                  {daysRemaining < 0
-                    ? `D+${Math.abs(daysRemaining)}`
-                    : `D-${daysRemaining}`}
-                </span>
-              )}
 
               {project.reward && (
                 <span className="flex items-center gap-0.5 text-xs font-bold text-text">
