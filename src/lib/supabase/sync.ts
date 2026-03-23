@@ -1,6 +1,7 @@
 import { createClient } from "./client";
 import type { Goal, Project, Task, Vision, PlayerStats, StageName } from "@/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { withPerfLog, logPerf } from "@/lib/perfLogger";
 
 // ============================================================
 // Supabase context — client + userId 캐싱 (세션당 1회 auth 호출)
@@ -49,6 +50,40 @@ async function getContext(): Promise<SyncContext | null> {
   const userId = await getUserId();
   if (!supabase || !userId) return null;
   return { supabase, userId };
+}
+
+// ============================================================
+// Tracked helpers — getContext + withPerfLog + error handling 공통화
+// ============================================================
+
+/** Write 작업: getContext → withPerfLog(sync-write) → catch */
+async function trackedWrite(
+  operation: string,
+  table: string,
+  method: string,
+  fn: (ctx: SyncContext) => Promise<void>,
+) {
+  const ctx = await getContext();
+  if (!ctx) return;
+  await withPerfLog(
+    { category: 'sync-write', operation, table_name: table, method, context: 'sync.ts', user_id: ctx.userId },
+    () => fn(ctx),
+  ).catch((e) => console.error(`[sync] ${operation} failed:`, e));
+}
+
+/** Read 작업: getContext → withPerfLog(sync-read) → fallback */
+async function trackedRead<T>(
+  operation: string,
+  table: string,
+  fallback: T,
+  fn: (ctx: SyncContext) => Promise<T>,
+): Promise<T> {
+  const ctx = await getContext();
+  if (!ctx) return fallback;
+  return withPerfLog(
+    { category: 'sync-read', operation, table_name: table, method: 'select', context: 'sync.ts', user_id: ctx.userId },
+    () => fn(ctx),
+  );
 }
 
 // ============================================================
@@ -257,13 +292,10 @@ function rowToPlayerStats(row: any): PlayerStats & {
 }
 
 export async function syncPlayerStatsUpdate(updates: Partial<PlayerStatsRow>) {
-  const ctx = await getContext();
-  if (!ctx) return;
-  const { error } = await ctx.supabase
-    .from("player_stats")
-    .update(updates)
-    .eq("user_id", ctx.userId);
-  if (error) console.error("[sync] player_stats update failed:", error);
+  return trackedWrite('syncPlayerStatsUpdate', 'player_stats', 'update', async ({ supabase, userId }) => {
+    const { error } = await supabase.from("player_stats").update(updates).eq("user_id", userId);
+    if (error) throw error;
+  });
 }
 
 export async function syncPlayerStatsFull(stats: PlayerStats & {
@@ -272,24 +304,17 @@ export async function syncPlayerStatsFull(stats: PlayerStats & {
   todayDate?: string;
   lastVisitAt?: string;
 }) {
-  const ctx = await getContext();
-  if (!ctx) return;
-  const { error } = await ctx.supabase
-    .from("player_stats")
-    .update(playerStatsToRow(stats))
-    .eq("user_id", ctx.userId);
-  if (error) console.error("[sync] player_stats full update failed:", error);
+  return trackedWrite('syncPlayerStatsFull', 'player_stats', 'update', async ({ supabase, userId }) => {
+    const { error } = await supabase.from("player_stats").update(playerStatsToRow(stats)).eq("user_id", userId);
+    if (error) throw error;
+  });
 }
 
-export async function fetchPlayerStats(): Promise<ReturnType<typeof rowToPlayerStats> | null> {
-  const ctx = await getContext();
-  if (!ctx) return null;
-  const { data } = await ctx.supabase
-    .from("player_stats")
-    .select("*")
-    .eq("user_id", ctx.userId)
-    .maybeSingle();
-  return data ? rowToPlayerStats(data) : null;
+export function fetchPlayerStats(): Promise<ReturnType<typeof rowToPlayerStats> | null> {
+  return trackedRead('fetchPlayerStats', 'player_stats', null, async ({ supabase, userId }) => {
+    const { data } = await supabase.from("player_stats").select("*").eq("user_id", userId).maybeSingle();
+    return data ? rowToPlayerStats(data) : null;
+  });
 }
 
 // ============================================================
@@ -297,56 +322,36 @@ export async function fetchPlayerStats(): Promise<ReturnType<typeof rowToPlayerS
 // ============================================================
 
 export async function syncVisionUpsert(vision: Vision) {
-  const ctx = await getContext();
-  if (!ctx) return;
-  await ctx.supabase
-    .from("visions")
-    .upsert(visionToRow(vision, ctx.userId), { onConflict: "id" });
+  return trackedWrite('syncVisionUpsert', 'visions', 'upsert', async ({ supabase, userId }) => {
+    const { error } = await supabase.from("visions").upsert(visionToRow(vision, userId), { onConflict: "id" });
+    if (error) throw error;
+  });
 }
 
-export async function fetchVision(): Promise<Vision | null> {
-  const ctx = await getContext();
-  if (!ctx) return null;
-
-  const { data } = await ctx.supabase
-    .from("visions")
-    .select("*")
-    .eq("user_id", ctx.userId)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  return data ? rowToVision(data) : null;
+export function fetchVision(): Promise<Vision | null> {
+  return trackedRead('fetchVision', 'visions', null, async ({ supabase, userId }) => {
+    const { data } = await supabase
+      .from("visions").select("*").eq("user_id", userId)
+      .is("deleted_at", null).order("created_at", { ascending: false }).limit(1).maybeSingle();
+    return data ? rowToVision(data) : null;
+  });
 }
 
 // ============================================================
 // Goal CRUD
 // ============================================================
 
-export async function syncGoalInsert(
-  goal: Goal,
-  parentVision?: Vision | null
-) {
-  const ctx = await getContext();
-  if (!ctx) return;
-
-  // FK 보장: vision이 있으면 먼저 upsert
-  if (goal.visionId && parentVision) {
-    await ctx.supabase
-      .from("visions")
-      .upsert(visionToRow(parentVision, ctx.userId), { onConflict: "id" });
-  }
-
-  await ctx.supabase
-    .from("goals")
-    .upsert(goalToRow(goal, ctx.userId), { onConflict: "id" });
+export async function syncGoalInsert(goal: Goal, parentVision?: Vision | null) {
+  return trackedWrite('syncGoalInsert', 'goals', 'upsert', async ({ supabase, userId }) => {
+    if (goal.visionId && parentVision) {
+      await supabase.from("visions").upsert(visionToRow(parentVision, userId), { onConflict: "id" });
+    }
+    const { error } = await supabase.from("goals").upsert(goalToRow(goal, userId), { onConflict: "id" });
+    if (error) throw error;
+  });
 }
 
 export async function syncGoalUpdate(id: string, updates: Partial<Goal>) {
-  const ctx = await getContext();
-  if (!ctx) return;
-
   const row: Record<string, any> = {};
   if (updates.title !== undefined) row.title = updates.title;
   if (updates.description !== undefined) row.description = updates.description;
@@ -358,67 +363,46 @@ export async function syncGoalUpdate(id: string, updates: Partial<Goal>) {
   if (updates.rewardClaimed !== undefined) row.reward_claimed = updates.rewardClaimed;
   if (updates.rewardAmount !== undefined) row.reward_amount = updates.rewardAmount;
   if (updates.visionId !== undefined) row.vision_id = updates.visionId;
-  if (updates.valueHistory !== undefined)
-    row.value_history = JSON.stringify(updates.valueHistory);
-
+  if (updates.valueHistory !== undefined) row.value_history = JSON.stringify(updates.valueHistory);
   if (Object.keys(row).length === 0) return;
-  const { error } = await ctx.supabase.from("goals").update(row).eq("id", id);
-  if (error) console.error("[sync] goal update failed:", id, error);
+
+  return trackedWrite('syncGoalUpdate', 'goals', 'update', async ({ supabase }) => {
+    const { error } = await supabase.from("goals").update(row).eq("id", id);
+    if (error) throw error;
+  });
 }
 
 export async function syncGoalDelete(id: string) {
-  const ctx = await getContext();
-  if (!ctx) { console.warn("[sync] goal delete skipped: no auth context"); return; }
-  const { error, count } = await ctx.supabase
-    .from("goals")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("user_id", ctx.userId);
-  if (error) console.error("[sync] goal delete failed:", id, error);
-  else console.log("[sync] goal deleted:", id, "affected:", count);
+  return trackedWrite('syncGoalDelete', 'goals', 'delete', async ({ supabase, userId }) => {
+    const { error } = await supabase
+      .from("goals").update({ deleted_at: new Date().toISOString() }).eq("id", id).eq("user_id", userId);
+    if (error) throw error;
+  });
 }
 
-export async function fetchGoals(): Promise<Goal[]> {
-  const ctx = await getContext();
-  if (!ctx) return [];
-
-  const { data } = await ctx.supabase
-    .from("goals")
-    .select("*")
-    .eq("user_id", ctx.userId)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: true });
-
-  return (data || []).map(rowToGoal);
+export function fetchGoals(): Promise<Goal[]> {
+  return trackedRead('fetchGoals', 'goals', [], async ({ supabase, userId }) => {
+    const { data } = await supabase
+      .from("goals").select("*").eq("user_id", userId).is("deleted_at", null).order("created_at", { ascending: true });
+    return (data || []).map(rowToGoal);
+  });
 }
 
 // ============================================================
 // Project CRUD
 // ============================================================
 
-export async function syncProjectInsert(
-  project: Project,
-  parentGoal?: Goal | null
-) {
-  const ctx = await getContext();
-  if (!ctx) return;
-
-  // FK 보장: goal이 있으면 먼저 upsert
-  if (project.goalId && parentGoal) {
-    await ctx.supabase
-      .from("goals")
-      .upsert(goalToRow(parentGoal, ctx.userId), { onConflict: "id" });
-  }
-
-  await ctx.supabase
-    .from("projects")
-    .upsert(projectToRow(project, ctx.userId), { onConflict: "id" });
+export async function syncProjectInsert(project: Project, parentGoal?: Goal | null) {
+  return trackedWrite('syncProjectInsert', 'projects', 'upsert', async ({ supabase, userId }) => {
+    if (project.goalId && parentGoal) {
+      await supabase.from("goals").upsert(goalToRow(parentGoal, userId), { onConflict: "id" });
+    }
+    const { error } = await supabase.from("projects").upsert(projectToRow(project, userId), { onConflict: "id" });
+    if (error) throw error;
+  });
 }
 
 export async function syncProjectUpdate(id: string, updates: Partial<Project>) {
-  const ctx = await getContext();
-  if (!ctx) return;
-
   const row: Record<string, any> = {};
   if (updates.title !== undefined) row.title = updates.title;
   if (updates.description !== undefined) row.description = updates.description;
@@ -428,36 +412,28 @@ export async function syncProjectUpdate(id: string, updates: Partial<Project>) {
   if (updates.rewardAmount !== undefined) row.reward_amount = updates.rewardAmount;
   if (updates.reward !== undefined) row.reward = updates.reward;
   if (updates.goalId !== undefined) row.goal_id = updates.goalId;
-
   if (Object.keys(row).length === 0) return;
-  const { error } = await ctx.supabase.from("projects").update(row).eq("id", id);
-  if (error) console.error("[sync] project update failed:", id, error);
+
+  return trackedWrite('syncProjectUpdate', 'projects', 'update', async ({ supabase }) => {
+    const { error } = await supabase.from("projects").update(row).eq("id", id);
+    if (error) throw error;
+  });
 }
 
 export async function syncProjectDelete(id: string) {
-  const ctx = await getContext();
-  if (!ctx) { console.warn("[sync] project delete skipped: no auth context"); return; }
-  const { error, count } = await ctx.supabase
-    .from("projects")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("user_id", ctx.userId);
-  if (error) console.error("[sync] project delete failed:", id, error);
-  else console.log("[sync] project deleted:", id, "affected:", count);
+  return trackedWrite('syncProjectDelete', 'projects', 'delete', async ({ supabase, userId }) => {
+    const { error } = await supabase
+      .from("projects").update({ deleted_at: new Date().toISOString() }).eq("id", id).eq("user_id", userId);
+    if (error) throw error;
+  });
 }
 
-export async function fetchProjects(): Promise<Project[]> {
-  const ctx = await getContext();
-  if (!ctx) return [];
-
-  const { data } = await ctx.supabase
-    .from("projects")
-    .select("*")
-    .eq("user_id", ctx.userId)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: true });
-
-  return (data || []).map(rowToProject);
+export function fetchProjects(): Promise<Project[]> {
+  return trackedRead('fetchProjects', 'projects', [], async ({ supabase, userId }) => {
+    const { data } = await supabase
+      .from("projects").select("*").eq("user_id", userId).is("deleted_at", null).order("created_at", { ascending: true });
+    return (data || []).map(rowToProject);
+  });
 }
 
 // ============================================================
@@ -468,30 +444,19 @@ export async function syncTaskInsert(
   task: Task,
   parents?: { goal?: Goal | null; project?: Project | null }
 ) {
-  const ctx = await getContext();
-  if (!ctx) return;
-
-  // FK 보장: goal → project 순서로 upsert
-  if (task.goalId && parents?.goal) {
-    await ctx.supabase
-      .from("goals")
-      .upsert(goalToRow(parents.goal, ctx.userId), { onConflict: "id" });
-  }
-  if (task.projectId && parents?.project) {
-    await ctx.supabase
-      .from("projects")
-      .upsert(projectToRow(parents.project, ctx.userId), { onConflict: "id" });
-  }
-
-  await ctx.supabase
-    .from("tasks")
-    .upsert(taskToRow(task, ctx.userId), { onConflict: "id" });
+  return trackedWrite('syncTaskInsert', 'tasks', 'upsert', async ({ supabase, userId }) => {
+    if (task.goalId && parents?.goal) {
+      await supabase.from("goals").upsert(goalToRow(parents.goal, userId), { onConflict: "id" });
+    }
+    if (task.projectId && parents?.project) {
+      await supabase.from("projects").upsert(projectToRow(parents.project, userId), { onConflict: "id" });
+    }
+    const { error } = await supabase.from("tasks").upsert(taskToRow(task, userId), { onConflict: "id" });
+    if (error) throw error;
+  });
 }
 
 export async function syncTaskUpdate(id: string, updates: Partial<Task>) {
-  const ctx = await getContext();
-  if (!ctx) return;
-
   const row: Record<string, any> = {};
   if (updates.title !== undefined) row.title = updates.title;
   if (updates.description !== undefined) row.description = updates.description;
@@ -507,36 +472,28 @@ export async function syncTaskUpdate(id: string, updates: Partial<Task>) {
   if (updates.startDate !== undefined) row.start_date = toDateStr(updates.startDate);
   if (updates.endDate !== undefined) row.end_date = toDateStr(updates.endDate);
   if (updates.dueDate !== undefined) row.due_date = toDateStr(updates.dueDate);
-
   if (Object.keys(row).length === 0) return;
-  const { error } = await ctx.supabase.from("tasks").update(row).eq("id", id);
-  if (error) console.error("[sync] task update failed:", id, error);
+
+  return trackedWrite('syncTaskUpdate', 'tasks', 'update', async ({ supabase }) => {
+    const { error } = await supabase.from("tasks").update(row).eq("id", id);
+    if (error) throw error;
+  });
 }
 
 export async function syncTaskDelete(id: string) {
-  const ctx = await getContext();
-  if (!ctx) { console.warn("[sync] task delete skipped: no auth context"); return; }
-  const { error, count } = await ctx.supabase
-    .from("tasks")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("user_id", ctx.userId);
-  if (error) console.error("[sync] task delete failed:", id, error);
-  else console.log("[sync] task deleted:", id, "affected:", count);
+  return trackedWrite('syncTaskDelete', 'tasks', 'delete', async ({ supabase, userId }) => {
+    const { error } = await supabase
+      .from("tasks").update({ deleted_at: new Date().toISOString() }).eq("id", id).eq("user_id", userId);
+    if (error) throw error;
+  });
 }
 
-export async function fetchTasks(): Promise<Task[]> {
-  const ctx = await getContext();
-  if (!ctx) return [];
-
-  const { data } = await ctx.supabase
-    .from("tasks")
-    .select("*")
-    .eq("user_id", ctx.userId)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: true });
-
-  return (data || []).map(rowToTask);
+export function fetchTasks(): Promise<Task[]> {
+  return trackedRead('fetchTasks', 'tasks', [], async ({ supabase, userId }) => {
+    const { data } = await supabase
+      .from("tasks").select("*").eq("user_id", userId).is("deleted_at", null).order("created_at", { ascending: true });
+    return (data || []).map(rowToTask);
+  });
 }
 
 // ============================================================
@@ -544,12 +501,19 @@ export async function fetchTasks(): Promise<Task[]> {
 // ============================================================
 
 export async function fetchAllData() {
+  const start = performance.now();
   const [vision, goals, projects, tasks] = await Promise.all([
     fetchVision(),
     fetchGoals(),
     fetchProjects(),
     fetchTasks(),
   ]);
+  const duration_ms = Math.round(performance.now() - start);
+  logPerf({
+    category: 'sync-read', operation: 'fetchAllData', method: 'select',
+    duration_ms, status: 'success', context: 'sync.ts',
+    metadata: { goals: goals.length, projects: projects.length, tasks: tasks.length },
+  });
   return { vision, goals, projects, tasks };
 }
 
@@ -563,41 +527,18 @@ export async function syncAllStoresInOrder(data: {
   projects: Project[];
   tasks: Task[];
 }) {
-  const ctx = await getContext();
-  if (!ctx) return;
-
-  const { supabase, userId } = ctx;
-
-  if (data.vision) {
-    await supabase
-      .from("visions")
-      .upsert(visionToRow(data.vision, userId), { onConflict: "id" });
-  }
-
-  if (data.goals.length > 0) {
-    await supabase
-      .from("goals")
-      .upsert(
-        data.goals.map((g) => goalToRow(g, userId)),
-        { onConflict: "id" }
-      );
-  }
-
-  if (data.projects.length > 0) {
-    await supabase
-      .from("projects")
-      .upsert(
-        data.projects.map((p) => projectToRow(p, userId)),
-        { onConflict: "id" }
-      );
-  }
-
-  if (data.tasks.length > 0) {
-    await supabase
-      .from("tasks")
-      .upsert(
-        data.tasks.map((t) => taskToRow(t, userId)),
-        { onConflict: "id" }
-      );
-  }
+  return trackedWrite('syncAllStoresInOrder', 'all', 'upsert', async ({ supabase, userId }) => {
+    if (data.vision) {
+      await supabase.from("visions").upsert(visionToRow(data.vision, userId), { onConflict: "id" });
+    }
+    if (data.goals.length > 0) {
+      await supabase.from("goals").upsert(data.goals.map((g) => goalToRow(g, userId)), { onConflict: "id" });
+    }
+    if (data.projects.length > 0) {
+      await supabase.from("projects").upsert(data.projects.map((p) => projectToRow(p, userId)), { onConflict: "id" });
+    }
+    if (data.tasks.length > 0) {
+      await supabase.from("tasks").upsert(data.tasks.map((t) => taskToRow(t, userId)), { onConflict: "id" });
+    }
+  });
 }

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { createClient } from '@/lib/supabase/client'
 import { clearSyncCache } from '@/lib/supabase/sync'
+import { logPerf } from '@/lib/perfLogger'
 import type { User, SupabaseClient } from '@supabase/supabase-js'
 
 const hasSupabaseConfig = !!(
@@ -26,6 +27,7 @@ function getNameFromUser(user: User): string {
 
 function tryFetchProfileNickname(supabase: SupabaseClient, user: User, set: (s: Partial<AuthState>) => void) {
   // Non-blocking DB fetch with 5s timeout — updates nickname if successful
+  const start = performance.now()
   const query = supabase
     .from('profiles')
     .select('nickname')
@@ -36,12 +38,25 @@ function tryFetchProfileNickname(supabase: SupabaseClient, user: User, set: (s: 
 
   Promise.race([query, timeout])
     .then((result) => {
+      const duration_ms = Math.round(performance.now() - start)
+      const timedOut = !result || !('data' in result)
+      logPerf({
+        category: 'auth', operation: 'fetchProfileNickname', table_name: 'profiles', method: 'select',
+        duration_ms, status: timedOut ? 'error' : 'success',
+        error_msg: timedOut ? 'timeout' : undefined,
+        user_id: user.id, context: 'useAuthStore',
+      })
       if (result && 'data' in result && result.data?.nickname) {
         set({ nickname: result.data.nickname })
       }
     })
     .catch(() => {
-      // Network error — keep metadata nickname
+      const duration_ms = Math.round(performance.now() - start)
+      logPerf({
+        category: 'auth', operation: 'fetchProfileNickname', table_name: 'profiles', method: 'select',
+        duration_ms, status: 'error', error_msg: 'network_error',
+        user_id: user.id, context: 'useAuthStore',
+      })
     })
 }
 

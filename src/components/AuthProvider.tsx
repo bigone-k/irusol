@@ -11,6 +11,7 @@ import { usePlayerStore } from '@/store/usePlayerStore'
 import { useOnboardingStore } from '@/store/useOnboardingStore'
 import { createClient } from '@/lib/supabase/client'
 import { fetchAllData, fetchPlayerStats, clearSyncCache } from '@/lib/supabase/sync'
+import { withPerfLog } from '@/lib/perfLogger'
 import LoadingModal from './LoadingModal'
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -46,14 +47,19 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
     const checkOnboarding = async () => {
       try {
-        const supabase = createClient()
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_onboarded')
-          .eq('id', user.id)
-          .maybeSingle()
+        const isOnboarded = await withPerfLog(
+          { category: 'onboarding', operation: 'checkOnboarding', table_name: 'profiles', method: 'select', context: 'AuthProvider', user_id: user.id },
+          async () => {
+            const supabase = createClient()
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('is_onboarded')
+              .eq('id', user.id)
+              .maybeSingle()
+            return profile?.is_onboarded ?? false
+          }
+        )
 
-        const isOnboarded = profile?.is_onboarded ?? false
         const locale = pathname.match(/^\/(ko|en)/)?.[1] || 'ko'
 
         if (!isOnboarded && !isOnboardingPage) {

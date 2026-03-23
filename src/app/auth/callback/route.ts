@@ -32,21 +32,42 @@ export async function GET(request: Request) {
       }
     )
 
+    let exchangeStart = Date.now()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+    console.log(JSON.stringify({
+      type: 'supabase_perf', timestamp: new Date().toISOString(),
+      category: 'auth', operation: 'exchangeCodeForSession', method: 'auth.exchangeCodeForSession',
+      duration_ms: Date.now() - exchangeStart, status: error ? 'error' : 'success',
+      error_msg: error?.message || null, context: 'auth/callback',
+    }))
+
     if (!error) {
-      // Linking flow — skip onboarding check, go straight to app
       if (linking) {
         return NextResponse.redirect(`${origin}/${locale}/goals`)
       }
 
-      // Check onboarding status for redirect
+      const authStart = Date.now()
       const { data: { user } } = await supabase.auth.getUser()
+      console.log(JSON.stringify({
+        type: 'supabase_perf', timestamp: new Date().toISOString(),
+        category: 'auth', operation: 'auth.getUser', method: 'auth.getUser',
+        duration_ms: Date.now() - authStart, status: 'success',
+        user_id: user?.id || null, context: 'auth/callback',
+      }))
+
       if (user) {
+        const profileStart = Date.now()
         const { data: profile } = await supabase
           .from('profiles')
           .select('is_onboarded')
           .eq('id', user.id)
           .single()
+        console.log(JSON.stringify({
+          type: 'supabase_perf', timestamp: new Date().toISOString(),
+          category: 'onboarding', operation: 'checkOnboarding', table_name: 'profiles', method: 'select',
+          duration_ms: Date.now() - profileStart, status: 'success',
+          user_id: user.id, context: 'auth/callback',
+        }))
 
         if (!profile?.is_onboarded) {
           return NextResponse.redirect(`${origin}/${locale}/onboarding`)

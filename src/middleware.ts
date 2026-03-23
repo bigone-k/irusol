@@ -57,8 +57,21 @@ export async function middleware(request: NextRequest) {
       },
     })
 
+    const authStart = Date.now()
     const { data } = await supabase.auth.getUser()
     user = data.user
+    console.log(JSON.stringify({
+      type: 'supabase_perf',
+      timestamp: new Date().toISOString(),
+      category: 'middleware',
+      operation: 'auth.getUser',
+      method: 'auth.getUser',
+      duration_ms: Date.now() - authStart,
+      status: 'success',
+      user_id: user?.id || null,
+      context: 'middleware.ts',
+      metadata: { pathname },
+    }))
   } catch {
     // Auth failed → treat as unauthenticated
   }
