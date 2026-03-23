@@ -6,9 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Irusol**는 RPG 게이미피케이션 요소가 있는 습관 관리 웹 애플리케이션입니다. 사용자가 습관과 목표를 관리하면서 캐릭터를 성장시키는 게임형 생산성 도구입니다.
 
-- **Gamification**: 습관 완료 → 경험치 획득 → 레벨업 → 보상
-- **Local-First**: 브라우저 로컬 스토리지 기반 (서버 없음)
+- **Gamification**: 습관 완료 → 경험치 획득 → 레벨업 → 진화 → 보상
+- **Auth**: Google OAuth + 게스트(Anonymous) 로그인 (Supabase Auth)
+- **Backend**: Supabase (PostgreSQL + RLS) — 서버 동기화 + Zustand persist (localStorage 병행)
 - **Multilingual**: 한국어/영어 지원 (next-intl)
+- **Deployment**: Vercel
 
 ---
 
@@ -28,31 +30,60 @@ npm run test:e2e:headed  # 브라우저 표시 모드
 ## Architecture
 
 ### Stack
-- **Next.js 15** App Router + **React 19** + **TypeScript**
-- **Zustand** (상태 관리) + **Framer Motion** (애니메이션)
-- **Tailwind CSS** + **next-intl** (i18n) + **date-fns**
+- **Next.js 15** App Router + **React 19** + **TypeScript 5**
+- **Supabase** (PostgreSQL + Auth + RLS) + **@supabase/ssr** (서버 사이드 통합)
+- **Zustand 5** (상태 관리 + persist) + **Framer Motion 11** (애니메이션)
+- **Tailwind CSS 3.4** + **next-intl 4.8** (i18n) + **date-fns 4**
+- **react-calendar** + **react-icons**
 - **Playwright** (E2E 테스트만 존재, 단위 테스트 없음)
+- **Vercel** (배포)
 
 ### Directory Structure
 ```
 src/
-├── app/[locale]/     # Next.js App Router (locale-based routing)
-├── components/       # React 컴포넌트
-│   └── calendar/     # 달력 전용 컴포넌트 하위 디렉토리
-├── store/            # Zustand stores (usePlayerStore, useTaskStore, etc.)
-├── lib/              # 비즈니스 로직 (evolution.ts, rewards.ts, migrations.ts)
-├── i18n/             # next-intl 설정
-└── types/            # TypeScript 타입 (src/types/index.ts)
-messages/             # 번역 파일 (ko.json, en.json)
-agents/               # Claude Code 에이전트 (color-system, i18n-generator)
+├── app/
+│   ├── [locale]/         # Locale-based App Router
+│   │   ├── login/        # 로그인 (Google OAuth, 게스트)
+│   │   ├── onboarding/   # 온보딩 퀘스트
+│   │   ├── goals/        # 목표 관리
+│   │   ├── projects/     # 프로젝트 관리 (+ [id] 상세)
+│   │   ├── calendar/     # 캘린더 (월간/주간)
+│   │   ├── character/    # 캐릭터 상세
+│   │   ├── stats/        # 통계
+│   │   └── settings/     # 설정 (언어 등)
+│   └── auth/callback/    # OAuth 콜백 라우트
+├── components/           # React 컴포넌트
+│   └── calendar/         # 달력 전용 컴포넌트 하위 디렉토리
+├── store/                # Zustand stores (useAuthStore, usePlayerStore, useTaskStore, etc.)
+├── lib/                  # 비즈니스 로직
+│   ├── evolution.ts, rewards.ts, migrations.ts
+│   └── supabase/         # Supabase 클라이언트 (client, server, middleware, sync)
+├── i18n/                 # next-intl 설정
+└── types/                # TypeScript 타입 (src/types/index.ts)
+messages/                 # 번역 파일 (ko.json, en.json)
+agents/                   # Claude Code 에이전트 (color-system, i18n-generator)
+e2e/                      # Playwright E2E 테스트
 ```
 
 ### Data Flow
 ```
 User Action → Component → Zustand Store Action → State Update → localStorage (auto-persist) → Re-render
+                                                              ↘ Supabase sync (인증된 사용자)
 ```
 
 모든 store는 Zustand `persist` 미들웨어로 localStorage에 자동 저장됩니다.
+인증된 사용자는 `src/lib/supabase/sync.ts`를 통해 Supabase DB와 동기화됩니다.
+
+### Auth Flow
+```
+Login Page → Google OAuth / Anonymous Auth → Supabase Auth → auth/callback →
+  ┌ 온보딩 미완료 → /onboarding
+  └ 온보딩 완료 → /goals
+```
+
+- `middleware.ts`: 모든 요청에서 Supabase 세션 확인 + 온보딩 상태 체크 + locale 라우팅
+- `useAuthStore`: 클라이언트 인증 상태 관리 (user, nickname, isAnonymous)
+- 로그아웃 시 모든 store `reset()` 호출 + sync 캐시 초기화
 
 ### Key Business Logic (`src/lib/`)
 - **evolution.ts**: 레벨업 로직. Base XP 25, 레벨마다 +5 XP 증가. 진화 단계: `egg → sproutling → blooming → fullyGrown`
@@ -157,10 +188,10 @@ return <h1>{t('key')}</h1>
 ---
 
 ## Known Limitations
-- 서버 사이드 데이터 동기화 없음 (localStorage only)
-- 사용자 인증 없음
 - Mana 시스템 미구현
 - 일/주 자동 리셋 미구현
+- Social 기능 미구현
+- 오프라인 모드에서는 Supabase 동기화 불가
 
 ---
 
@@ -184,4 +215,4 @@ return <h1>{t('key')}</h1>
 
 ---
 
-*Last Updated: 2026-03-18*
+*Last Updated: 2026-03-23*
