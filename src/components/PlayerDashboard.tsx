@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { memo, useState, useEffect, useMemo } from "react";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import { useTaskStore } from "@/store/useTaskStore";
 import { motion } from "framer-motion";
@@ -9,7 +9,7 @@ import { GiCrownCoin } from "react-icons/gi";
 import { FiShield, FiAward, FiCheckCircle } from "react-icons/fi";
 import CharacterAvatar from "@/components/CharacterAvatar";
 
-export default function PlayerDashboard() {
+export default memo(function PlayerDashboard() {
   const [mounted, setMounted] = useState(false);
 
   const level = usePlayerStore((state) => state.level);
@@ -206,4 +206,4 @@ export default function PlayerDashboard() {
       </motion.div>
     </div>
   );
-}
+});

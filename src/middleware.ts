@@ -63,37 +63,6 @@ export async function middleware(request: NextRequest) {
     // Auth failed → treat as unauthenticated
   }
 
-  // Check onboarding status for authenticated users
-  let isOnboarded = true // default true so query failure doesn't block
-  const isOnboardingPath = pathWithoutLocale === '/onboarding' || pathWithoutLocale.startsWith('/onboarding/')
-
-  if (user) {
-    try {
-      const supabase = createServerClient(supabaseUrl, supabaseKey, {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-            supabaseResponse = NextResponse.next({ request })
-            cookiesToSet.forEach(({ name, value, options }) =>
-              supabaseResponse.cookies.set(name, value, options)
-            )
-          },
-        },
-      })
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_onboarded')
-        .eq('id', user.id)
-        .single()
-      isOnboarded = profile?.is_onboarded ?? false
-    } catch {
-      // Query failed → don't block user
-    }
-  }
-
   // Unauthenticated → login
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()
@@ -101,22 +70,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Authenticated on login page → redirect based on onboarding status
+  // Authenticated on login page → redirect to goals
+  // (온보딩 체크는 auth/callback + 클라이언트에서 처리)
   if (user && isPublic) {
-    const url = request.nextUrl.clone()
-    url.pathname = isOnboarded ? `/${locale}/goals` : `/${locale}/onboarding`
-    return NextResponse.redirect(url)
-  }
-
-  // Authenticated + not onboarded + not on onboarding page → force onboarding
-  if (user && !isOnboarded && !isOnboardingPath && !isPublic) {
-    const url = request.nextUrl.clone()
-    url.pathname = `/${locale}/onboarding`
-    return NextResponse.redirect(url)
-  }
-
-  // Authenticated + onboarded + on onboarding page → redirect to goals
-  if (user && isOnboarded && isOnboardingPath) {
     const url = request.nextUrl.clone()
     url.pathname = `/${locale}/goals`
     return NextResponse.redirect(url)
