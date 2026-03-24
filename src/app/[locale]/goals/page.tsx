@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useGoalStore } from "@/store/useGoalStore";
+import { useToastStore } from "@/store/useToastStore";
 import type { Goal } from "@/types";
 import PlayerDashboard from "@/components/PlayerDashboard";
 import VisionCard from "@/components/VisionCard";
@@ -15,6 +17,19 @@ import { FiTarget } from "react-icons/fi";
 
 export default function GoalsPage() {
   const t = useTranslations();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Show success toast after Google account linking
+  useEffect(() => {
+    if (searchParams.get('linked') === 'true') {
+      useToastStore.getState().success(t('sidebar.linkSuccess'));
+      // Clean up URL param
+      const url = new URL(window.location.href);
+      url.searchParams.delete('linked');
+      router.replace(url.pathname, { scroll: false });
+    }
+  }, [searchParams, t, router]);
   const rawGoals = useGoalStore((state) => state.goals);
   const STATUS_ORDER = { notStarted: 0, inProgress: 1, completed: 2 };
   const goals = [...rawGoals].sort(

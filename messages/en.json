@@ -291,7 +291,9 @@
     "logout": "Log Out",
     "guest": "Guest",
     "guestHint": "Link an account to keep your data safe",
-    "linkGoogle": "Link Google Account"
+    "linkGoogle": "Link Google Account",
+    "linkError": "Failed to link account. Please try again.",
+    "linkSuccess": "Google account linked successfully!"
   },
   "vision": {
     "vision": "Vision",

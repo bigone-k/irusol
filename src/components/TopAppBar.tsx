@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FiMenu, FiSearch, FiPlus, FiChevronLeft, FiLogOut, FiLink } from "react-icons/fi";
+import { FiMenu, FiSearch, FiPlus, FiChevronLeft, FiLogOut, FiLink, FiLoader } from "react-icons/fi";
 import Sidebar from "./Sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useToastStore } from "@/store/useToastStore";
 import { createClient } from "@/lib/supabase/client";
+import { logPerf } from "@/lib/perfLogger";
 import { useTranslations, useLocale } from "next-intl";
 
 interface TopAppBarProps {
@@ -35,15 +37,41 @@ export default function TopAppBar({
 
   const { nickname: authNickname, isAuthenticated, isAnonymous, signOut } = useAuthStore();
   const displayName = isAnonymous ? t('sidebar.guest') : authNickname;
+  const [isLinking, setIsLinking] = useState(false);
 
   const handleLinkGoogle = async () => {
-    const supabase = createClient();
-    await supabase.auth.linkIdentity({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?locale=${locale}&linking=true`,
-      },
-    });
+    setIsLinking(true);
+    try {
+      const supabase = createClient();
+      const start = performance.now();
+      const { data, error } = await supabase.auth.linkIdentity({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?locale=${locale}&linking=true`,
+        },
+      });
+      logPerf({
+        category: 'auth', operation: 'linkIdentity', method: 'auth.linkIdentity',
+        duration_ms: Math.round(performance.now() - start),
+        status: error ? 'error' : 'success',
+        error_msg: error?.message || undefined,
+        context: 'TopAppBar',
+      });
+
+      if (error) {
+        useToastStore.getState().error(t('sidebar.linkError'));
+        setIsLinking(false);
+        return;
+      }
+
+      // Supabase should auto-redirect, but fallback if url is returned without redirect
+      if (data?.url) {
+        window.location.assign(data.url);
+      }
+    } catch {
+      useToastStore.getState().error(t('sidebar.linkError'));
+      setIsLinking(false);
+    }
   };
 
   // Close profile menu on outside click
@@ -136,9 +164,10 @@ export default function TopAppBar({
                             setIsProfileMenuOpen(false);
                             handleLinkGoogle();
                           }}
-                          className="flex items-center gap-2 w-full px-3 py-2.5 text-sm text-primary-dark hover:bg-primary/10 transition-colors"
+                          disabled={isLinking}
+                          className="flex items-center gap-2 w-full px-3 py-2.5 text-sm text-primary-dark hover:bg-primary/10 transition-colors disabled:opacity-50"
                         >
-                          <FiLink size={16} />
+                          {isLinking ? <FiLoader size={16} className="animate-spin" /> : <FiLink size={16} />}
                           {t('sidebar.linkGoogle')}
                         </button>
                       </>

@@ -43,7 +43,7 @@ export async function GET(request: Request) {
 
     if (!error) {
       if (linking) {
-        return NextResponse.redirect(`${origin}/${locale}/goals`)
+        return NextResponse.redirect(`${origin}/${locale}/goals?linked=true`)
       }
 
       const authStart = Date.now()
