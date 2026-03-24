@@ -20,13 +20,26 @@ export default function GoalsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Show success toast after Google account linking
+  // Show toast after Google account linking attempt
   useEffect(() => {
     if (searchParams.get('linked') === 'true') {
       useToastStore.getState().success(t('sidebar.linkSuccess'));
-      // Clean up URL param
       const url = new URL(window.location.href);
       url.searchParams.delete('linked');
+      router.replace(url.pathname, { scroll: false });
+    }
+    const linkError = searchParams.get('link_error');
+    if (linkError) {
+      const msg = linkError.toLowerCase();
+      if (msg.includes('already linked') || msg.includes('identity already exists')) {
+        useToastStore.getState().error(t('sidebar.linkErrorAlreadyLinked'));
+      } else if (msg.includes('session') || msg.includes('not authenticated')) {
+        useToastStore.getState().error(t('sidebar.linkErrorSessionExpired'));
+      } else {
+        useToastStore.getState().error(t('sidebar.linkError'));
+      }
+      const url = new URL(window.location.href);
+      url.searchParams.delete('link_error');
       router.replace(url.pathname, { scroll: false });
     }
   }, [searchParams, t, router]);

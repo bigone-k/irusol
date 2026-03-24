@@ -41,40 +41,47 @@ export async function GET(request: Request) {
       error_msg: error?.message || null, context: 'auth/callback',
     }))
 
-    if (!error) {
+    if (error) {
       if (linking) {
-        return NextResponse.redirect(`${origin}/${locale}/goals?linked=true`)
+        // Linking failed at code exchange — redirect back to goals with error
+        return NextResponse.redirect(`${origin}/${locale}/goals?link_error=${encodeURIComponent(error.message)}`)
       }
+      // Normal login error — redirect to login
+      return NextResponse.redirect(`${origin}/${locale}/login?error=auth`)
+    }
 
-      const authStart = Date.now()
-      const { data: { user } } = await supabase.auth.getUser()
+    if (linking) {
+      return NextResponse.redirect(`${origin}/${locale}/goals?linked=true`)
+    }
+
+    const authStart = Date.now()
+    const { data: { user } } = await supabase.auth.getUser()
+    console.log(JSON.stringify({
+      type: 'supabase_perf', timestamp: new Date().toISOString(),
+      category: 'auth', operation: 'auth.getUser', method: 'auth.getUser',
+      duration_ms: Date.now() - authStart, status: 'success',
+      user_id: user?.id || null, context: 'auth/callback',
+    }))
+
+    if (user) {
+      const profileStart = Date.now()
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_onboarded')
+        .eq('id', user.id)
+        .single()
       console.log(JSON.stringify({
         type: 'supabase_perf', timestamp: new Date().toISOString(),
-        category: 'auth', operation: 'auth.getUser', method: 'auth.getUser',
-        duration_ms: Date.now() - authStart, status: 'success',
-        user_id: user?.id || null, context: 'auth/callback',
+        category: 'onboarding', operation: 'checkOnboarding', table_name: 'profiles', method: 'select',
+        duration_ms: Date.now() - profileStart, status: 'success',
+        user_id: user.id, context: 'auth/callback',
       }))
 
-      if (user) {
-        const profileStart = Date.now()
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_onboarded')
-          .eq('id', user.id)
-          .single()
-        console.log(JSON.stringify({
-          type: 'supabase_perf', timestamp: new Date().toISOString(),
-          category: 'onboarding', operation: 'checkOnboarding', table_name: 'profiles', method: 'select',
-          duration_ms: Date.now() - profileStart, status: 'success',
-          user_id: user.id, context: 'auth/callback',
-        }))
-
-        if (!profile?.is_onboarded) {
-          return NextResponse.redirect(`${origin}/${locale}/onboarding`)
-        }
+      if (!profile?.is_onboarded) {
+        return NextResponse.redirect(`${origin}/${locale}/onboarding`)
       }
-      return NextResponse.redirect(`${origin}${next}`)
     }
+    return NextResponse.redirect(`${origin}${next}`)
   }
 
   // Auth error — redirect to login with error

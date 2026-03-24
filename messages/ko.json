@@ -292,6 +292,8 @@
     "guest": "게스트",
     "guestHint": "계정을 연동하면 데이터가 안전해요",
     "linkGoogle": "Google 계정 연동하기",
+    "linkErrorAlreadyLinked": "이미 다른 계정에 연결된 Google 계정이에요. 다른 Google 계정을 사용해 주세요.",
+    "linkErrorSessionExpired": "로그인이 만료되었어요. 다시 로그인해 주세요.",
     "linkError": "계정 연동에 실패했어요. 다시 시도해 주세요.",
     "linkSuccess": "Google 계정이 연동되었어요!"
   },

@@ -292,6 +292,8 @@
     "guest": "Guest",
     "guestHint": "Link an account to keep your data safe",
     "linkGoogle": "Link Google Account",
+    "linkErrorAlreadyLinked": "This Google account is already linked to another account. Please use a different one.",
+    "linkErrorSessionExpired": "Your session has expired. Please log in again.",
     "linkError": "Failed to link account. Please try again.",
     "linkSuccess": "Google account linked successfully!"
   },

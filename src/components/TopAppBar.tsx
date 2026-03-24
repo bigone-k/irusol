@@ -39,6 +39,17 @@ export default function TopAppBar({
   const displayName = isAnonymous ? t('sidebar.guest') : authNickname;
   const [isLinking, setIsLinking] = useState(false);
 
+  const getLinkErrorMessage = (errorMsg: string): string => {
+    const msg = errorMsg.toLowerCase();
+    if (msg.includes('already linked') || msg.includes('identity already exists')) {
+      return t('sidebar.linkErrorAlreadyLinked');
+    }
+    if (msg.includes('session') || msg.includes('not authenticated') || msg.includes('refresh_token')) {
+      return t('sidebar.linkErrorSessionExpired');
+    }
+    return t('sidebar.linkError');
+  };
+
   const handleLinkGoogle = async () => {
     setIsLinking(true);
     try {
@@ -59,7 +70,7 @@ export default function TopAppBar({
       });
 
       if (error) {
-        useToastStore.getState().error(t('sidebar.linkError'));
+        useToastStore.getState().error(getLinkErrorMessage(error.message));
         setIsLinking(false);
         return;
       }
